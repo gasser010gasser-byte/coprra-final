@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($seoMeta)): ?>
+    <?php if(isset($seoMeta)): ?>
         <?php
             $defaultDescription = View::hasSection('description') ? View::yieldContent('description') : __('messages.coprra_description');
             $defaultKeywords = View::hasSection('keywords') ? View::yieldContent('keywords') : 'price comparison, shopping, deals, discounts, COPRRA';
@@ -42,7 +42,7 @@
         <meta property="og:image" content="<?php echo $__env->yieldContent('og_image', asset('images/logo/coprra-logo.svg')); ?>">
 
         <title><?php echo $__env->yieldContent('title', config('app.name', 'COPRRA')); ?></title>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?>
     
     <meta name="author" content="<?php echo e(config('app.name', 'COPRRA')); ?>">
     <meta name="theme-color" content="#0A1E40">
@@ -52,13 +52,13 @@
     <link rel="icon" type="image/svg+xml" href="<?php echo e(asset('images/logo/coprra-icon.svg')); ?>">
     <link rel="alternate icon" type="image/png" href="<?php echo e(asset('favicon.png')); ?>">
     
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($productSchema)): ?>
+    <?php if(isset($productSchema)): ?>
     <!-- Product Schema (JSON-LD) -->
     <script type="application/ld+json">
     <?php echo json_encode($productSchema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT); ?>
 
     </script>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?>
 
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
@@ -71,18 +71,18 @@
     <link rel="stylesheet" href="<?php echo e(asset('vendor/fontawesome/css/all.min.css')); ?>">
 
     <!-- Critical CSS -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(\Illuminate\Support\Facades\File::exists(resource_path('css/critical.css'))): ?>
+    <?php if(\Illuminate\Support\Facades\File::exists(resource_path('css/critical.css'))): ?>
     <style><?php echo \Illuminate\Support\Facades\File::get(resource_path('css/critical.css')); ?></style>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?>
 
     <!-- Brand CSS -->
     <link rel="stylesheet" href="<?php echo e(asset('css/coprra-brand.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/coprra-utilities.css')); ?>">
 
     <!-- RTL Support for Arabic, Hebrew, Urdu, Farsi -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array(app()->getLocale(), ['ar', 'ur', 'fa', 'he'])): ?>
+    <?php if(in_array(app()->getLocale(), ['ar', 'ur', 'fa', 'he'])): ?>
     <link rel="stylesheet" href="<?php echo e(asset('css/rtl.css')); ?>">
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?>
 
     <!-- Additional CSS -->
     <?php echo $__env->yieldPushContent('styles'); ?>
@@ -91,20 +91,20 @@
     <script defer src="<?php echo e(asset('vendor/alpinejs/alpine.min.js')); ?>"></script>
 
     <!-- Scripts -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(app()->environment('testing')): ?>
+    <?php if(app()->environment('testing')): ?>
         
     <?php else: ?>
         <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?>
 
     <!-- Livewire (excluded on home to avoid CSP eval warning) -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! (request()->routeIs('home'))): ?>
+    <?php if (! (request()->routeIs('home'))): ?>
     <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::styles(); ?>
 
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?>
 
     <!-- Google Analytics -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(config('services.google_analytics.id')): ?>
+    <?php if(config('services.google_analytics.id')): ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo e(config('services.google_analytics.id')); ?>"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -112,7 +112,7 @@
       gtag('js', new Date());
       gtag('config', '<?php echo e(config('services.google_analytics.id')); ?>');
     </script>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?>
 </head>
 <body class="font-sans antialiased"
       data-authenticated="<?php echo e(auth()->check() ? 'true' : 'false'); ?>"
@@ -126,14 +126,14 @@
         <?php echo $__env->make('layouts.navigation', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
         <!-- Page Heading -->
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($header)): ?>
+        <?php if(isset($header)): ?>
             <header class="bg-white dark:bg-gray-800 shadow">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <?php echo e($header); ?>
 
                 </div>
             </header>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php endif; ?>
 
         <!-- Page Content -->
         <main id="main-content" role="main">
@@ -145,10 +145,10 @@
     </div>
 
     <!-- Livewire (excluded on home) -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! (request()->routeIs('home'))): ?>
+    <?php if (! (request()->routeIs('home'))): ?>
     <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts(); ?>
 
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?>
 
     <!-- Additional JS -->
     <?php echo $__env->yieldPushContent('scripts'); ?>

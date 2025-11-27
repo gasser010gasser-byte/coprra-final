@@ -34,4 +34,4 @@ services:
       MYSQL_USER: coprra
       MYSQL_PASSWORD: coprra
     networks:
-      - coprra-net
+      - coprra-network

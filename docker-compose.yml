@@ -1,19 +1,21 @@
-version: '3.8'
 
 services:
-  # PHP Application Service
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/php/Dockerfile
+      args:
+        user: coprra
+        uid: 1000
     container_name: coprra-app
     restart: unless-stopped
+    working_dir: /var/www
     volumes:
-      - .:/var/www/html
+      - ./:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
     networks:
-      - coprra-net
+      - coprra-network
 
-  # Nginx Web Server Service
   nginx:
     image: nginx:alpine
     container_name: coprra-nginx
@@ -21,40 +23,59 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - .:/var/www/html
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./:/var/www
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
-      - coprra-net
+      - coprra-network
 
-  # MySQL Database Service
   db:
     image: mysql:8.0
     container_name: coprra-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - coprra-db-data:/var/lib/mysql
     networks:
-      - coprra-net
+      - coprra-network
 
-  # Redis Cache Service
   redis:
     image: redis:7-alpine
     container_name: coprra-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
+    volumes:
+      - coprra-redis-data:/data
     networks:
-      - coprra-net
+      - coprra-network
+
+  queue:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: coprra-queue
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work --sleep=3 --tries=3
+    volumes:
+      - ./:/var/www
+    networks:
+      - coprra-network
+    depends_on:
+      - redis
 
 networks:
-  coprra-net:
+  coprra-network:
     driver: bridge
 
 volumes:
-  db_data:
+  coprra-db-data:
+    driver: local
+  coprra-redis-data:
     driver: local

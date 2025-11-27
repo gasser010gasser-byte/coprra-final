@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->integer('points');
             $table->string('type'); // earned, redeemed, expired, bonus
             $table->string('source'); // purchase, review, referral, etc.
-            $table->foreignId('order_id')->nullable()->constrained()->onDelete('set null');
+            $table->unsignedBigInteger('order_id')->nullable();
             $table->text('description')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
