@@ -30,20 +30,29 @@ jobs:
           mkdir -p storage/logs
           chmod -R 775 bootstrap/cache storage
 
-      - name: Set cache path environment variable
+      - name: Set environment variables
         run: |
+          echo "APP_KEY=" >> .env
           echo "CACHE_DRIVER=array" >> .env
           echo "SESSION_DRIVER=array" >> .env
           echo "QUEUE_CONNECTION=sync" >> .env
 
+      - name: Temporarily disable post-autoload-dump script
+        run: |
+          cp composer.json composer.json.backup
+          php -r "\$json = json_decode(file_get_contents('composer.json'), true); unset(\$json['scripts']['post-autoload-dump']); file_put_contents('composer.json', json_encode(\$json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));"
+
       - name: Install Dependencies
-        run: composer install --no-progress --prefer-dist --no-scripts
+        run: composer install --no-progress --prefer-dist
+
+      - name: Restore composer.json
+        run: mv composer.json.backup composer.json
+
+      - name: Generate application key
+        run: php artisan key:generate --force
 
       - name: Run package discovery
         run: php artisan package:discover --ansi
-
-      - name: Generate application key
-        run: php artisan key:generate
 
       - name: Run database migrations
         run: php artisan migrate --force
