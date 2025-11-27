@@ -61,7 +61,6 @@ class AIRequestService
         // Short-circuit in testing to avoid external calls
         $rawConfig = config('ai.disable_external_calls', false);
         $disableExternal = (bool) $rawConfig;
-        $rawEnv = env('AI_DISABLE_EXTERNAL_CALLS');
         // Log external call status in debug mode only
         if (config('app.debug')) {
             $this->logger->debug('AI request configuration', [

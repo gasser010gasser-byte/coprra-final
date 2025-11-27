@@ -34,7 +34,7 @@ class VirusScanner
 
         // Optional antivirus scan using clamscan/clamdscan when enabled.
         if ($this->isEnabled()) {
-            $binary = env('CLAMAV_PATH', 'clamscan');
+            $binary = config('services.clamav.path', 'clamscan');
             $args = [$binary, '--no-summary', $path];
             $process = new Process($args);
             $process->setTimeout(30);

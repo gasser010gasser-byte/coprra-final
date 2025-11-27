@@ -244,6 +244,8 @@ class EnvironmentChecker
         $requiredEnvVars = ['APP_KEY', 'DB_CONNECTION', 'DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME'];
 
         foreach ($requiredEnvVars as $var) {
+            // This is a diagnostic function checking raw environment variables, not using config values
+            // @phpstan-ignore-next-line larastan.noEnvCallsOutsideOfConfig
             if (null !== env($var)) {
                 $this->printSuccess("Environment variable '{$var}' is set");
             } else {
@@ -292,12 +294,12 @@ class EnvironmentChecker
         try {
             $dsn = \sprintf(
                 'mysql:host=%s;port=%s;dbname=%s',
-                env('DB_HOST', '127.0.0.1'),
-                env('DB_PORT', '3306'),
-                env('DB_DATABASE', 'forge')
+                config('database.connections.mysql.host', '127.0.0.1'),
+                config('database.connections.mysql.port', '3306'),
+                config('database.connections.mysql.database', 'forge')
             );
 
-            new \PDO($dsn, env('DB_USERNAME'), env('DB_PASSWORD'));
+            new \PDO($dsn, config('database.connections.mysql.username'), config('database.connections.mysql.password'));
             $this->printSuccess('Database connection successful');
         } catch (\PDOException $e) {
             $this->printError('Database connection failed: '.$e->getMessage());
@@ -311,7 +313,7 @@ class EnvironmentChecker
     private function checkCacheConfiguration(): void
     {
         $this->printInfo('Checking cache configuration...');
-        $cacheDriver = env('CACHE_DRIVER', 'file');
+        $cacheDriver = config('cache.default', 'file');
 
         if ('redis' === $cacheDriver) {
             $this->checkRedisConnection();
@@ -332,7 +334,7 @@ class EnvironmentChecker
         if (\extension_loaded('redis')) {
             try {
                 $redis = new \Redis();
-                $redis->connect((string) env('REDIS_HOST', '127.0.0.1'), (int) env('REDIS_PORT', '6379'));
+                $redis->connect((string) config('database.redis.default.host', '127.0.0.1'), (int) config('database.redis.default.port', '6379'));
                 $this->printSuccess('Redis connection successful');
             } catch (\Exception $e) {
                 $this->printError('Redis connection failed: '.$e->getMessage());
@@ -350,7 +352,7 @@ class EnvironmentChecker
         if (\extension_loaded('memcached')) {
             try {
                 $memcached = new \Memcached();
-                $memcached->addServer((string) env('MEMCACHED_HOST', '127.0.0.1'), (int) env('MEMCACHED_PORT', '11211'));
+                $memcached->addServer((string) config('cache.stores.memcached.servers.0.host', '127.0.0.1'), (int) config('cache.stores.memcached.servers.0.port', '11211'));
                 $this->printSuccess('Memcached connection successful');
             } catch (\Exception $e) {
                 $this->printError('Memcached connection failed: '.$e->getMessage());
@@ -379,7 +381,7 @@ class EnvironmentChecker
     private function checkQueueConfiguration(): void
     {
         $this->printInfo('Checking queue configuration...');
-        $queueDriver = env('QUEUE_CONNECTION', 'sync');
+        $queueDriver = config('queue.default', 'sync');
 
         if ('redis' === $queueDriver) {
             $this->checkRedisQueueConnection();
@@ -399,7 +401,7 @@ class EnvironmentChecker
         if (\extension_loaded('redis')) {
             try {
                 $redis = new \Redis();
-                $redis->connect((string) env('REDIS_HOST', '127.0.0.1'), (int) env('REDIS_PORT', '6379'));
+                $redis->connect((string) config('database.redis.default.host', '127.0.0.1'), (int) config('database.redis.default.port', '6379'));
                 $this->printSuccess('Redis queue connection successful');
             } catch (\Exception $e) {
                 $this->printError('Redis queue connection failed: '.$e->getMessage());

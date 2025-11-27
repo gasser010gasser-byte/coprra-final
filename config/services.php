@@ -89,4 +89,8 @@ return [
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
         'redirect' => env('FACEBOOK_REDIRECT_URI', '/auth/facebook/callback'),
     ],
+
+    'clamav' => [
+        'path' => env('CLAMAV_PATH', 'clamscan'),
+    ],
 ];
