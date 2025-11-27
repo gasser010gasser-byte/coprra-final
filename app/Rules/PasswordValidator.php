@@ -137,7 +137,7 @@ final class PasswordValidator
         }
 
         foreach ($forbiddenPatterns as $pattern) {
-            if (\is_string($pattern) && preg_match($pattern, $password)) {
+            if (preg_match($pattern, $password)) {
                 $errors[] = 'كلمة المرور تحتوي على نمط محظور';
 
                 break;

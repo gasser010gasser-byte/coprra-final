@@ -29,7 +29,7 @@ class ProductUpdateRequest extends FormRequest
     {
         $product = $this->route('product');
 
-        return $this->user()?->can('update', $product) ?? false;
+        return $this->user()->can('update', $product) ?? false;
     }
 
     /**

@@ -61,7 +61,7 @@ class FixProductPrices extends Command
     private function generateRealisticPrice(Product $product): float
     {
         // Generate realistic prices based on product category/type
-        $categoryName = $product->category?->name ?? '';
+        $categoryName = $product->category->name ?? '';
         $productName = strtolower($product->name);
 
         // Electronics

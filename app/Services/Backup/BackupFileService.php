@@ -38,7 +38,7 @@ class BackupFileService
      */
     public function getBackupFilePath(array $backup): string
     {
-        $filename = \is_string($backup['filename'] ?? '') ? $backup['filename'] ?? '' : '';
+        $filename = $backup['filename'] ?? '';
 
         return $this->backupPath.'/'.$filename;
     }

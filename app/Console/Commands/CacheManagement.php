@@ -38,12 +38,6 @@ final class CacheManagement extends Command
     {
         $action = $this->argument('action');
 
-        if (! \is_string($action)) {
-            $this->error('Invalid action argument.');
-
-            return self::FAILURE;
-        }
-
         $validatedAction = $this->validateAction($action);
         if (null === $validatedAction) {
             return self::FAILURE;

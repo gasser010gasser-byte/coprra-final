@@ -91,9 +91,8 @@ final class BackupConfigurationService
      */
     private function processSingleConfigRestore(string $configDir, string $file, array &$restoredFiles): void
     {
-        if (\is_string($file)) {
-            $sourcePath = $configDir.'/'.$file;
-            $destPath = $this->getConfigDestinationPath($file);
+        $sourcePath = $configDir.'/'.$file;
+        $destPath = $this->getConfigDestinationPath($file);
 
             if (file_exists($sourcePath)) {
                 copy($sourcePath, $destPath);

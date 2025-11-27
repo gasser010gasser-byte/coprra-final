@@ -24,9 +24,7 @@ final class SEORouteAuditor
         foreach ($routes->getRoutes() as $route) {
             if ($this->isValidPublicRoute($route)) {
                 $uri = $route->uri();
-                if (\is_string($uri)) {
-                    $publicRoutes[] = $uri;
-                }
+                $publicRoutes[] = $uri;
             }
         }
 
@@ -75,9 +73,6 @@ final class SEORouteAuditor
     private function isExcludedRoute(IlluminateRoute $route): bool
     {
         $uri = $route->uri();
-        if (! \is_string($uri)) {
-            return true;
-        }
 
         return $this->isApiRoute($uri) || $this->isAdminRoute($uri);
     }

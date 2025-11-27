@@ -45,7 +45,7 @@ abstract class BaseStoreClient
 
             return [
                 'status' => $response->successful() ? 'online' : 'offline',
-                'response_time' => $response->transferStats?->getHandlerStat('total_time') ?? 0,
+                'response_time' => $response->transferStats->getHandlerStat('total_time') ?? 0,
             ];
         } catch (\Exception $e) {
             return [

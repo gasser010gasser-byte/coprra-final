@@ -31,9 +31,7 @@ class RestoreService
     public function restoreFromBackup(array $backup): array
     {
         try {
-            $filename = \is_string($backup['filename'] ?? '')
-            ? $backup['filename'] ?? ''
-            : '';
+            $filename = $backup['filename'] ?? '';
             $filePath = $this->backupPath.'/'.$filename;
 
             return $this->performRestore($filePath);

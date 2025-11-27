@@ -18,7 +18,7 @@ final class HealthScoreCalculator
         }
 
         $output = $result->output();
-        $outputString = \is_string($output) ? $output : '';
+        $outputString = $output;
 
         return match ($ruleId) {
             'code_quality' => $this->calculateCodeQualityScore($outputString),

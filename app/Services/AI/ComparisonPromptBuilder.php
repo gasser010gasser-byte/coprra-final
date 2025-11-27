@@ -41,9 +41,9 @@ class ComparisonPromptBuilder
             $productDetails[] = sprintf(
                 "Product: %s\nBrand: %s\nPrice: %s\nCategory: %s\nDescription: %s\nYear: %s\nColors: %s",
                 $product->name,
-                $product->brand?->name ?? 'N/A',
+                $product->brand->name ?? 'N/A',
                 $product->price ? '$' . number_format((float) $product->price, 2) : 'N/A',
-                $product->category?->name ?? 'N/A',
+                $product->category->name ?? 'N/A',
                 $product->description ? Str::limit(strip_tags((string) $product->description), 300) : 'No description',
                 $product->year_of_manufacture ?? 'N/A',
                 is_array($product->available_colors) && count($product->available_colors) > 0

@@ -73,9 +73,7 @@ final class ContinuousQualityMonitor
     private function validateRule(array $rule): bool
     {
         return isset($rule['name'], $rule['threshold'], $rule['command'])
-            && \is_string($rule['name'])
-            && is_numeric($rule['threshold'])
-            && \is_string($rule['command']);
+            && is_numeric($rule['threshold']);
     }
 
     /**
@@ -103,8 +101,7 @@ final class ContinuousQualityMonitor
                 continue;
             }
 
-            $ruleIdStr = \is_string($ruleId) ? $ruleId : (string) $ruleId;
-            $results[$ruleIdStr] = $this->checkRule($rule, $ruleIdStr);
+            $results[$ruleId] = $this->checkRule($rule, $ruleId);
         }
 
         return $results;
@@ -286,7 +283,7 @@ final class ContinuousQualityMonitor
      */
     private function executeRuleCommand(array $rule): ?ProcessResult
     {
-        $command = \is_string($rule['command'] ?? null) ? $rule['command'] : '';
+        $command = $rule['command'] ?? '';
 
         if ('' === $command || '0' === $command) {
             return null;
@@ -337,7 +334,7 @@ final class ContinuousQualityMonitor
         $duration = round($endTime - $startTime, 2);
 
         return [
-            'name' => \is_string($rule['name'] ?? null) ? $rule['name'] : 'Unknown',
+            'name' => $rule['name'] ?? 'Unknown',
             'success' => $result instanceof ProcessResult && $result->successful(),
             'health_score' => $result instanceof ProcessResult ? $this->scoreCalculator->calculate($ruleId, $result) : 0,
             'duration' => $duration,
@@ -383,7 +380,7 @@ final class ContinuousQualityMonitor
     private function createErrorResult(array $rule, string $errorMessage): array
     {
         return [
-            'name' => \is_string($rule['name'] ?? null) ? $rule['name'] : 'Unknown',
+            'name' => $rule['name'] ?? 'Unknown',
             'success' => false,
             'health_score' => 0,
             'duration' => 0,
@@ -410,7 +407,7 @@ final class ContinuousQualityMonitor
      */
     private function triggerCriticalAlert(string $ruleId, array $result): void
     {
-        $ruleName = \is_string($result['name'] ?? null) ? $result['name'] : '';
+        $ruleName = $result['name'] ?? '';
         $alert = [
             'type' => 'critical',
             'rule' => $ruleId,
@@ -442,7 +439,7 @@ final class ContinuousQualityMonitor
      */
     private function triggerWarningAlert(string $ruleId, array $result): void
     {
-        $ruleName = \is_string($result['name'] ?? null) ? $result['name'] : '';
+        $ruleName = $result['name'] ?? '';
         $alert = [
             'type' => 'warning',
             'rule' => $ruleId,
@@ -492,7 +489,7 @@ final class ContinuousQualityMonitor
     private function sendNotification(array $alert): void
     {
         // Implement notification logic (email, Slack, etc.)
-        $message = \is_string($alert['message'] ?? null) ? $alert['message'] : '';
+        $message = $alert['message'] ?? '';
         $this->logger->info('📧 إرسال إشعار: '.$message);
     }
 

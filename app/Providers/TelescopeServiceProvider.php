@@ -64,7 +64,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     {
         Gate::define('viewTelescope', static function ($user): bool {
             /** @var User $user */
-            $userEmail = \is_string($user->email) ? $user->email : '';
+            $userEmail = $user->email;
 
             return \in_array($userEmail, [], true);
         });

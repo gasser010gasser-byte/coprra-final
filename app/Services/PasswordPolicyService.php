@@ -119,7 +119,7 @@ final class PasswordPolicyService
 
         $lowercasePassword = strtolower($password);
         foreach ($forbiddenPasswords as $forbidden) {
-            if (\is_string($forbidden) && str_contains($lowercasePassword, strtolower($forbidden))) {
+            if (str_contains($lowercasePassword, strtolower($forbidden))) {
                 return ['Password is too common and not allowed'];
             }
         }

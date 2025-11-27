@@ -73,7 +73,7 @@ class PriceSearchController extends BaseApiController
                                 'product_id' => $product->id,
                                 'name' => $product->name,
                                 'price' => $bestOffer ? $bestOffer->price : $product->price,
-                                'store' => $bestOffer?->store->name ?? 'Unknown Store',
+                                'store' => $bestOffer->store->name ?? 'Unknown Store',
                                 'is_available' => $bestOffer ? (bool) $bestOffer->is_available : true,
                             ];
                         }

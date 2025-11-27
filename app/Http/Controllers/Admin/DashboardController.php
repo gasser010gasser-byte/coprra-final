@@ -360,12 +360,12 @@ final class DashboardController extends Controller
 
             return [
                 'status' => $status ? 'working' : 'error',
-                'driver' => \is_string(config('cache.default')) ? config('cache.default') : 'unknown',
+                'driver' => config('cache.default', 'unknown'),
             ];
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'driver' => \is_string(config('cache.default')) ? config('cache.default') : 'unknown',
+                'driver' => config('cache.default', 'unknown'),
                 'error' => $e->getMessage(),
             ];
         }
@@ -457,7 +457,7 @@ final class DashboardController extends Controller
     {
         $memoryUsage = memory_get_usage(true);
         $memoryLimit = \ini_get('memory_limit');
-        $memoryLimitString = \is_string($memoryLimit) ? $memoryLimit : '128M';
+        $memoryLimitString = $memoryLimit ?: '128M';
         $memoryLimitBytes = $this->convertToBytes($memoryLimitString);
         $percentage = $memoryUsage / $memoryLimitBytes * 100;
         $criticalThreshold = (float) config('coprra.storage.thresholds.critical', 90);

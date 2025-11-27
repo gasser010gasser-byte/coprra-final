@@ -195,7 +195,7 @@ final class AppComposer
                 // Build hierarchy: language_code => [countries]
                 $hierarchy = [];
                 foreach ($countries as $country) {
-                    $langCode = $country->language?->code ?? 'en';
+                    $langCode = $country->language->code ?? 'en';
 
                     if (!isset($hierarchy[$langCode])) {
                         $hierarchy[$langCode] = [];
@@ -206,8 +206,8 @@ final class AppComposer
                         'name' => $country->name,
                         'native_name' => $country->native_name,
                         'flag' => $country->flag_emoji,
-                        'currency_code' => $country->currency?->code ?? 'USD',
-                        'currency_symbol' => $country->currency?->symbol ?? '$',
+                        'currency_code' => $country->currency->code ?? 'USD',
+                        'currency_symbol' => $country->currency->symbol ?? '$',
                     ];
                 }
 

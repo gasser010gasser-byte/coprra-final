@@ -34,8 +34,8 @@ final readonly class PriceUpdateDisplayService
      */
     public function displayPriceUpdate(PriceOffer $priceOffer, float $currentPrice, float $newPrice): void
     {
-        $productName = \is_string($priceOffer->product->name) ? $priceOffer->product->name : 'Unknown Product';
-        $storeName = \is_string($priceOffer->store->name) ? $priceOffer->store->name : 'Unknown Store';
+        $productName = $priceOffer->product->name ?? 'Unknown Product';
+        $storeName = $priceOffer->store->name ?? 'Unknown Store';
         $this->command->line("\n💰 Updated {$productName} at {$storeName}: {$currentPrice} → {$newPrice}");
     }
 
@@ -46,8 +46,8 @@ final readonly class PriceUpdateDisplayService
     {
         $product = $priceOffer->product;
         $store = $priceOffer->store;
-        $productName = $product && \is_string($product->name) ? $product->name : 'Unknown Product';
-        $storeName = $store && \is_string($store->name) ? $store->name : 'Unknown Store';
+        $productName = $product->name ?? 'Unknown Product';
+        $storeName = $store->name ?? 'Unknown Store';
         $this->command->error("\n❌ Error updating ".$productName.' at '.$storeName.': '.$e->getMessage());
     }
 

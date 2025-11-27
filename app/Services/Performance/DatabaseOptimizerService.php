@@ -58,10 +58,10 @@ final readonly class DatabaseOptimizerService
     {
         $tables = $this->database->connection()->select('SHOW TABLES');
         $database = $this->database->connection()->getDatabaseName();
-        $tableKey = \is_string($database) ? "Tables_in_{$database}" : 'Tables_in_';
+        $tableKey = "Tables_in_{$database}";
         $tableNames = [];
         foreach ($tables as $table) {
-            if (\is_object($table) && isset($table->{$tableKey}) && \is_string($table->{$tableKey})) {
+            if (\is_object($table) && isset($table->{$tableKey})) {
                 $tableNames[] = $table->{$tableKey};
             }
         }

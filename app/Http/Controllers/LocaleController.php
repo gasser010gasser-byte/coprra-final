@@ -31,7 +31,7 @@ class LocaleController extends Controller
             return redirect()->back()->with('error', __('Invalid language'));
         }
 
-        $code = $language?->code ?? $langCode;
+        $code = $language->code ?? $langCode;
         App::setLocale($code);
         Session::put('locale', $code);
 

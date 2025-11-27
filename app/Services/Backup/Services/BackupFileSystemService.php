@@ -90,9 +90,8 @@ final class BackupFileSystemService
      */
     private function processSingleFileRestore(string $filesDir, string $dir, array &$restoredDirs): void
     {
-        if (\is_string($dir)) {
-            $sourcePath = $this->joinPaths($filesDir, $dir);
-            $destPath = $this->getDestinationPath($dir);
+        $sourcePath = $this->joinPaths($filesDir, $dir);
+        $destPath = $this->getDestinationPath($dir);
 
             if (is_dir($sourcePath)) {
                 $this->copyDirectory($sourcePath, $destPath);

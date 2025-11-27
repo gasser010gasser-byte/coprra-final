@@ -114,8 +114,8 @@ final class GeolocationService
 
         if ($country) {
             $locale['country'] = $country->code;
-            $locale['language'] = $country->language?->code ?? 'en';
-            $locale['currency'] = $country->currency?->code ?? $currencyCode;
+            $locale['language'] = $country->language->code ?? 'en';
+            $locale['currency'] = $country->currency->code ?? $currencyCode;
         } else {
             $primaryLang = $this->extractPrimaryLanguage($languagesString);
             $language = Language::where('code', $primaryLang)
