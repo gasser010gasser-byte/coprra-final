@@ -21,6 +21,9 @@ jobs:
       - name: Copy .env for testing
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
+      - name: Create bootstrap cache directory
+        run: mkdir -p bootstrap/cache && chmod -R 775 bootstrap/cache
+
       - name: Install Dependencies
         run: composer install --no-progress --prefer-dist
 
