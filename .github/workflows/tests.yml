@@ -39,8 +39,16 @@ jobs:
           # 4. Generate APP_KEY immediately
           php -r "file_put_contents('.env', 'APP_KEY=base64:'.base64_encode(random_bytes(32)).PHP_EOL, FILE_APPEND);"
 
+      - name: Temporarily disable post-autoload-dump script
+        run: |
+          cp composer.json composer.json.backup
+          php -r "\$json = json_decode(file_get_contents('composer.json'), true); if (isset(\$json['scripts']['post-autoload-dump'])) { unset(\$json['scripts']['post-autoload-dump']); file_put_contents('composer.json', json_encode(\$json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)); }"
+
       - name: Install Composer Dependencies
-        run: composer install --prefer-dist --no-progress --no-scripts
+        run: composer install --prefer-dist --no-progress
+
+      - name: Restore composer.json
+        run: mv composer.json.backup composer.json
 
       - name: Generate Application Key
         run: php artisan key:generate
