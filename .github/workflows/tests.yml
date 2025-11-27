@@ -32,10 +32,10 @@ jobs:
           mkdir -p storage/framework/cache/data
           mkdir -p storage/logs
           mkdir -p bootstrap/cache
-          
+
           # 2. Set permissions
           chmod -R 777 storage bootstrap/cache
-          
+
           # 3. Create .env file with minimal required configuration
           cat > .env << 'EOF'
           APP_NAME=LaravelTest
@@ -66,4 +66,6 @@ jobs:
         run: php artisan migrate --force
 
       - name: Run Unit & Feature Tests
-        run: php artisan test
+        run: vendor/bin/phpunit --configuration phpunit.xml
+        env:
+          PHPUNIT_TIMEOUT: 1800
