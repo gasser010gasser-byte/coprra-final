@@ -21,8 +21,14 @@ jobs:
       - name: Copy .env for testing
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
-      - name: Create bootstrap cache directory
-        run: mkdir -p bootstrap/cache && chmod -R 775 bootstrap/cache
+      - name: Create required cache directories
+        run: |
+          mkdir -p bootstrap/cache
+          mkdir -p storage/framework/cache/data
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p storage/logs
+          chmod -R 775 bootstrap/cache storage
 
       - name: Install Dependencies
         run: composer install --no-progress --prefer-dist
