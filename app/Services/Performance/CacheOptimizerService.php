@@ -62,7 +62,7 @@ final readonly class CacheOptimizerService
     {
         try {
             $this->kernel->call($command);
-            $this->output->line("  ✓ {$successMessage}");
+            $this->output->writeln("  ✓ {$successMessage}");
         } catch (\Throwable $exception) {
             $this->output->error("  ✗ Failed to execute {$command}: {$exception->getMessage()}");
         }

@@ -46,7 +46,7 @@ final readonly class CacheStatisticsDisplayer
         $this->output->info('Cache Prefixes:');
         if (\is_array($stats['prefixes'] ?? null)) {
             foreach ($stats['prefixes'] as $name => $prefix) {
-                $this->output->line("  {$name}: {$prefix}");
+                $this->output->writeln("  {$name}: {$prefix}");
             }
         }
     }
@@ -61,7 +61,7 @@ final readonly class CacheStatisticsDisplayer
         if (\is_array($stats['durations'] ?? null)) {
             foreach ($stats['durations'] as $name => $duration) {
                 $minutes = is_numeric($duration) ? (float) $duration / 60 : 0;
-                $this->output->line("  {$name}: {$duration}s ({$minutes} minutes)");
+                $this->output->writeln("  {$name}: {$duration}s ({$minutes} minutes)");
             }
         }
     }
@@ -75,7 +75,7 @@ final readonly class CacheStatisticsDisplayer
             $this->output->newLine();
             $this->output->info('Redis Statistics:');
             foreach ($stats['redis'] as $key => $value) {
-                $this->output->line("  {$key}: {$value}");
+                $this->output->writeln("  {$key}: {$value}");
             }
         }
     }

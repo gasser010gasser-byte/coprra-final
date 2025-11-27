@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\AI;
 
-use App\DataObjects\Ai\Stage;
-use App\DataObjects\Ai\StageResult;
+use App\DTO\Ai\Stage;
+use App\DTO\Ai\StageResult;
 use App\Enums\Ai\AgentStage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;

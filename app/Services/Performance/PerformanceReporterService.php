@@ -33,7 +33,7 @@ final readonly class PerformanceReporterService
         ];
 
         foreach ($recommendations as $index => $recommendation) {
-            $this->output->line('  '.($index + 1).'. '.$recommendation);
+            $this->output->writeln('  '.($index + 1).'. '.$recommendation);
         }
 
         $this->output->newLine();

@@ -75,7 +75,7 @@ final readonly class SystemOptimizerService
 
         try {
             $task();
-            $this->output->line('  ✓ '.$successMessage);
+            $this->output->writeln('  ✓ '.$successMessage);
         } catch (\Exception $e) {
             $this->output->warn('  ✗ Failed: '.$e->getMessage());
         }

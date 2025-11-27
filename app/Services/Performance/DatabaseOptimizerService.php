@@ -38,7 +38,7 @@ final readonly class DatabaseOptimizerService
                     $this->output->warn("  - {$error}");
                 }
 
-                $this->output->line("  ✓ Optimized {$optimized} tables");
+                $this->output->writeln("  ✓ Optimized {$optimized} tables");
             },
             'Database optimization completed'
         );
@@ -78,7 +78,7 @@ final readonly class DatabaseOptimizerService
 
         try {
             $task();
-            $this->output->line('  ✓ '.$successMessage);
+            $this->output->writeln('  ✓ '.$successMessage);
         } catch (\Exception $e) {
             $this->output->warn('  ✗ Failed: '.$e->getMessage());
         }

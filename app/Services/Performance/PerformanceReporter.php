@@ -27,7 +27,7 @@ final readonly class PerformanceReporter
 
         foreach ($recommendations as $recommendation => $enabled) {
             $status = $enabled ? '✓' : '✗';
-            $this->output->line("  {$status} {$recommendation}");
+            $this->output->writeln("  {$status} {$recommendation}");
         }
 
         $this->output->newLine();
@@ -47,7 +47,7 @@ final readonly class PerformanceReporter
     {
         $available = \extension_loaded('Zend OPcache') && \function_exists('opcache_get_status');
         if (! $available) {
-            $this->output->line('  OPcache status: ✗ Not available');
+            $this->output->writeln('  OPcache status: ✗ Not available');
             $this->output->newLine();
 
             return;
@@ -56,13 +56,13 @@ final readonly class PerformanceReporter
         $opcacheStatus = opcache_get_status();
         $enabled = $opcacheStatus && ($opcacheStatus['opcache_enabled'] ?? false);
         if (! $enabled) {
-            $this->output->line('  OPcache status: ✗ Disabled');
+            $this->output->writeln('  OPcache status: ✗ Disabled');
             $this->output->newLine();
 
             return;
         }
 
-        $this->output->line('  OPcache status: ✓ Enabled');
+        $this->output->writeln('  OPcache status: ✓ Enabled');
         $this->output->table(
             ['Metric', 'Value'],
             [
@@ -79,7 +79,7 @@ final readonly class PerformanceReporter
 
     private function displayRealTimeRequests(): void
     {
-        $this->output->line('  Real-time requests:');
+        $this->output->writeln('  Real-time requests:');
 
         try {
             $response = $this->http->get('http://localhost/server-status?auto');
