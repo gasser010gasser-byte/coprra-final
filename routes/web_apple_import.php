@@ -116,7 +116,7 @@ Route::get('/import-apple-now/{secret}', static function ($secret) {
         }
     }
 
-    echo '=' * 80 ."\n";
+    echo str_repeat('=', 80) . "\n";
     echo "✅ Success: {$success}\n";
     echo "❌ Failed: {$failed}\n";
     echo "🎯 https://coprra.com/admin/products\n";

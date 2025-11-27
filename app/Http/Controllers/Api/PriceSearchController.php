@@ -73,7 +73,7 @@ class PriceSearchController extends BaseApiController
                                 'product_id' => $product->id,
                                 'name' => $product->name,
                                 'price' => $bestOffer ? $bestOffer->price : $product->price,
-                                'store' => $bestOffer && $bestOffer->store ? $bestOffer->store->name : 'Unknown Store',
+                                'store' => $bestOffer?->store->name ?? 'Unknown Store',
                                 'is_available' => $bestOffer ? (bool) $bestOffer->is_available : true,
                             ];
                         }
@@ -131,7 +131,7 @@ class PriceSearchController extends BaseApiController
                     'product_id' => $product->id,
                     'price' => $bestOffer->price,
                     'store_id' => $bestOffer->store_id,
-                    'store' => $bestOffer->store ? $bestOffer->store->name : 'Unknown Store',
+                    'store' => $bestOffer->store->name ?? 'Unknown Store',
                     'store_url' => $bestOffer->product_url,
                     'is_available' => (bool) $bestOffer->is_available,
                     'total_offers' => $product->priceOffers->count(),
@@ -145,7 +145,7 @@ class PriceSearchController extends BaseApiController
                                 'id' => $offer->id,
                                 'price' => $offer->price,
                                 'store_id' => $offer->store_id,
-                                'store' => $offer->store ? $offer->store->name : 'Unknown Store',
+                                'store' => $offer->store->name ?? 'Unknown Store',
                                 'store_url' => $offer->product_url,
                                 'is_available' => (bool) $offer->is_available,
                             ];
