@@ -31,6 +31,20 @@ return new class extends Migration {
 
             $table->string('status')->default('pending'); // e.g., pending, processing, shipped, delivered, cancelled
 
+            $table->string('currency', 3)->default('USD');
+
+            $table->json('shipping_address')->nullable();
+
+            $table->json('billing_address')->nullable();
+
+            $table->text('notes')->nullable();
+
+            $table->dateTime('order_date')->nullable();
+
+            $table->dateTime('shipped_at')->nullable();
+
+            $table->dateTime('delivered_at')->nullable();
+
             $table->timestamps();
 
             $table->index('status');
