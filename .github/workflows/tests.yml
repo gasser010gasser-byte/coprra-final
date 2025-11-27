@@ -24,19 +24,43 @@ jobs:
           extensions: mbstring, bcmath, pdo_sqlite, dom, curl, xml, zip
           coverage: none
 
-      - name: Setup Laravel Environment
+      - name: Setup Laravel Environment (BEFORE Composer)
         run: |
-          # Create .env from .env.example if it exists, otherwise create a minimal one
-          if [ -f .env.example ]; then cp .env.example .env; else echo "APP_ENV=testing" > .env; fi
-          # Create required directories
-          mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache bootstrap/cache
-          # Set permissions
+          # 1. Create ALL required directories FIRST (before composer install)
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p storage/framework/cache/data
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+          
+          # 2. Set permissions
           chmod -R 777 storage bootstrap/cache
-          # Generate APP_KEY
-          php -r "file_put_contents('.env', 'APP_KEY=base64:'.base64_encode(random_bytes(32)).PHP_EOL, FILE_APPEND);"
+          
+          # 3. Create .env file with minimal required configuration
+          cat > .env << 'EOF'
+          APP_NAME=LaravelTest
+          APP_ENV=testing
+          APP_KEY=base64:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=
+          APP_DEBUG=true
+          APP_URL=http://localhost
+          CACHE_DRIVER=array
+          SESSION_DRIVER=array
+          QUEUE_CONNECTION=sync
+          DB_CONNECTION=sqlite
+          DB_DATABASE=:memory:
+          EOF
 
-      - name: Install Composer Dependencies
-        run: composer install --prefer-dist --no-progress
+      - name: Install Composer Dependencies (WITHOUT Scripts)
+        run: composer install --prefer-dist --no-progress --no-scripts
+
+      - name: Generate Autoloader
+        run: composer dump-autoload --no-scripts
+
+      - name: Run Package Discovery (MANUALLY)
+        run: php artisan package:discover --ansi
+
+      - name: Generate Application Key (Replace Temporary)
+        run: php artisan key:generate --force
 
       - name: Run Database Migrations
         run: php artisan migrate --force
