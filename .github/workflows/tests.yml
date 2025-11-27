@@ -30,8 +30,17 @@ jobs:
           mkdir -p storage/logs
           chmod -R 775 bootstrap/cache storage
 
+      - name: Set cache path environment variable
+        run: |
+          echo "CACHE_DRIVER=array" >> .env
+          echo "SESSION_DRIVER=array" >> .env
+          echo "QUEUE_CONNECTION=sync" >> .env
+
       - name: Install Dependencies
-        run: composer install --no-progress --prefer-dist
+        run: composer install --no-progress --prefer-dist --no-scripts
+
+      - name: Run package discovery
+        run: php artisan package:discover --ansi
 
       - name: Generate application key
         run: php artisan key:generate
