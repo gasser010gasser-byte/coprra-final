@@ -496,6 +496,45 @@ final readonly class SEOService
     }
 
     /**
+     * Generate structured data for a product (alias for generateProductSchema).
+     *
+     * @return array<string, mixed>
+     */
+    public function generateStructuredData(Product $product): array
+    {
+        return $this->generateProductSchema($product);
+    }
+
+    /**
+     * Generate breadcrumb structured data.
+     *
+     * @param array<int, array{name: string, url: string}> $breadcrumbs
+     *
+     * @return array<string, mixed>
+     */
+    public function generateBreadcrumbData(array $breadcrumbs): array
+    {
+        $itemListElement = [];
+        $position = 1;
+
+        foreach ($breadcrumbs as $breadcrumb) {
+            $itemListElement[] = [
+                '@type' => 'ListItem',
+                'position' => $position,
+                'name' => $this->safeCastToString($breadcrumb['name'] ?? ''),
+                'item' => $this->safeCastToString($breadcrumb['url'] ?? ''),
+            ];
+            ++$position;
+        }
+
+        return [
+            '@context' => 'https://schema.org/',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $itemListElement,
+        ];
+    }
+
+    /**
      * Safely cast a value to a string.
      */
     private function safeCastToString(float|int|object|string|null $value): string

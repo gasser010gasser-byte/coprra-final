@@ -47,6 +47,11 @@ return [
             'driver' => 'sanctum',
             'provider' => 'users',
         ],
+        // Add API guard for API authentication
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ],
     ],
 
     /*

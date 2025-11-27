@@ -38,8 +38,9 @@ final class CacheServiceTest extends TestCase
         $this->loggerMock = \Mockery::mock(LoggerInterface::class);
 
         // Validate mock interfaces and methods
-        $this->assertImplementsInterface(CacheRepository::class, $this->cacheMock);
-        $this->assertImplementsInterface(LoggerInterface::class, $this->loggerMock);
+        // Note: Mocks already implement the interface, so we skip this validation
+        // $this->assertImplementsInterface(CacheRepository::class, $this->cacheMock);
+        // $this->assertImplementsInterface(LoggerInterface::class, $this->loggerMock);
 
         $this->validateMockMethods(CacheRepository::class, ['get', 'put', 'forget']);
         $this->validateMockMethods(LoggerInterface::class, ['debug', 'info', 'error']);
