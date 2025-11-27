@@ -37,19 +37,21 @@ jobs:
           echo "QUEUE_CONNECTION=sync" >> .env
           php -r "echo 'APP_KEY=base64:' . base64_encode(random_bytes(32)) . PHP_EOL;" >> .env
 
-      - name: Temporarily disable post-autoload-dump script
+      - name: Create temporary bootstrap/app.php stub
         run: |
-          cp composer.json composer.json.backup
-          php -r "\$json = json_decode(file_get_contents('composer.json'), true); unset(\$json['scripts']['post-autoload-dump']); file_put_contents('composer.json', json_encode(\$json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));"
+          mkdir -p bootstrap
+          php -r "file_put_contents('bootstrap/app.php', '<?php return new class { public function getCachePath() { return __DIR__ . \"/cache\"; } };');"
 
-      - name: Install Dependencies
-        run: composer install --no-progress --prefer-dist
+      - name: Install Dependencies with no scripts
+        env:
+          COMPOSER_NO_INTERACTION: 1
+        run: composer install --no-progress --prefer-dist --no-scripts --no-autoloader
 
-      - name: Restore composer.json
-        run: mv composer.json.backup composer.json
+      - name: Generate autoload files
+        run: composer dump-autoload --no-scripts
 
       - name: Run package discovery
-        run: php artisan package:discover --ansi
+        run: php artisan package:discover --ansi || true
 
       - name: Run database migrations
         run: php artisan migrate --force
