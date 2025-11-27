@@ -1,0 +1,1001 @@
+# Verification Log
+
+Generated: 2025-11-26T14:54:08+00:00
+
+Total commands executed: 66
+
+---
+
+## [2025-11-26T14:54:07+00:00] src-app
+
+**Path**: `app/`
+
+**Check**: {"type":"file_count","path":"app","pattern":"*.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Found 1 files matching *.php in app
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] src-app
+
+**Path**: `app/`
+
+**Check**: {"type":"directory_exists","path":"app"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: app
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] src-routes
+
+**Path**: `routes/`
+
+**Check**: {"type":"file_exists","path":"routes\/web.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: routes/web.php
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] src-routes
+
+**Path**: `routes/`
+
+**Check**: {"type":"file_exists","path":"routes\/api.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: routes/api.php
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] src-routes
+
+**Path**: `routes/`
+
+**Check**: {"type":"command","cmd":"php artisan route:list --json | Select-Object -First 1"}
+
+**Exit Code**: 255
+
+**Stderr**:
+```
+'Select-Object' is not recognized as an internal or external command,
+operable program or batch file.
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] src-config
+
+**Path**: `config/`
+
+**Check**: {"type":"file_exists","path":"config\/app.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: config/app.php
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] src-config
+
+**Path**: `config/`
+
+**Check**: {"type":"file_exists","path":"config\/database.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: config/database.php
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] src-resources
+
+**Path**: `resources/`
+
+**Check**: {"type":"directory_exists","path":"resources\/views"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: resources/views
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] src-resources
+
+**Path**: `resources/`
+
+**Check**: {"type":"directory_exists","path":"resources\/js"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: resources/js
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] tests-phpunit
+
+**Path**: `tests/`
+
+**Check**: {"type":"file_exists","path":"phpunit.xml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: phpunit.xml
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] tests-phpunit
+
+**Path**: `tests/`
+
+**Check**: {"type":"file_count","path":"tests","pattern":"*Test.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Found 5 files matching *Test.php in tests
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] tests-phpunit
+
+**Path**: `tests/`
+
+**Check**: {"type":"command","cmd":"php artisan test --testsuite=Unit --stop-on-failure 2>&1 | Select-Object -First 5"}
+
+**Exit Code**: 255
+
+**Stderr**:
+```
+'Select-Object' is not recognized as an internal or external command,
+operable program or batch file.
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] tests-cypress
+
+**Path**: `cypress/`
+
+**Check**: {"type":"file_exists","path":"cypress.config.js"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: cypress.config.js
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] tests-cypress
+
+**Path**: `cypress/`
+
+**Check**: {"type":"directory_exists","path":"cypress\/e2e"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: cypress/e2e
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] tests-vitest
+
+**Path**: `resources/js/tests/`
+
+**Check**: {"type":"directory_exists","path":"resources\/js\/tests"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: resources/js/tests
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] tests-vitest
+
+**Path**: `resources/js/tests/`
+
+**Check**: {"type":"file_exists","path":"vitest.config.js"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: vitest.config.js
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] test-phpunit-config
+
+**Path**: `phpunit.xml`
+
+**Check**: {"type":"file_exists","path":"phpunit.xml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: phpunit.xml
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] test-phpunit-config
+
+**Path**: `phpunit.xml`
+
+**Check**: {"type":"file_valid_xml","path":"phpunit.xml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Valid XML: phpunit.xml
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] test-cypress-config
+
+**Path**: `cypress.config.js`
+
+**Check**: {"type":"file_exists","path":"cypress.config.js"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: cypress.config.js
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] ci-github-code-quality
+
+**Path**: `.github/workflows/code-quality.yml`
+
+**Check**: {"type":"file_exists","path":".github\/workflows\/code-quality.yml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: .github/workflows/code-quality.yml
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] ci-github-code-quality
+
+**Path**: `.github/workflows/code-quality.yml`
+
+**Check**: {"type":"file_valid_yaml","path":".github\/workflows\/code-quality.yml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+YAML file exists: .github/workflows/code-quality.yml (syntax check requires yamllint)
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] ci-github-test
+
+**Path**: `.github/workflows/test.yml`
+
+**Check**: {"type":"file_exists","path":".github\/workflows\/test.yml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: .github/workflows/test.yml
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] ci-github-deploy
+
+**Path**: `.github/workflows/deploy_v2.yml`
+
+**Check**: {"type":"file_exists","path":".github\/workflows\/deploy_v2.yml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: .github/workflows/deploy_v2.yml
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] ci-dependabot
+
+**Path**: `.github/dependabot.yml`
+
+**Check**: {"type":"file_exists","path":".github\/dependabot.yml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: .github/dependabot.yml
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] build-makefile
+
+**Path**: `Makefile`
+
+**Check**: {"type":"file_exists","path":"Makefile"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: Makefile
+```
+
+---
+
+## [2025-11-26T14:54:07+00:00] build-composer-scripts
+
+**Path**: `composer.json`
+
+**Check**: {"type":"file_exists","path":"composer.json"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: composer.json
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] build-composer-scripts
+
+**Path**: `composer.json`
+
+**Check**: {"type":"command","cmd":"composer validate 2>&1"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+./composer.json is valid
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] build-npm-scripts
+
+**Path**: `package.json`
+
+**Check**: {"type":"file_exists","path":"package.json"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: package.json
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] deps-composer-json
+
+**Path**: `composer.json`
+
+**Check**: {"type":"file_exists","path":"composer.json"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: composer.json
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] deps-composer-json
+
+**Path**: `composer.json`
+
+**Check**: {"type":"file_valid_json","path":"composer.json"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Valid JSON: composer.json
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] deps-composer-lock
+
+**Path**: `composer.lock`
+
+**Check**: {"type":"file_exists","path":"composer.lock"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: composer.lock
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] deps-package-json
+
+**Path**: `package.json`
+
+**Check**: {"type":"file_exists","path":"package.json"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: package.json
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] deps-package-json
+
+**Path**: `package.json`
+
+**Check**: {"type":"file_valid_json","path":"package.json"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Valid JSON: package.json
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] deps-package-lock
+
+**Path**: `package-lock.json`
+
+**Check**: {"type":"file_exists","path":"package-lock.json"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: package-lock.json
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] docker-dockerfile
+
+**Path**: `Dockerfile`
+
+**Check**: {"type":"file_exists","path":"Dockerfile"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: Dockerfile
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] docker-compose-main
+
+**Path**: `docker-compose.yml`
+
+**Check**: {"type":"file_exists","path":"docker-compose.yml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: docker-compose.yml
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] docker-compose-main
+
+**Path**: `docker-compose.yml`
+
+**Check**: {"type":"command","cmd":"docker compose config 2>&1 | Select-Object -First 10"}
+
+**Exit Code**: 255
+
+**Stderr**:
+```
+'Select-Object' is not recognized as an internal or external command,
+operable program or batch file.
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] docker-dev-dockerfile
+
+**Path**: `dev-docker/Dockerfile`
+
+**Check**: {"type":"file_exists","path":"dev-docker\/Dockerfile"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: dev-docker/Dockerfile
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] infra-nginx
+
+**Path**: `dev-docker/nginx.conf`
+
+**Check**: {"type":"file_exists","path":"dev-docker\/nginx.conf"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: dev-docker/nginx.conf
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] config-env-example
+
+**Path**: `.env.example`
+
+**Check**: {"type":"file_exists","path":".env.example"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: .env.example
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] docs-readme
+
+**Path**: `README.md`
+
+**Check**: {"type":"file_exists","path":"README.md"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: README.md
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] docs-api
+
+**Path**: `docs/api/openapi.yaml`
+
+**Check**: {"type":"file_exists","path":"docs\/api\/openapi.yaml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: docs/api/openapi.yaml
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] lint-eslint
+
+**Path**: `eslint.config.js`
+
+**Check**: {"type":"file_exists","path":"eslint.config.js"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: eslint.config.js
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] lint-phpcs
+
+**Path**: `phpcs.xml`
+
+**Check**: {"type":"file_exists","path":"phpcs.xml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: phpcs.xml
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] lint-phpstan
+
+**Path**: `phpstan.neon`
+
+**Check**: {"type":"file_exists","path":"phpstan.neon"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: phpstan.neon
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] lint-psalm
+
+**Path**: `psalm.xml`
+
+**Check**: {"type":"file_exists","path":"psalm.xml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: psalm.xml
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] lint-editorconfig
+
+**Path**: `.editorconfig`
+
+**Check**: {"type":"file_exists","path":".editorconfig"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: .editorconfig
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] db-migrations
+
+**Path**: `database/migrations/`
+
+**Check**: {"type":"directory_exists","path":"database\/migrations"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: database/migrations
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] db-migrations
+
+**Path**: `database/migrations/`
+
+**Check**: {"type":"file_count","path":"database\/migrations","pattern":"*.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Found 85 files matching *.php in database/migrations
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] db-seeders
+
+**Path**: `database/seeders/`
+
+**Check**: {"type":"directory_exists","path":"database\/seeders"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: database/seeders
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] db-factories
+
+**Path**: `database/factories/`
+
+**Check**: {"type":"directory_exists","path":"database\/factories"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: database/factories
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] build-vite
+
+**Path**: `vite.config.js`
+
+**Check**: {"type":"file_exists","path":"vite.config.js"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: vite.config.js
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] scheduled-kernel
+
+**Path**: `app/Console/Kernel.php`
+
+**Check**: {"type":"file_exists","path":"app\/Console\/Kernel.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: app/Console/Kernel.php
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] jobs-directory
+
+**Path**: `app/Jobs/`
+
+**Check**: {"type":"directory_exists","path":"app\/Jobs"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: app/Jobs
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] jobs-directory
+
+**Path**: `app/Jobs/`
+
+**Check**: {"type":"file_count","path":"app\/Jobs","pattern":"*.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Found 5 files matching *.php in app/Jobs
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] queue-config
+
+**Path**: `config/queue.php`
+
+**Check**: {"type":"file_exists","path":"config\/queue.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: config/queue.php
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] localization-en
+
+**Path**: `resources/lang/en/`
+
+**Check**: {"type":"directory_exists","path":"resources\/lang\/en"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: resources/lang/en
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] localization-ar
+
+**Path**: `resources/lang/ar/`
+
+**Check**: {"type":"directory_exists","path":"resources\/lang\/ar"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: resources/lang/ar
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] security-config
+
+**Path**: `config/security.php`
+
+**Check**: {"type":"file_exists","path":"config\/security.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: config/security.php
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] auth-config
+
+**Path**: `config/auth.php`
+
+**Check**: {"type":"file_exists","path":"config\/auth.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: config/auth.php
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] monitoring-config
+
+**Path**: `config/monitoring.php`
+
+**Check**: {"type":"file_exists","path":"config\/monitoring.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: config/monitoring.php
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] sentry-config
+
+**Path**: `config/sentry.php`
+
+**Check**: {"type":"file_exists","path":"config\/sentry.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: config/sentry.php
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] api-openapi
+
+**Path**: `docs/api/openapi.yaml`
+
+**Check**: {"type":"file_exists","path":"docs\/api\/openapi.yaml"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: docs/api/openapi.yaml
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] console-commands
+
+**Path**: `app/Console/Commands/`
+
+**Check**: {"type":"directory_exists","path":"app\/Console\/Commands"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Directory exists: app/Console/Commands
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] console-commands
+
+**Path**: `app/Console/Commands/`
+
+**Check**: {"type":"file_count","path":"app\/Console\/Commands","pattern":"*.php"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+Found 28 files matching *.php in app/Console/Commands
+```
+
+---
+
+## [2025-11-26T14:54:08+00:00] supervisord-config
+
+**Path**: `docker/supervisord.conf`
+
+**Check**: {"type":"file_exists","path":"docker\/supervisord.conf"}
+
+**Exit Code**: 0
+
+**Stdout**:
+```
+File exists: docker/supervisord.conf
+```
+
+---
+

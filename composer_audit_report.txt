@@ -1,0 +1,21 @@
+﻿composer : Found 1 security vulnerability advisory affecting 1 package:
+At line:1 char:281
++ ... rite-Host "�� Running Composer Audit..."; composer audit 2>&1 | Out-F ...
++                                               ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Found 1 securit...ting 1 package::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
++-------------------+----------------------------------------------------------------------------------+
+| Package           | symfony/http-foundation                                                          |
+| Severity          | high                                                                             |
+| CVE               | CVE-2025-64500                                                                   |
+| Title             | CVE-2025-64500: Incorrect parsing of PATH_INFO can lead to limited authorization |
+|                   | bypass                                                                           |
+| URL               | https://symfony.com/blog/cve-2025-64500-incorrect-parsing-of-path-info-can-lead- |
+|                   | to-limited-authorization-bypass                                                  |
+| Affected versions | >=2.0.0,<3.0.0|>=3.0.0,<4.0.0|>=4.0.0,<5.0.0|>=5.0.0,<5.1.0|>=5.1.0,<5.2.0|>=5.2 |
+|                   | .0,<5.3.0|>=5.3.0,<5.4.0|>=5.4.0,<5.4.50|>=6.0.0,<6.1.0|>=6.1.0,<6.2.0|>=6.2.0,< |
+|                   | 6.3.0|>=6.3.0,<6.4.0|>=6.4.0,<6.4.29|>=7.0.0,<7.1.0|>=7.1.0,<7.2.0|>=7.2.0,<7.3. |
+|                   | 0|>=7.3.0,<7.3.7                                                                 |
+| Reported at       | 2025-11-12T11:09:14+00:00                                                        |
++-------------------+----------------------------------------------------------------------------------+
