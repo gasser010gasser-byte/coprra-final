@@ -23,8 +23,13 @@
     },
     "scripts": {
         "post-autoload-dump": [
-            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump"
+        ],
+        "post-install-cmd": [
+            "@php artisan package:discover --ansi || true"
+        ],
+        "post-update-cmd": [
+            "@php artisan package:discover --ansi || true"
         ]
     },
     "minimum-stability": "stable",

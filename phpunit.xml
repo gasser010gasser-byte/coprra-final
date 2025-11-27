@@ -70,11 +70,13 @@
     </exclude>
   </source>
   <php>
+    <env name="APP_NAME" value="LaravelTest"/>
     <env name="APP_ENV" value="testing"/>
     <env name="APP_DEBUG" value="false"/>
     <env name="APP_KEY" value="base64:2fl+K+k3WPMO+QrdnDWEbVjQo7EjXQYWmYNgayUk5P0="/>
     <env name="BCRYPT_ROUNDS" value="4"/>
     <env name="CACHE_DRIVER" value="array"/>
+    <env name="CACHE_PREFIX" value=""/>
     <env name="DB_CONNECTION" value="sqlite"/>
     <env name="DB_DATABASE" value=":memory:"/>
     <env name="DB_FOREIGN_KEYS" value="true"/>
@@ -93,6 +95,8 @@
     <env name="REDIS_PORT" value=""/>
     <env name="REDIS_PASSWORD" value=""/>
     <env name="BROADCAST_DRIVER" value="null"/>
+    <env name="LOG_CHANNEL" value="null"/>
+    <env name="LOG_LEVEL" value="emergency"/>
     <!-- Test credentials - use environment variables or safe defaults -->
     <env name="TEST_BLOCKCHAIN_VERIFICATION_KEY" value="${TEST_BLOCKCHAIN_VERIFICATION_KEY:-fake-verification-key}"/>
     <env name="TEST_BLOCKCHAIN_TOKEN_ADDRESS" value="${TEST_BLOCKCHAIN_TOKEN_ADDRESS:-fake-token-address}"/>

@@ -26,19 +26,16 @@ jobs:
 
       - name: Setup Laravel Environment
         run: |
-          # 1. Create ALL required directories
           mkdir -p storage/framework/sessions
           mkdir -p storage/framework/views
           mkdir -p storage/framework/cache/data
           mkdir -p storage/logs
           mkdir -p bootstrap/cache
-          # 2. Set permissions
           chmod -R 777 storage bootstrap/cache
-          # 3. Create .env with APP_NAME FIRST (important for cache prefix)
-          cat > .env << 'EOL'
+          cat > .env << 'EOF'
           APP_NAME=LaravelTest
           APP_ENV=testing
-          APP_KEY=base64:test1234567890123456789012345678901234567890
+          APP_KEY=base64:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=
           APP_DEBUG=true
           APP_URL=http://localhost
           CACHE_DRIVER=array
@@ -46,7 +43,7 @@ jobs:
           QUEUE_CONNECTION=sync
           DB_CONNECTION=sqlite
           DB_DATABASE=:memory:
-          EOL
+          EOF
 
       - name: Install Composer Dependencies
         run: composer install --prefer-dist --no-progress
