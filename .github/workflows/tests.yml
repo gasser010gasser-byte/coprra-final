@@ -34,14 +34,19 @@ jobs:
           mkdir -p bootstrap/cache
           # 2. Set broad permissions for the CI environment
           chmod -R 777 storage bootstrap/cache
-          # 3. Create the .env file
+          # 3. Create the .env file with APP_KEY
           cp .env.example .env || echo "APP_ENV=testing" > .env
+          # 4. Generate APP_KEY immediately
+          php -r "file_put_contents('.env', 'APP_KEY=base64:'.base64_encode(random_bytes(32)).PHP_EOL, FILE_APPEND);"
 
       - name: Install Composer Dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer install --prefer-dist --no-progress --no-scripts
 
       - name: Generate Application Key
         run: php artisan key:generate
+
+      - name: Finalize Composer Setup
+        run: php artisan package:discover --ansi
 
       - name: Run Database Migrations
         run: php artisan migrate --force
