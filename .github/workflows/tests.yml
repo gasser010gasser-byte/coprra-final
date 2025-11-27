@@ -30,12 +30,12 @@ jobs:
           mkdir -p storage/logs
           chmod -R 775 bootstrap/cache storage
 
-      - name: Set environment variables
+      - name: Set environment variables and generate APP_KEY
         run: |
-          echo "APP_KEY=" >> .env
           echo "CACHE_DRIVER=array" >> .env
           echo "SESSION_DRIVER=array" >> .env
           echo "QUEUE_CONNECTION=sync" >> .env
+          php -r "echo 'APP_KEY=base64:' . base64_encode(random_bytes(32)) . PHP_EOL;" >> .env
 
       - name: Temporarily disable post-autoload-dump script
         run: |
@@ -47,9 +47,6 @@ jobs:
 
       - name: Restore composer.json
         run: mv composer.json.backup composer.json
-
-      - name: Generate application key
-        run: php artisan key:generate --force
 
       - name: Run package discovery
         run: php artisan package:discover --ansi
