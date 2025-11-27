@@ -39,8 +39,14 @@ jobs:
           echo "BCRYPT_ROUNDS=4" >> .env
           echo "MAIL_MAILER=array" >> .env
 
-      - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress
+      - name: Install Composer Dependencies (No Scripts)
+        run: composer install --no-interaction --no-progress --no-scripts --no-autoloader
+
+      - name: Generate Autoloader
+        run: composer dump-autoload --no-interaction --no-progress
+
+      - name: Run Composer Post-Install Scripts
+        run: composer run-script post-install-cmd --no-interaction --no-progress
 
       - name: Generate application key
         run: php artisan key:generate
