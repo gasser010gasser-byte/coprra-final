@@ -36,8 +36,6 @@ use Laravel\Sanctum\HasApiTokens;
  ** @property eAlert> $priceAlerts
  * @property UserLocaleSetting|null $localeSetting
  *
- * @phpstan-ignore-next-line
- *
  * @method static \Illuminate\Database\Eloquent\Builder|User where(string $column, string|null $operator = null, scalar|array|null $value = null, string $boolean = 'and')
  * @method static UserFactory                                factory(...$parameters)
  *

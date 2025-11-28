@@ -25,7 +25,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class PriceOffer extends Model
 {
-    /** @phpstan-ignore-next-line */
     use HasFactory;
 
     /**

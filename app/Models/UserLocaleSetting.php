@@ -27,7 +27,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class UserLocaleSetting extends Model
 {
-    /** @phpstan-ignore-next-line */
     use HasFactory;
 
     /**

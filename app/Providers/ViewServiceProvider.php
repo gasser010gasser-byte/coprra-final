@@ -111,7 +111,6 @@ class ViewServiceProvider extends ServiceProvider
         $name = null;
         if (\is_object($param) && isset($param->name)) {
             /** @var object $param */
-            // @phpstan-ignore-next-line
             $name = $param->name;
         } elseif (\is_string($param) && $param !== '') {
             $name = $param;

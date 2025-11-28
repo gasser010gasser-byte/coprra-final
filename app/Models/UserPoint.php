@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserPoint extends Model
 {
-    /** @phpstan-ignore-next-line */
     use HasFactory;
 
     /**

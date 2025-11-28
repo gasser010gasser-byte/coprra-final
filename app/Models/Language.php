@@ -30,7 +30,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Language extends Model
 {
-    /** @phpstan-ignore-next-line */
     use HasFactory;
 
     /**

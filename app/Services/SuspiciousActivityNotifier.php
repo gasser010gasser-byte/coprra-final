@@ -30,7 +30,7 @@ final readonly class SuspiciousActivityNotifier implements SuspiciousActivityNot
      *     ip_address?: string
      * } $activity
      */
-    public function sendNotifications(array $activity): void
+    public function sendNotifications(iterable $activity): void
     {
         $notification = \is_array($this->configRepository->get('suspicious_activity.notification'))
             ? $this->configRepository->get('suspicious_activity.notification')

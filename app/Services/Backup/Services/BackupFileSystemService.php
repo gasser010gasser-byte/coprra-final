@@ -93,10 +93,9 @@ final class BackupFileSystemService
         $sourcePath = $this->joinPaths($filesDir, $dir);
         $destPath = $this->getDestinationPath($dir);
 
-            if (is_dir($sourcePath)) {
-                $this->copyDirectory($sourcePath, $destPath);
-                $restoredDirs[] = $dir;
-            }
+        if (is_dir($sourcePath)) {
+            $this->copyDirectory($sourcePath, $destPath);
+            $restoredDirs[] = $dir;
         }
     }
 

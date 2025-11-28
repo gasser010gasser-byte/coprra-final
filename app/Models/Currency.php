@@ -24,7 +24,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Currency extends Model
 {
-    /** @phpstan-ignore-next-line */
     use HasFactory;
 
     /**

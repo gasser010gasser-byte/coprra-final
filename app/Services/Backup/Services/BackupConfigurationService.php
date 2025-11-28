@@ -94,10 +94,9 @@ final class BackupConfigurationService
         $sourcePath = $configDir.'/'.$file;
         $destPath = $this->getConfigDestinationPath($file);
 
-            if (file_exists($sourcePath)) {
-                copy($sourcePath, $destPath);
-                $restoredFiles[] = $file;
-            }
+        if (file_exists($sourcePath)) {
+            copy($sourcePath, $destPath);
+            $restoredFiles[] = $file;
         }
     }
 

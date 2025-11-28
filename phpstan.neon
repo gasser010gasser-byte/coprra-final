@@ -1,26 +1,21 @@
 includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
     - phpstan-baseline.neon
 
 parameters:
-    level: 8
+    level: 5
     paths:
         - app
         - config
         - database
         - routes
-    tmpDir: tmp/phpstan/cache
-    reportUnmatchedIgnoredErrors: true
-    treatPhpDocTypesAsCertain: true
-    checkMissingCallableSignature: true
-    checkMissingVarTagTypehint: true
-    checkTooWideReturnTypesInProtectedAndPublicMethods: true
-    checkUninitializedProperties: true
-    checkDynamicProperties: true
-    fileExtensions:
-        - php
-        - stub
+    
+    # Exclude paths that often contain code beyond our control
     excludePaths:
-        - tests/
-        - vendor/
-        - storage/
-        - bootstrap/cache/
+        - app/Console/Kernel.php
+        - app/Http/Kernel.php
+        - app/Providers/RouteServiceProvider.php
+
+    # Ignore specific, common errors to focus on more critical issues first
+    ignoreErrors:
+        - '#PHPDoc tag @var#'

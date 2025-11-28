@@ -154,8 +154,6 @@ final class EbayAdapter extends StoreAdapter
      *
      * @return array<array|scalar|* @method static \App\Models\Brand create(array<string, string|bool|null>
      *
-     * @phpstan-ignore-next-line
-     *
      * @psalm-return array{name: array|scalar, price: float, currency: array|scalar, url: array|scalar, image_url: array|scalar|null, availability: array|scalar, rating: float|null, reviews_count: int|null, description: array|scalar|null, brand: array|scalar|null, category: array|scalar|null, metadata: array|scalar}
      */
     private function normalizeEbayData(array $item): array
@@ -197,8 +195,6 @@ final class EbayAdapter extends StoreAdapter
     /**
      * Map eBay availability status.
      *
-     * @phpstan-ignore-next-line
-     *
      * @psalm-return 'in_stock'|'out_of_stock'
      */
     private function mapEbayAvailability(?string $status): string
@@ -216,8 +212,6 @@ final class EbayAdapter extends StoreAdapter
      * @param array<string, array> $item
      *
      * @return array<array|scalar|* @method static \App\Models\Brand create(array<string, string|bool|null>
-     *
-     * @phpstan-ignore-next-line
      *
      * @psalm-return array{name: array|scalar, price: float, currency: array|scalar, url: array|scalar, image_url: array|scalar|null, availability: array|scalar, rating: float|null, reviews_count: int|null, description: array|scalar|null, brand: array|scalar|null, category: array|scalar|null, metadata: array|scalar}
      */

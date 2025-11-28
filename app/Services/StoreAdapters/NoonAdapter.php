@@ -149,8 +149,6 @@ final class NoonAdapter extends StoreAdapter
      *
      * @return array<array|scalar|* @method static \App\Models\Brand create(array<string, string|bool|null>
      *
-     * @phpstan-ignore-next-line
-     *
      * @psalm-return array{name: array|scalar, price: float, currency: array|scalar, url: array|scalar, image_url: array|scalar|null, availability: array|scalar, rating: float|null, reviews_count: int|null, description: array|scalar|null, brand: array|scalar|null, category: array|scalar|null, metadata: array|scalar}
      */
     private function normalizeNoonData(array $noonData): array
@@ -181,8 +179,6 @@ final class NoonAdapter extends StoreAdapter
     /**
      * Get currency based on country.
      *
-     * @phpstan-ignore-next-line
-     *
      * @psalm-return 'AED'|'EGP'|'SAR'
      */
     private function getCurrency(): string
@@ -197,8 +193,6 @@ final class NoonAdapter extends StoreAdapter
 
     /**
      * Get Noon domain based on country.
-     *
-     * @phpstan-ignore-next-line
      */
     private function getNoonDomain(): string
     {
