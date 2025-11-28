@@ -22,4 +22,6 @@ namespace App\Schemas;
  *     @OA\Property(property="store_id", type="integer", example=2)
  * )
  */
-final class ProductUpdateRequestSchema {}
+final class ProductUpdateRequestSchema
+{
+}

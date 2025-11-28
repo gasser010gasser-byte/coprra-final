@@ -29,4 +29,3 @@ class SentryContext
         return $next($request);
     }
 }
-

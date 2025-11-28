@@ -20,4 +20,6 @@ namespace App\Schemas;
  *     @OA\Property(property="updated_at", type="string", format="date-time", example="2023-01-01T00:00:00Z")
  * )
  */
-final class ReviewSchema {}
+final class ReviewSchema
+{
+}

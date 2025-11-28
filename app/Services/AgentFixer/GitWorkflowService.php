@@ -12,7 +12,8 @@ final readonly class GitWorkflowService
     public function __construct(
         private ProcessService $processService,
         private OutputStyle $output
-    ) {}
+    ) {
+    }
 
     public function createBranch(string $branchName): bool
     {

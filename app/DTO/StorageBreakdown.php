@@ -10,5 +10,6 @@ final readonly class StorageBreakdown
         public float $sizeMb,
         public int $sizeBytes,
         public string $path,
-    ) {}
+    ) {
+    }
 }

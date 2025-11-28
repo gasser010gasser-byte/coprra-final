@@ -45,7 +45,7 @@ class SitemapObserver
         try {
             // Run sitemap generation in the background to avoid blocking the request
             Artisan::queue('sitemap:generate');
-            
+
             Log::info('Sitemap regeneration queued after product change');
         } catch (\Throwable $e) {
             // Log error but don't throw to avoid breaking the main operation
@@ -56,4 +56,3 @@ class SitemapObserver
         }
     }
 }
-

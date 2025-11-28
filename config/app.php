@@ -10,7 +10,6 @@ use App\Providers\CompressionServiceProvider;
 use App\Providers\CoprraServiceProvider;
 use App\Providers\EventServiceProvider;
 use App\Providers\LogProcessingServiceProvider;
-use App\Providers\RouteServiceProvider;
 use App\Providers\SecurityHeadersServiceProvider;
 use Darryldecode\Cart\CartServiceProvider;
 use Darryldecode\Cart\Facades\CartFacade;

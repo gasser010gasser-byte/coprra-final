@@ -20,4 +20,6 @@ namespace App\Schemas;
  *     @OA\Property(property="updated_at", type="string", format="date-time")
  * )
  */
-final class BrandSchema {}
+final class BrandSchema
+{
+}

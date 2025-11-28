@@ -12,7 +12,7 @@ use Carbon\Carbon;
 /**
  * Main report service that coordinates different report generators.
  * Acts as a facade for various specialized report generation services.
- * 
+ *
  * Note: Sales reporting has been removed as the platform operates on an affiliate model
  * where purchases are made on external stores, not directly through the platform.
  */
@@ -22,7 +22,8 @@ final readonly class ReportService
         private ProductPerformanceReportGenerator $productPerformanceGenerator,
         private UserActivityReportGenerator $userActivityGenerator,
         private PriceAnalysisReportGenerator $priceAnalysisGenerator
-    ) {}
+    ) {
+    }
 
     /**
      * Generate product performance report.
@@ -70,7 +71,7 @@ final readonly class ReportService
 
     /**
      * Generate sales report.
-     * 
+     *
      * @deprecated Sales reporting has been removed as the platform operates on an affiliate model.
      * This method returns an empty report structure for backward compatibility.
      *
@@ -142,7 +143,7 @@ final readonly class ReportService
 
     /**
      * Get daily sales summary.
-     * 
+     *
      * @deprecated Sales reporting has been removed as the platform operates on an affiliate model.
      */
     public function getDailySalesSummary(Carbon $date): array
@@ -173,7 +174,7 @@ final readonly class ReportService
 
     /**
      * Get top selling products.
-     * 
+     *
      * @deprecated Sales reporting has been removed as the platform operates on an affiliate model.
      */
     public function getTopSellingProducts(Carbon $startDate, Carbon $endDate, int $limit = 10): array
@@ -183,7 +184,7 @@ final readonly class ReportService
 
     /**
      * Get customer analysis.
-     * 
+     *
      * @deprecated Sales reporting has been removed as the platform operates on an affiliate model.
      */
     public function getCustomerAnalysis(Carbon $startDate, Carbon $endDate): array

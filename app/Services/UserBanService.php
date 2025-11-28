@@ -27,7 +27,8 @@ final readonly class UserBanService
         private AuthManager $auth,
         private LoggerInterface $logger,
         private string $userModel = User::class
-    ) {}
+    ) {
+    }
 
     /**
      * Check if a user is currently banned.

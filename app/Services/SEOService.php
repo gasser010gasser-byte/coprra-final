@@ -23,7 +23,8 @@ final readonly class SEOService
         private UrlGenerator $urlGenerator,
         private ConfigRepository $configRepository,
         private Str $str
-    ) {}
+    ) {
+    }
 
     /**
      * Generate SEO meta data for a model.

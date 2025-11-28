@@ -8,7 +8,9 @@ use Illuminate\Console\OutputStyle;
 
 final readonly class CacheStatisticsDisplayer
 {
-    public function __construct(private OutputStyle $output) {}
+    public function __construct(private OutputStyle $output)
+    {
+    }
 
     /**
      * @param  array<string, string|int|float|array|* @method static \App\Models\Brand create(array<string, string|bool|null>  $stats

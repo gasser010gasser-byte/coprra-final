@@ -16,7 +16,8 @@ final readonly class SEOAuditResult
         private Model $model,
         private array $metaData,
         private array $issues
-    ) {}
+    ) {
+    }
 
     public function getModel(): Model
     {

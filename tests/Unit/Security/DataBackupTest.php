@@ -182,7 +182,7 @@ final class DataBackupTest extends TestCase
 
     private function createMockBackupService(): object
     {
-        return new class {
+        return new class () {
             public function createEncryptedBackup(array $data): string
             {
                 return 'encrypted:'.base64_encode(json_encode($data));

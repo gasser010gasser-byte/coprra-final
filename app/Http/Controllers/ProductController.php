@@ -8,8 +8,8 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Services\ProductService;
 use App\Services\SEOService;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -17,7 +17,8 @@ class ProductController extends Controller
     public function __construct(
         private readonly ProductService $productService,
         private readonly SEOService $seoService
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of products.
@@ -65,6 +66,7 @@ class ProductController extends Controller
                 'url' => $request->fullUrl(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return back()->with('error', 'An unexpected error occurred. Please try again later.');
         }
     }
@@ -112,6 +114,7 @@ class ProductController extends Controller
                 'slug' => $slug,
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return back()->with('error', 'An unexpected error occurred. Please try again later.');
         }
     }
@@ -158,6 +161,7 @@ class ProductController extends Controller
                 'url' => $request->fullUrl(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return back()->with('error', 'An unexpected error occurred. Please try again later.');
         }
     }

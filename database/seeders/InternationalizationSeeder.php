@@ -177,20 +177,22 @@ class InternationalizationSeeder extends Seeder
             $language = $languages->get($langCode);
             $currency = $currencies->get($currCode);
 
-            if (!$language) {
+            if (! $language) {
                 $this->command->warn("⚠️  Language '{$langCode}' not found for country '{$name}'. Skipping.");
+
                 continue;
             }
 
-            if (!$currency) {
+            if (! $currency) {
                 $this->command->warn("⚠️  Currency '{$currCode}' not found for country '{$name}'. Skipping.");
+
                 continue;
             }
 
             // Check if country already exists (some countries appear multiple times for different languages)
             $existing = Country::where('code', $code)->where('language_id', $language->id)->first();
 
-            if (!$existing) {
+            if (! $existing) {
                 Country::create([
                     'code' => $code,
                     'name' => $name,

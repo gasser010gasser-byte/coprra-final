@@ -14,7 +14,8 @@ final readonly class StorageUsage
         public bool $needsCleanup,
         /** @var array<string, array{size_mb: float, size_bytes: int, path: string}> */
         public array $breakdown
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<array<array<float|int|string>>|bool|float|string>

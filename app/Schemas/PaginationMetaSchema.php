@@ -19,4 +19,6 @@ namespace App\Schemas;
  *     @OA\Property(property="to", type="integer", example=15)
  * )
  */
-final class PaginationMetaSchema {}
+final class PaginationMetaSchema
+{
+}

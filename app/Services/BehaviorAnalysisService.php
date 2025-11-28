@@ -22,7 +22,8 @@ class BehaviorAnalysisService
 {
     public function __construct(
         private readonly BehaviorAnalysisRepository $behaviorRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Track user behavior action.
@@ -349,6 +350,7 @@ class BehaviorAnalysisService
         $productIds = collect($productViews)
             ->map(static function ($view) {
                 $data = json_decode($view->data, true);
+
                 return $data['product_id'] ?? null;
             })
             ->filter()

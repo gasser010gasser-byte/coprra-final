@@ -24,7 +24,7 @@ final class GeolocationService
             'currency' => 'USD',
         ];
 
-        if (!$ipAddress || $this->isLocalIP($ipAddress)) {
+        if (! $ipAddress || $this->isLocalIP($ipAddress)) {
             return $defaultLocale;
         }
 
@@ -37,7 +37,7 @@ final class GeolocationService
 
         $geoData = $this->fetchGeolocationData($ipAddress);
 
-        if (!$geoData) {
+        if (! $geoData) {
             return $defaultLocale;
         }
 

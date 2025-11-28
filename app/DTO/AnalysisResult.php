@@ -12,5 +12,6 @@ class AnalysisResult
         public int $maxScore,
         /** @var array<string> */
         public array $issues
-    ) {}
+    ) {
+    }
 }

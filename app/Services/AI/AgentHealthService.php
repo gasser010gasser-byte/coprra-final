@@ -15,7 +15,8 @@ class AgentHealthService
 {
     public function __construct(
         private readonly AgentRegistryService $registry
-    ) {}
+    ) {
+    }
 
     /**
      * Record agent heartbeat to indicate it's alive.

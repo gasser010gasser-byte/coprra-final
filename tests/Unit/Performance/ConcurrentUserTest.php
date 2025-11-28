@@ -504,7 +504,10 @@ final class ConcurrentUserTest extends TestCase
 
         // Calculate session performance metrics
         $avgSessionTime = array_sum(array_column($successfulSessions, 'response_time')) / \count($successfulSessions);
-        self::assertLessThan(self::MAX_RESPONSE_TIME_MS * 2, $avgSessionTime,
-            "Average session management time {$avgSessionTime}ms should be efficient");
+        self::assertLessThan(
+            self::MAX_RESPONSE_TIME_MS * 2,
+            $avgSessionTime,
+            "Average session management time {$avgSessionTime}ms should be efficient"
+        );
     }
 }

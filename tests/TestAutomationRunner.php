@@ -439,7 +439,7 @@ class TestAutomationRunner
 
     private function initializeExecutionEngines(): void
     {
-        $this->executionEngine = new class {
+        $this->executionEngine = new class () {
             public function execute($tests)
             {
                 return ['executed' => true];
@@ -451,7 +451,7 @@ class TestAutomationRunner
             }
         };
 
-        $this->parallelEngine = new class {
+        $this->parallelEngine = new class () {
             public function executeParallel($tests)
             {
                 return ['parallel' => true];
@@ -463,7 +463,7 @@ class TestAutomationRunner
             }
         };
 
-        $this->sequentialEngine = new class {
+        $this->sequentialEngine = new class () {
             public function executeSequential($tests)
             {
                 return ['sequential' => true];
@@ -475,7 +475,7 @@ class TestAutomationRunner
             }
         };
 
-        $this->distributedEngine = new class {
+        $this->distributedEngine = new class () {
             public function executeDistributed($tests)
             {
                 return ['distributed' => true];
@@ -487,7 +487,7 @@ class TestAutomationRunner
             }
         };
 
-        $this->cloudEngine = new class {
+        $this->cloudEngine = new class () {
             public function executeCloud($tests)
             {
                 return ['cloud' => true];
@@ -502,7 +502,7 @@ class TestAutomationRunner
 
     private function initializeAdvancedFeatures(): void
     {
-        $this->intelligentRunner = new class {
+        $this->intelligentRunner = new class () {
             public function run($tests)
             {
                 return $tests;
@@ -514,7 +514,7 @@ class TestAutomationRunner
             }
         };
 
-        $this->adaptiveRunner = new class {
+        $this->adaptiveRunner = new class () {
             public function adapt($tests)
             {
                 return $tests;
@@ -526,7 +526,7 @@ class TestAutomationRunner
             }
         };
 
-        $this->predictiveRunner = new class {
+        $this->predictiveRunner = new class () {
             public function predict($tests)
             {
                 return $tests;
@@ -538,7 +538,7 @@ class TestAutomationRunner
             }
         };
 
-        $this->selfOptimizingRunner = new class {
+        $this->selfOptimizingRunner = new class () {
             public function optimize($tests)
             {
                 return $tests;
@@ -550,7 +550,7 @@ class TestAutomationRunner
             }
         };
 
-        $this->learningRunner = new class {
+        $this->learningRunner = new class () {
             public function learn($tests)
             {
                 return $tests;

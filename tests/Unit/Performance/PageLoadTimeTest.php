@@ -457,7 +457,10 @@ final class PageLoadTimeTest extends TestCase
         $cachedQueries = DB::getQueryLog();
 
         // With proper caching, subsequent requests should use fewer queries
-        self::assertLessThanOrEqual(10, \count($cachedQueries),
-            'Cached requests should use minimal database queries');
+        self::assertLessThanOrEqual(
+            10,
+            \count($cachedQueries),
+            'Cached requests should use minimal database queries'
+        );
     }
 }

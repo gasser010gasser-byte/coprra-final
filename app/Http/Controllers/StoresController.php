@@ -16,4 +16,3 @@ class StoresController extends Controller
         return view('stores.index');
     }
 }
-

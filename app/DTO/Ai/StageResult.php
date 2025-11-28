@@ -15,5 +15,6 @@ final readonly class StageResult
         public array $errors,
         public float $duration,
         public string $timestamp
-    ) {}
+    ) {
+    }
 }

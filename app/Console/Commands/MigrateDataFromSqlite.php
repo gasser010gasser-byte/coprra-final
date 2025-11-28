@@ -12,7 +12,6 @@ use App\Models\PriceOffer;
 use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use PDO;
 
 class MigrateDataFromSqlite extends Command
@@ -219,6 +218,7 @@ class MigrateDataFromSqlite extends Command
 
         if (! $defaultCurrency) {
             $this->error('No currencies found in database. Please migrate currencies first.');
+
             return;
         }
 

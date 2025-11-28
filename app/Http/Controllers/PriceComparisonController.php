@@ -23,7 +23,8 @@ class PriceComparisonController extends Controller
         private readonly StoreAdapterManager $storeAdapterManager,
         private readonly PriceComparisonService $priceComparisonService,
         private readonly GeolocationService $geolocationService
-    ) {}
+    ) {
+    }
 
     /**
      * Show price comparison for a product.
@@ -111,7 +112,7 @@ class PriceComparisonController extends Controller
         $userCountryCode = $locale['country'] ?? null;
 
         // If no country detected, return all prices
-        if (!$userCountryCode) {
+        if (! $userCountryCode) {
             return $prices;
         }
 
@@ -119,7 +120,7 @@ class PriceComparisonController extends Controller
         $filteredPrices = [];
         foreach ($prices as $price) {
             $storeIdentifier = $price['store_identifier'] ?? null;
-            if (!$storeIdentifier) {
+            if (! $storeIdentifier) {
                 continue;
             }
 
@@ -128,9 +129,10 @@ class PriceComparisonController extends Controller
                 ->orWhere('name', 'like', "%{$storeIdentifier}%")
                 ->first();
 
-            if (!$store) {
+            if (! $store) {
                 // If store not found, include the price (fallback)
                 $filteredPrices[] = $price;
+
                 continue;
             }
 
@@ -139,6 +141,7 @@ class PriceComparisonController extends Controller
             if (empty($supportedCountries)) {
                 // If no supported countries specified, include the price (assume global)
                 $filteredPrices[] = $price;
+
                 continue;
             }
 

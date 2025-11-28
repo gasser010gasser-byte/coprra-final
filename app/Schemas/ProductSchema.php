@@ -28,4 +28,6 @@ namespace App\Schemas;
  *     @OA\Property(property="price_offers", type="array", @OA\Items(ref="#/components/schemas/PriceOffer"))
  * )
  */
-final class ProductSchema {}
+final class ProductSchema
+{
+}

@@ -158,7 +158,7 @@ final class EbayAdapter extends StoreAdapter
      */
     private function normalizeEbayData(array $item): array
     {
-        $price = is_array($item['ConvertedCurrentPrice'] ?? null) 
+        $price = is_array($item['ConvertedCurrentPrice'] ?? null)
             ? ($item['ConvertedCurrentPrice']['Value'] ?? 0.0)
             : ($item['ConvertedCurrentPrice'] ?? 0.0);
 

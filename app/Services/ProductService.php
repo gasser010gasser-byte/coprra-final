@@ -14,7 +14,8 @@ class ProductService
     public function __construct(
         private readonly ProductRepository $repository,
         private readonly CacheServiceContract $cache
-    ) {}
+    ) {
+    }
 
     /**
      * Get paginated active products with caching.

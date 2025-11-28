@@ -10,7 +10,8 @@ final readonly class FixExecutionService
 {
     public function __construct(
         private OutputStyle $output
-    ) {}
+    ) {
+    }
 
     public function executeFixerProcess(string $type, AgentFixerFactory $agentFixerFactory): bool
     {

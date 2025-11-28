@@ -81,4 +81,3 @@ class SocialLoginController extends Controller
         }
     }
 }
-

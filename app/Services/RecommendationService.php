@@ -17,7 +17,8 @@ final class RecommendationService
 {
     public function __construct(
         private readonly RecommendationRepository $recommendationRepository
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<int, Product>

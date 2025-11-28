@@ -20,7 +20,8 @@ class AgentLifecycleService
         private readonly AgentExecutorService $executor,
         private readonly AgentHealthService $health,
         private readonly AgentSchedulerService $scheduler
-    ) {}
+    ) {
+    }
 
     /**
      * Register an agent.

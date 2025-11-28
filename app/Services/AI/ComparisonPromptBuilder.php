@@ -81,4 +81,3 @@ class ComparisonPromptBuilder
         return $prompt;
     }
 }
-

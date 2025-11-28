@@ -24,7 +24,8 @@ abstract class StoreAdapter implements StoreAdapterInterface
         protected readonly HttpFactory $http,
         protected readonly CacheRepository $cache,
         protected readonly LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     /**
      * Get the store name.

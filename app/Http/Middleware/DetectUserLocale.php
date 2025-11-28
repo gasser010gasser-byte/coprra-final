@@ -13,7 +13,8 @@ class DetectUserLocale
 {
     public function __construct(
         private readonly GeolocationService $geolocationService
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request, Closure $next)
     {

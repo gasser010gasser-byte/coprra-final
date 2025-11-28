@@ -349,7 +349,10 @@ final class AIEndpointsPerformanceTest extends TestCase
 
         // Some requests might be rate limited, but not all
         $successfulRequests = collect($responses)->filter(static fn ($r) => 200 === $r->status())->count();
-        self::assertGreaterThan(5, $successfulRequests,
-            "Too many requests were rate limited: only {$successfulRequests}/10 succeeded");
+        self::assertGreaterThan(
+            5,
+            $successfulRequests,
+            "Too many requests were rate limited: only {$successfulRequests}/10 succeeded"
+        );
     }
 }

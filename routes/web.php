@@ -3,22 +3,19 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Account\WishlistController as AccountWishlistController;
-use App\Http\Controllers\Api\WishlistController as ApiWishlistController;
 use App\Http\Controllers\Admin\AgentDashboardController;
-use App\Http\Controllers\Api\CompareController as ApiCompareController;
 use App\Http\Controllers\Admin\AgentManagementController;
 use App\Http\Controllers\Admin\AIControlPanelController;
 use App\Http\Controllers\Admin\ScraperController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AI\AgentHealthController;
+use App\Http\Controllers\Api\CompareController as ApiCompareController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
-use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\BrandController;
-use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\CompareController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CompareController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CostDashboardController;
 use App\Http\Controllers\FileController;
@@ -31,6 +28,8 @@ use App\Http\Controllers\PriceComparisonController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\StatusController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Pulse\Pulse;
@@ -331,4 +330,3 @@ if (config('app.env') !== 'production') {
         throw new Exception('Sentry test exception');
     });
 }
-

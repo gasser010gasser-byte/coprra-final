@@ -7,4 +7,6 @@ namespace App\Rules;
 /**
  * Contract for simple validation rules used in unit tests.
  */
-interface RuleValidationRule {}
+interface RuleValidationRule
+{
+}

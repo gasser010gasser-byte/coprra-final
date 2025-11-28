@@ -12,7 +12,8 @@ final readonly class StyleFixer implements AgentFixerInterface
     public function __construct(
         private ProcessService $processService,
         private OutputStyle $output
-    ) {}
+    ) {
+    }
 
     #[\Override]
     public function fix(): bool

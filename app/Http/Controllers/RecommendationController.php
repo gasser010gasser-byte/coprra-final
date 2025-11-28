@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 
 class RecommendationController extends Controller
 {
-    public function __construct(private readonly RecommendationService $recommendationService) {}
+    public function __construct(private readonly RecommendationService $recommendationService)
+    {
+    }
 
     public function index(Request $request): JsonResponse
     {

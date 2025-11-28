@@ -20,7 +20,8 @@ class PriceDropNotification extends Notification implements ShouldQueue
         public float $oldPrice,
         public float $newPrice,
         public float $targetPrice
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<float|int>

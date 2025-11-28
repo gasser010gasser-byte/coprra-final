@@ -23,4 +23,6 @@ namespace App\Schemas;
  *     @OA\Property(property="store_id", type="integer", example=1)
  * )
  */
-final class ProductCreateRequestSchema {}
+final class ProductCreateRequestSchema
+{
+}

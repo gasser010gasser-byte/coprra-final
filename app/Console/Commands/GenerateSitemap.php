@@ -63,7 +63,7 @@ class GenerateSitemap extends Command
                 $loc = $baseUrl . route('products.show', $product->slug, false);
             } catch (\Throwable) {
                 $loc = $baseUrl . '/products/' . $product->slug;
-                    }
+            }
 
             $lastModified = optional($product->updated_at ?? $product->created_at)->toAtomString() ?? now()->toAtomString();
 
@@ -87,7 +87,7 @@ class GenerateSitemap extends Command
             $xmlLines[] = '    <changefreq>' . htmlspecialchars($entry['changefreq'], ENT_XML1) . '</changefreq>';
             $xmlLines[] = '    <priority>' . htmlspecialchars($entry['priority'], ENT_XML1) . '</priority>';
             $xmlLines[] = '  </url>';
-                }
+        }
 
         $xmlLines[] = '</urlset>';
 

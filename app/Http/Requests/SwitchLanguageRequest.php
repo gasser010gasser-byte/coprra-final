@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+
 class SwitchLanguageRequest extends FormRequest
 {
     /**
@@ -46,7 +47,7 @@ class SwitchLanguageRequest extends FormRequest
         \Log::warning('Language switch validation failed', [
             'errors' => $validator->errors()->toArray(),
             'input' => $this->all(),
-            'ip' => $this->ip()
+            'ip' => $this->ip(),
         ]);
 
         parent::failedValidation($validator);

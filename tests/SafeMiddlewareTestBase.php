@@ -51,7 +51,7 @@ class SafeMiddlewareTestBase extends SafeTestBase
         // If provider did not bind view for any reason, add a lightweight fallback
         if (! $this->app->bound('view')) {
             $this->app->singleton('view', static function () {
-                return new class {
+                return new class () {
                     public function share($key, $value)
                     { // no-op for tests
                     }

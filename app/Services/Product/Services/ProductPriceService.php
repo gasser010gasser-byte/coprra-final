@@ -9,4 +9,6 @@ use App\Models\Product;
 /**
  * Service for handling product price updates.
  */
-final class ProductPriceService {}
+final class ProductPriceService
+{
+}

@@ -12,7 +12,8 @@ final readonly class SystemOptimizerService
     public function __construct(
         private OutputStyle $output,
         private Kernel $kernel
-    ) {}
+    ) {
+    }
 
     public function optimizeAutoloader(): void
     {

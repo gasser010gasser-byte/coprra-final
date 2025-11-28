@@ -17,4 +17,6 @@ namespace App\Schemas;
  *     @OA\Property(property="next", type="string", nullable=true, example="http://api.example.com/products?page=3")
  * )
  */
-final class PaginationLinksSchema {}
+final class PaginationLinksSchema
+{
+}

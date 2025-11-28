@@ -19,7 +19,8 @@ final class AIControlPanelController extends Controller
         private readonly AITextAnalysisService $textAnalysisService,
         private readonly AIImageAnalysisService $imageAnalysisService,
         private readonly AIRequestService $aiRequestService
-    ) {}
+    ) {
+    }
 
     /**
      * Display the AI control panel dashboard.

@@ -6,16 +6,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Services\SEOService;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class BrandController extends Controller
 {
     public function __construct(
         private readonly SEOService $seoService
-    ) {}
+    ) {
+    }
+
     /**
      * Display a listing of brands.
      */
@@ -39,6 +41,7 @@ class BrandController extends Controller
             abort(500);
         }
     }
+
     /**
      * Display the specified brand.
      */
@@ -46,7 +49,7 @@ class BrandController extends Controller
     {
         try {
             $brand = Brand::query()->active()->where('slug', $slug)->firstOrFail();
-            
+
             $products = $brand->products()
                 ->where('is_active', true)
                 ->with(['category', 'brand'])

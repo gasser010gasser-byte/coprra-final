@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 
 final readonly class RouteConfigurationService
 {
-    public function __construct(private RateLimiter $rateLimiter, private Router $router) {}
+    public function __construct(private RateLimiter $rateLimiter, private Router $router)
+    {
+    }
 
     public function configureRateLimiting(): void
     {

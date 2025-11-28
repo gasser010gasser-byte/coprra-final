@@ -275,7 +275,7 @@ abstract class TestCase extends BaseTestCase
         // Optimize database for testing (skip when inside transactions)
         if ((function_exists('app') && app()->bound('config'))
             && 'sqlite' === config('database.default')
-            && (!method_exists($this, 'isDatabaseTransacting') || ! $this->isDatabaseTransacting())) {
+            && (! method_exists($this, 'isDatabaseTransacting') || ! $this->isDatabaseTransacting())) {
             try {
                 DB::statement('PRAGMA synchronous = OFF');
                 DB::statement('PRAGMA journal_mode = MEMORY');

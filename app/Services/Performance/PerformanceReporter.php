@@ -12,7 +12,8 @@ final readonly class PerformanceReporter
     public function __construct(
         private OutputStyle $output,
         private HttpFactory $http
-    ) {}
+    ) {
+    }
 
     public function displayRecommendations(): void
     {

@@ -18,5 +18,6 @@ final readonly class StorageStatistics
         public array $recommendations,
         public array $fileStats,
         public array $config,
-    ) {}
+    ) {
+    }
 }

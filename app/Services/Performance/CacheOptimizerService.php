@@ -12,7 +12,8 @@ final readonly class CacheOptimizerService
     public function __construct(
         private OutputStyle $output,
         private Kernel $kernel
-    ) {}
+    ) {
+    }
 
     public function clearCaches(): void
     {

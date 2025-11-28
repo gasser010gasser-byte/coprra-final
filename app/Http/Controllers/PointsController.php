@@ -15,7 +15,8 @@ class PointsController extends Controller
 {
     public function __construct(
         private readonly PointsService $pointsService
-    ) {}
+    ) {
+    }
 
     /**
      * Display the user's points and rewards.
@@ -24,7 +25,7 @@ class PointsController extends Controller
     {
         $user = $auth->user();
         $availablePoints = $this->pointsService->getAvailablePoints($user->id);
-        
+
         // Get user's point history
         $pointHistory = $user->points()
             ->latest()

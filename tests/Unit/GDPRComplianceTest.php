@@ -258,7 +258,7 @@ final class GDPRComplianceTest extends TestCase
 
     private function createMockGDPRService(): object
     {
-        return new class {
+        return new class () {
             public function processDataAccessRequest(string $email): array
             {
                 return [

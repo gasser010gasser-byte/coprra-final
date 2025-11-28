@@ -22,7 +22,8 @@ final readonly class ProcessResult
          * The error output of the process.
          */
         public string $errorOutput
-    ) {}
+    ) {
+    }
 
     /**
      * Get the output of the process.

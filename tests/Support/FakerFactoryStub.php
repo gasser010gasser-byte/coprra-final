@@ -8,8 +8,10 @@ class FakerFactoryStub
 {
     public static function create($locale = null)
     {
-        return new class($locale) {
-            public function __construct($locale = null) {}
+        return new class ($locale) {
+            public function __construct($locale = null)
+            {
+            }
 
             public function __call(string $name, array $arguments)
             {

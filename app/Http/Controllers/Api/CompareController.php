@@ -19,7 +19,8 @@ class CompareController extends Controller
 
     public function __construct(
         private readonly ComparisonPromptBuilder $promptBuilder
-    ) {}
+    ) {
+    }
 
     public function index(Request $request): JsonResponse
     {
@@ -114,7 +115,7 @@ class CompareController extends Controller
         /** @var array<int, int>|null $ids */
         $ids = $request->session()->get(self::SESSION_KEY);
 
-        if (!\is_array($ids)) {
+        if (! \is_array($ids)) {
             return [];
         }
 
@@ -185,7 +186,6 @@ class CompareController extends Controller
         }
     }
 
-
     /**
      * Parse AI response and extract structured data.
      *
@@ -197,7 +197,7 @@ class CompareController extends Controller
     private function parseAIResponse(array $aiResult, $products): array
     {
         $result = $aiResult['result'] ?? '';
-        
+
         // Try to extract JSON from the response
         $jsonMatch = [];
         if (preg_match('/\{[\s\S]*\}/', $result, $jsonMatch)) {

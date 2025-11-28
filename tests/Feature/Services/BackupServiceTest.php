@@ -78,7 +78,7 @@ final class BackupServiceTest extends TestCase
                     file_put_contents($archiveFile, '-- Dummy compressed archive');
                 }
 
-                return new class {
+                return new class () {
                     public function successful()
                     {
                         return true;
@@ -189,7 +189,7 @@ final class BackupServiceTest extends TestCase
                     file_put_contents($outputFile, '-- Dummy database content');
                 }
 
-                return new class {
+                return new class () {
                     public function successful()
                     {
                         return true;
@@ -264,7 +264,7 @@ final class BackupServiceTest extends TestCase
                     file_put_contents($archiveFile, '-- Dummy compressed archive');
                 }
 
-                return new class {
+                return new class () {
                     public function successful()
                     {
                         return true;

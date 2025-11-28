@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PriceSearchController;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use App\Http\Controllers\PriceSearchController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 
 // Simple test route
 Route::get('/test-simple', static function () {

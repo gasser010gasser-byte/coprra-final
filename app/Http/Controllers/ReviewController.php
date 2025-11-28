@@ -55,6 +55,7 @@ class ReviewController extends Controller
 
         if ($existingReview) {
             $product = Product::findOrFail($validated['product_id']);
+
             return redirect()->route('products.show', $product->slug)
                 ->with('error', 'You have already reviewed this product.');
         }
@@ -69,6 +70,7 @@ class ReviewController extends Controller
         ]);
 
         $product = Product::findOrFail($validated['product_id']);
+
         return redirect()->route('products.show', $product->slug)
             ->with('success', 'Review submitted successfully!');
     }

@@ -25,6 +25,7 @@ class FixProductPrices extends Command
 
         if ($productsToFix->isEmpty()) {
             $this->info('✅ All products already have valid prices!');
+
             return 0;
         }
 
@@ -36,6 +37,7 @@ class FixProductPrices extends Command
                 $newPrice = $this->generateRealisticPrice($product);
                 $this->line("  [{$product->id}] {$product->name}: \$0.00 → \${$newPrice}");
             }
+
             return 0;
         }
 
@@ -98,6 +100,7 @@ class FixProductPrices extends Command
             if (str_contains($productName, 'jacket') || str_contains($productName, 'coat')) {
                 return (float) rand(79, 399);
             }
+
             return (float) rand(29, 149);
         }
 

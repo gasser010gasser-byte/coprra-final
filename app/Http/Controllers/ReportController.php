@@ -4,4 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-class ReportController extends Controller {}
+class ReportController extends Controller
+{
+}

@@ -502,35 +502,35 @@ class TestDashboard
 
     private function initializeDashboardComponents(): void
     {
-        $this->metricsCollector = new class {
+        $this->metricsCollector = new class () {
             public function collect($data)
             {
                 return $data;
             }
         };
 
-        $this->analyticsEngine = new class {
+        $this->analyticsEngine = new class () {
             public function analyze($data)
             {
                 return $data;
             }
         };
 
-        $this->visualizationEngine = new class {
+        $this->visualizationEngine = new class () {
             public function visualize($data)
             {
                 return $data;
             }
         };
 
-        $this->reportingEngine = new class {
+        $this->reportingEngine = new class () {
             public function report($data)
             {
                 return $data;
             }
         };
 
-        $this->alertingEngine = new class {
+        $this->alertingEngine = new class () {
             public function alert($data)
             {
                 return $data;
@@ -540,35 +540,35 @@ class TestDashboard
 
     private function initializeMonitoringSystems(): void
     {
-        $this->realTimeMonitor = new class {
+        $this->realTimeMonitor = new class () {
             public function monitor($data)
             {
                 return $data;
             }
         };
 
-        $this->performanceMonitor = new class {
+        $this->performanceMonitor = new class () {
             public function monitor($data)
             {
                 return $data;
             }
         };
 
-        $this->progressMonitor = new class {
+        $this->progressMonitor = new class () {
             public function monitor($data)
             {
                 return $data;
             }
         };
 
-        $this->qualityMonitor = new class {
+        $this->qualityMonitor = new class () {
             public function monitor($data)
             {
                 return $data;
             }
         };
 
-        $this->resourceMonitor = new class {
+        $this->resourceMonitor = new class () {
             public function monitor($data)
             {
                 return $data;
@@ -578,35 +578,35 @@ class TestDashboard
 
     private function initializeAnalyticsEngines(): void
     {
-        $this->intelligentAnalytics = new class {
+        $this->intelligentAnalytics = new class () {
             public function analyze($data)
             {
                 return $data;
             }
         };
 
-        $this->predictiveAnalytics = new class {
+        $this->predictiveAnalytics = new class () {
             public function predict($data)
             {
                 return $data;
             }
         };
 
-        $this->comparativeAnalytics = new class {
+        $this->comparativeAnalytics = new class () {
             public function compare($data)
             {
                 return $data;
             }
         };
 
-        $this->trendAnalytics = new class {
+        $this->trendAnalytics = new class () {
             public function analyze($data)
             {
                 return $data;
             }
         };
 
-        $this->anomalyDetector = new class {
+        $this->anomalyDetector = new class () {
             public function detect($data)
             {
                 return $data;
@@ -616,35 +616,35 @@ class TestDashboard
 
     private function initializeVisualizationComponents(): void
     {
-        $this->chartGenerator = new class {
+        $this->chartGenerator = new class () {
             public function generate($data)
             {
                 return $data;
             }
         };
 
-        $this->graphGenerator = new class {
+        $this->graphGenerator = new class () {
             public function generate($data)
             {
                 return $data;
             }
         };
 
-        $this->heatmapGenerator = new class {
+        $this->heatmapGenerator = new class () {
             public function generate($data)
             {
                 return $data;
             }
         };
 
-        $this->timelineGenerator = new class {
+        $this->timelineGenerator = new class () {
             public function generate($data)
             {
                 return $data;
             }
         };
 
-        $this->dashboardRenderer = new class {
+        $this->dashboardRenderer = new class () {
             public function render($data)
             {
                 return $data;
@@ -654,35 +654,35 @@ class TestDashboard
 
     private function initializeDataManagement(): void
     {
-        $this->dataCollector = new class {
+        $this->dataCollector = new class () {
             public function collect($data)
             {
                 return $data;
             }
         };
 
-        $this->dataProcessor = new class {
+        $this->dataProcessor = new class () {
             public function process($data)
             {
                 return $data;
             }
         };
 
-        $this->dataAggregator = new class {
+        $this->dataAggregator = new class () {
             public function aggregate($data)
             {
                 return $data;
             }
         };
 
-        $this->dataValidator = new class {
+        $this->dataValidator = new class () {
             public function validate($data)
             {
                 return $data;
             }
         };
 
-        $this->dataArchiver = new class {
+        $this->dataArchiver = new class () {
             public function archive($data)
             {
                 return $data;

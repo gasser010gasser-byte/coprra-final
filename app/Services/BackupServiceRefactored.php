@@ -17,7 +17,8 @@ class BackupServiceRefactored
     public function __construct(
         private readonly BackupDatabaseService $databaseService,
         private readonly BackupFileService $fileService
-    ) {}
+    ) {
+    }
 
     /**
      * Create full backup (database + files).

@@ -4,4 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-class WebhookController extends Controller {}
+class WebhookController extends Controller
+{
+}

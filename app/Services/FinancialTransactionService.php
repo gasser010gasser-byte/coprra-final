@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Log;
 
 final readonly class FinancialTransactionService
 {
-    public function __construct(private AuditService $auditService) {}
+    public function __construct(private AuditService $auditService)
+    {
+    }
 
     public function updateProductPrice(Product $product, float $newPrice, ?string $reason = null): bool
     {

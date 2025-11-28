@@ -4,4 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-class AnalyticsController extends Controller {}
+class AnalyticsController extends Controller
+{
+}

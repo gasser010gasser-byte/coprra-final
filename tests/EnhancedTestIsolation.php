@@ -94,6 +94,7 @@ trait EnhancedTestIsolation
         }
 
         $traits = class_uses_recursive(static::class);
+
         return \in_array(\Illuminate\Foundation\Testing\RefreshDatabase::class, $traits, true)
             || \in_array(\Tests\CustomRefreshDatabase::class, $traits, true);
     }

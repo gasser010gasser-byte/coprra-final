@@ -14,7 +14,8 @@ final class ErrorController extends Controller
 {
     public function __construct(
         private readonly LogProcessingService $logProcessingService
-    ) {}
+    ) {
+    }
 
     /**
      * Display error dashboard.

@@ -12,7 +12,8 @@ final readonly class PullRequestService
     public function __construct(
         private ProcessService $processService,
         private OutputStyle $output
-    ) {}
+    ) {
+    }
 
     public function createPullRequest(string $branchName, string $prTitle, string $prBody): bool
     {

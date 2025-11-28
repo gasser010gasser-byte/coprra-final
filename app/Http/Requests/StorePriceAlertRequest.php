@@ -6,4 +6,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePriceAlertRequest extends FormRequest {}
+class StorePriceAlertRequest extends FormRequest
+{
+}

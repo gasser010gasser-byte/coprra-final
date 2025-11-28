@@ -66,7 +66,7 @@ final class MockStoreAdapter extends StoreAdapter
     {
         $this->logger->info('MockStoreAdapter: Fetching product', ['url' => $productIdentifier]);
 
-        if (!$this->validateIdentifier($productIdentifier)) {
+        if (! $this->validateIdentifier($productIdentifier)) {
             throw new \InvalidArgumentException('Invalid product URL supplied.');
         }
 
@@ -246,7 +246,7 @@ final class MockStoreAdapter extends StoreAdapter
                 ->retry($this->retries, 200)
                 ->get($url);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 $this->logger->warning('MockStoreAdapter: HTTP request failed', [
                     'status' => $response->status(),
                     'url' => $url,
@@ -317,14 +317,14 @@ final class MockStoreAdapter extends StoreAdapter
 
                 $decoded = json_decode($json, true);
 
-                if (!is_array($decoded)) {
+                if (! is_array($decoded)) {
                     return;
                 }
 
                 $items = $this->normalizeStructuredItems($decoded);
 
                 foreach ($items as $item) {
-                    if (!is_array($item)) {
+                    if (! is_array($item)) {
                         continue;
                     }
 
@@ -357,7 +357,7 @@ final class MockStoreAdapter extends StoreAdapter
             $type = $type[0] ?? null;
         }
 
-        if (!is_string($type)) {
+        if (! is_string($type)) {
             $type = null;
         }
 
@@ -370,7 +370,7 @@ final class MockStoreAdapter extends StoreAdapter
 
             if (isset($item['offers'])) {
                 foreach ($this->normalizeStructuredItems($item['offers']) as $offer) {
-                    if (!is_array($offer)) {
+                    if (! is_array($offer)) {
                         continue;
                     }
 
@@ -390,7 +390,7 @@ final class MockStoreAdapter extends StoreAdapter
 
     private function normalizeStructuredItems($data): array
     {
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return [];
         }
 
@@ -578,6 +578,7 @@ final class MockStoreAdapter extends StoreAdapter
         foreach ($candidates as $candidate) {
             if (is_string($candidate) && trim($candidate) !== '') {
                 $clean = preg_replace('/[^a-z0-9\s]/i', ' ', $candidate) ?: $candidate;
+
                 return Str::title(trim(preg_replace('/\s+/', ' ', $clean) ?: $clean));
             }
         }

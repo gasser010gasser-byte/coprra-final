@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Mail;
 
 class NotificationService
 {
-    public function __construct(private readonly AuditService $auditService) {}
+    public function __construct(private readonly AuditService $auditService)
+    {
+    }
 
     /**
      * Send price drop notification.

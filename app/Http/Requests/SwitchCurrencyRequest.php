@@ -39,10 +39,9 @@ class SwitchCurrencyRequest extends FormRequest
         \Log::warning('Currency switch validation failed', [
             'errors' => $validator->errors()->toArray(),
             'input' => $this->all(),
-            'ip' => $this->ip()
+            'ip' => $this->ip(),
         ]);
 
         parent::failedValidation($validator);
     }
 }
-

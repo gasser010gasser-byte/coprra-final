@@ -11,7 +11,8 @@ class LogProcessingService
         private readonly LogLineParser $lineParser,
         private readonly ErrorStatisticsCalculator $statisticsCalculator,
         private readonly SystemHealthChecker $healthChecker
-    ) {}
+    ) {
+    }
 
     /**
      * Process log files and extract recent errors.

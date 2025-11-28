@@ -6,4 +6,6 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
-class CollectionMacroServiceProvider extends ServiceProvider {}
+class CollectionMacroServiceProvider extends ServiceProvider
+{
+}

@@ -12,7 +12,8 @@ final readonly class AgentFixerFactory
     public function __construct(
         private ProcessService $processService,
         private OutputStyle $output
-    ) {}
+    ) {
+    }
 
     public function create(string $type): AnalysisFixer|StyleFixer
     {

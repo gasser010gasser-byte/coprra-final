@@ -102,7 +102,7 @@ final class DocumentationControllerTest extends TestCase
     {
         // Mock storage as not writable
         $this->app->instance('filesystem', static function () {
-            return new class {
+            return new class () {
                 public function isWritable($path)
                 {
                     return false;

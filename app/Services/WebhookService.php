@@ -17,7 +17,8 @@ final readonly class WebhookService
         private Dispatcher $dispatcher,
         private Webhook $webhook,
         private Product $product
-    ) {}
+    ) {
+    }
 
     /**
      * Process webhook.

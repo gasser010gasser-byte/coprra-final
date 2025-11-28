@@ -6,4 +6,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateReviewRequest extends FormRequest {}
+class UpdateReviewRequest extends FormRequest
+{
+}

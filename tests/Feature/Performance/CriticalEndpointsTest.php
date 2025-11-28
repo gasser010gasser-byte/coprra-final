@@ -364,7 +364,10 @@ final class CriticalEndpointsTest extends TestCase
      */
     private function assertResponseTime(float $actualMs, float $thresholdMs = self::RESPONSE_TIME_THRESHOLD_MS): void
     {
-        self::assertLessThan($thresholdMs, $actualMs,
-            "Response time {$actualMs}ms exceeds threshold {$thresholdMs}ms");
+        self::assertLessThan(
+            $thresholdMs,
+            $actualMs,
+            "Response time {$actualMs}ms exceeds threshold {$thresholdMs}ms"
+        );
     }
 }

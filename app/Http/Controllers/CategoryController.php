@@ -3,12 +3,13 @@
 declare(strict_types=1);
 
 namespace App\Http\Controllers;
+
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\Contracts\CacheServiceContract;
 use App\Services\SEOService;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
@@ -16,7 +17,8 @@ class CategoryController extends Controller
     public function __construct(
         private readonly CacheServiceContract $cache,
         private readonly SEOService $seoService
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of active categories.

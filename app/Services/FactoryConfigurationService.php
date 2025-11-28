@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 final readonly class FactoryConfigurationService
 {
-    public function __construct(private string $factoryClass = Factory::class) {}
+    public function __construct(private string $factoryClass = Factory::class)
+    {
+    }
 
     public function configureNaming(): void
     {

@@ -104,8 +104,9 @@ class ProcessScrapingJob implements ShouldQueue
         // Get the scraper job model
         $scraperJob = ScraperJob::find($this->scraperJobId);
 
-        if (!$scraperJob) {
+        if (! $scraperJob) {
             Log::channel('scraper')->error("❌ Job #{$this->jobNumber}: ScraperJob record not found (ID: {$this->scraperJobId})");
+
             return;
         }
 
@@ -116,7 +117,7 @@ class ProcessScrapingJob implements ShouldQueue
 
         try {
             // Validate URL
-            if (!$this->isValidUrl($this->url)) {
+            if (! $this->isValidUrl($this->url)) {
                 throw new \Exception("Invalid URL format");
             }
 
@@ -128,7 +129,7 @@ class ProcessScrapingJob implements ShouldQueue
             // Fetch product data using adapter
             $data = $adapter->fetchProduct($this->url);
 
-            if (!$data) {
+            if (! $data) {
                 throw new \Exception("Failed to extract data from URL");
             }
 
@@ -175,7 +176,7 @@ class ProcessScrapingJob implements ShouldQueue
 
         if ($normalized->contains('www.') || $normalized->contains('.com')) {
             throw new \Exception('Failed to extract a valid product title.');
-            }
+        }
 
         if ($normalized->length() < 8) {
             throw new \Exception('Failed to extract a valid product title.');
@@ -228,6 +229,7 @@ class ProcessScrapingJob implements ShouldQueue
             // Validate required fields
             if (empty($data['name']) || empty($data['price'])) {
                 Log::channel('scraper')->error('❌ Missing required fields: name or price');
+
                 return null;
             }
 
@@ -267,6 +269,7 @@ class ProcessScrapingJob implements ShouldQueue
             return $product;
         } catch (\Exception $e) {
             Log::channel('scraper')->error("❌ Error creating product: {$e->getMessage()}");
+
             return null;
         }
     }

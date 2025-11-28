@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SwitchLanguageRequest;
 use App\Http\Requests\SwitchCurrencyRequest;
-use App\Models\Currency;
+use App\Http\Requests\SwitchLanguageRequest;
 use App\Models\Country;
+use App\Models\Currency;
 use App\Models\Language;
 use App\Models\UserLocaleSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class LocaleController extends Controller
@@ -27,7 +26,7 @@ class LocaleController extends Controller
 
         // Fallback to supported locales when DB record is missing
         $supported = config('app.supported_locales', ['en']);
-        if (!$language && !\in_array($langCode, $supported, true)) {
+        if (! $language && ! \in_array($langCode, $supported, true)) {
             return redirect()->back()->with('error', __('Invalid language'));
         }
 
@@ -53,7 +52,7 @@ class LocaleController extends Controller
     public function changeCurrency(Request $request, string $currencyCode): RedirectResponse
     {
         $currency = Currency::query()->where('code', $currencyCode)->first();
-        if (!$currency) {
+        if (! $currency) {
             return redirect()->back()->with('error', __('Invalid currency'));
         }
 
@@ -80,7 +79,7 @@ class LocaleController extends Controller
             'code' => $code,
             'input' => $request->all(),
             'user_id' => $request->user()?->id,
-            'ip' => $request->ip()
+            'ip' => $request->ip(),
         ]);
 
         return $this->changeLanguage($request, $code);
@@ -97,7 +96,7 @@ class LocaleController extends Controller
             'code' => $currencyCode,
             'input' => $request->all(),
             'user_id' => $request->user()?->id,
-            'ip' => $request->ip()
+            'ip' => $request->ip(),
         ]);
 
         return $this->changeCurrency($request, $currencyCode);
@@ -109,7 +108,7 @@ class LocaleController extends Controller
     public function changeCountry(Request $request, string $countryCode): RedirectResponse
     {
         $country = Country::query()->where('code', $countryCode)->first();
-        if (!$country) {
+        if (! $country) {
             return redirect()->back()->with('error', __('Invalid country'));
         }
 
@@ -131,6 +130,7 @@ class LocaleController extends Controller
     public function switchCountry(Request $request): RedirectResponse
     {
         $code = (string) ($request->input('country') ?? '');
+
         return $this->changeCountry($request, $code);
     }
 }

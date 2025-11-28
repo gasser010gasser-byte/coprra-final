@@ -19,7 +19,8 @@ class UserController extends Controller
     public function __construct(
         private readonly UserBanService $userBanService,
         private readonly PasswordPolicyService $passwordPolicyService
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of users.

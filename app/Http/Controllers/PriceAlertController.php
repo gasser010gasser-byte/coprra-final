@@ -148,7 +148,7 @@ class PriceAlertController extends Controller
         }
 
         $priceAlert->update([
-            'is_active' => !$priceAlert->is_active,
+            'is_active' => ! $priceAlert->is_active,
         ]);
 
         return redirect()->route('price-alerts.index')

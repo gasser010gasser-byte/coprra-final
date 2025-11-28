@@ -14,10 +14,10 @@ use Illuminate\View\View;
 
 /**
  * CartController - Shopping List / Price Tracking Tool
- * 
+ *
  * This controller manages a "shopping list" or "price tracking" cart for affiliate products.
  * Users can add products to track prices, but purchases are made on external affiliate stores.
- * 
+ *
  * @mixin \Darryldecode\Cart\Cart
  * @mixin \Darryldecode\Cart\CartCondition
  */
@@ -30,7 +30,7 @@ class CartController extends Controller
     {
         /** @var Cart $cartInstance */
         $cartInstance = app('cart');
-        
+
         return view('cart.index', [
             'cartItems' => $cartInstance->getContent(),
             'total' => $cartInstance->getTotal(),
@@ -102,16 +102,16 @@ class CartController extends Controller
 
         /** @var Cart $cartInstance */
         $cartInstance = app('cart');
-        
+
         // Stock check logic will be implemented when inventory management is added to the product model.
-        
+
         $cartInstance->update($validated['id'], [
             'quantity' => [
                 'relative' => false,
                 'value' => $validated['quantity'],
             ],
         ]);
-        
+
         Session::flash('success', 'Shopping list updated!');
 
         return redirect()->route('cart.index');

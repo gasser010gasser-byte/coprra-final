@@ -288,7 +288,7 @@ final class SecurityTest extends TestCase
 
     private function createUserWithRole(string $role): object
     {
-        return new class($role) {
+        return new class ($role) {
             public $id;
             public $email;
             public $role;

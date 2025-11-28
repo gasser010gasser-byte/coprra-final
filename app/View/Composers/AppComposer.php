@@ -49,7 +49,7 @@ final class AppComposer
              *
              * @psalm-return array{code: string, name: string, native_name: string, direction: string, is_current: bool}
              */
-            = static fn(Language $language): array => [
+            = static fn (Language $language): array => [
                 'code' => $language->code ?? '',
                 'name' => $language->name ?? '',
                 'native_name' => $language->native_name ?? '',
@@ -130,7 +130,7 @@ final class AppComposer
              *
              * @psalm-return array{id: int, name: string, slug: string, url: string}
              */
-            = static fn(Category $category): array => [
+            = static fn (Category $category): array => [
                 'id' => (int) $category->id,
                 'name' => $category->name ?? '',
                 'slug' => $category->slug ?? '',
@@ -156,7 +156,7 @@ final class AppComposer
              *
              * @psalm-return array{id: int, name: string, slug: string, logo: string|null, url: string}
              */
-            = static fn(Brand $brand): array => [
+            = static fn (Brand $brand): array => [
                 'id' => (int) $brand->id,
                 'name' => $brand->name ?? '',
                 'slug' => $brand->slug ?? '',
@@ -197,7 +197,7 @@ final class AppComposer
                 foreach ($countries as $country) {
                     $langCode = $country->language->code ?? 'en';
 
-                    if (!isset($hierarchy[$langCode])) {
+                    if (! isset($hierarchy[$langCode])) {
                         $hierarchy[$langCode] = [];
                     }
 
@@ -227,6 +227,7 @@ final class AppComposer
             });
         } catch (\Throwable $e) {
             Log::error('Failed to build i18n hierarchy', ['error' => $e->getMessage()]);
+
             return [
                 'hierarchy' => [],
                 'current' => [
@@ -283,7 +284,7 @@ final class AppComposer
                     $mapped = $collection->map($mapper);
 
                     // Convert array items to objects for view compatibility
-                    return $mapped->map(fn($item) => (object) $item)->values()->all();
+                    return $mapped->map(fn ($item) => (object) $item)->values()->all();
                 }
             );
         } catch (\Throwable $e) {

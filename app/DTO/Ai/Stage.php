@@ -17,5 +17,6 @@ final readonly class Stage
         public bool $strict,
         public bool $required,
         public ?array $files = null
-    ) {}
+    ) {
+    }
 }

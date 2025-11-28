@@ -12,7 +12,8 @@ final readonly class PerformanceReporterService
     public function __construct(
         private OutputStyle $output,
         private Repository $cache
-    ) {}
+    ) {
+    }
 
     public function displayRecommendations(): void
     {

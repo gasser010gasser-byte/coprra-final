@@ -11,7 +11,8 @@ final readonly class PriceComparisonService
 {
     public function __construct(
         private StoreAdapterManager $storeAdapterManager
-    ) {}
+    ) {
+    }
 
     /**
      * Fetch prices from all available stores.
@@ -26,7 +27,7 @@ final readonly class PriceComparisonService
         $storeMappings = $product->store_mappings ?? null;
 
         // If store_mappings exists, use them
-        if (\is_array($storeMappings) && !empty($storeMappings)) {
+        if (\is_array($storeMappings) && ! empty($storeMappings)) {
             foreach ($storeMappings as $storeIdentifier => $productIdentifier) {
                 $productData = $this->storeAdapterManager->fetchProduct(
                     $storeIdentifier,
@@ -40,11 +41,11 @@ final readonly class PriceComparisonService
         } else {
             // If no store_mappings, fetch from all available adapters using product slug/ID as identifier
             $availableAdapters = $this->storeAdapterManager->getAvailableAdapters();
-            
+
             foreach ($availableAdapters as $storeIdentifier => $adapter) {
                 // Use product slug or ID as identifier for dummy data
                 $productIdentifier = $product->slug ?? (string) $product->id;
-                
+
                 $productData = $adapter->fetchProduct($productIdentifier);
 
                 if ($productData) {
@@ -178,6 +179,7 @@ final readonly class PriceComparisonService
 
         // Fallback: use placeholder mechanism directly
         $separator = strpos($productUrl, '?') !== false ? '&' : '?';
+
         return $productUrl . $separator . 'ref=coprra';
     }
 }

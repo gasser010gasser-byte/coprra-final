@@ -14,7 +14,8 @@ final readonly class DatabaseOptimizerService
         private OutputStyle $output,
         private DatabaseManager $database,
         private Kernel $kernel
-    ) {}
+    ) {
+    }
 
     public function optimizeDatabase(): void
     {

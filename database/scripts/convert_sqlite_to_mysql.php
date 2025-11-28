@@ -1,11 +1,12 @@
 <?php
+
 set_time_limit(600); // 10 minutes
 ini_set('memory_limit', '512M');
 
 $sqliteDb = '/home/u990109832/temp_db/backup_13mb.sqlite';
 $outputFile = '/home/u990109832/temp_db/converted_data.sql';
 
-if (!file_exists($sqliteDb)) {
+if (! file_exists($sqliteDb)) {
     die("Error: SQLite database not found\n");
 }
 
@@ -43,7 +44,7 @@ try {
         'wishlists',
         'price_alerts',
         'user_locale_settings',
-        'exchange_rates'
+        'exchange_rates',
     ];
 
     foreach ($tables as $table) {
@@ -52,8 +53,9 @@ try {
             "SELECT name FROM sqlite_master WHERE type='table' AND name='$table'"
         )->fetchColumn();
 
-        if (!$tableExists) {
+        if (! $tableExists) {
             echo "⏭️  Skipping $table (table not found)\n";
+
             continue;
         }
 
@@ -61,6 +63,7 @@ try {
 
         if ($count == 0) {
             echo "⏭️  Skipping $table (empty)\n";
+
             continue;
         }
 
@@ -72,7 +75,7 @@ try {
 
         // Get column names
         $columns = $sqlite->query("PRAGMA table_info($table)")->fetchAll(PDO::FETCH_ASSOC);
-        $columnNames = array_map(function($col) { return $col['name']; }, $columns);
+        $columnNames = array_map(function ($col) { return $col['name']; }, $columns);
 
         // Export data in batches
         $batchSize = 100;
@@ -104,7 +107,7 @@ try {
                 $insertValues[] = '(' . implode(', ', $values) . ')';
             }
 
-            if (!empty($insertValues)) {
+            if (! empty($insertValues)) {
                 $sql = "INSERT INTO `$table` (`" . implode('`, `', $columnNames) . "`)";
                 $sql .= " VALUES \n" . implode(",\n", $insertValues) . ";" . "\n";
                 fwrite($output, $sql);

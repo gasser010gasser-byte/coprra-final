@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -18,28 +17,28 @@ return new class extends Migration
     public function up(): void
     {
         // Fix brands table - add description column if it doesn't exist
-        if (Schema::hasTable('brands') && !Schema::hasColumn('brands', 'description')) {
+        if (Schema::hasTable('brands') && ! Schema::hasColumn('brands', 'description')) {
             Schema::table('brands', function (Blueprint $table) {
                 $table->text('description')->nullable()->after('name');
             });
         }
 
         // Fix stores table - add deleted_at column for SoftDeletes if it doesn't exist
-        if (Schema::hasTable('stores') && !Schema::hasColumn('stores', 'deleted_at')) {
+        if (Schema::hasTable('stores') && ! Schema::hasColumn('stores', 'deleted_at')) {
             Schema::table('stores', function (Blueprint $table) {
                 $table->softDeletes();
             });
         }
 
         // Fix categories table - add deleted_at if missing
-        if (Schema::hasTable('categories') && !Schema::hasColumn('categories', 'deleted_at')) {
+        if (Schema::hasTable('categories') && ! Schema::hasColumn('categories', 'deleted_at')) {
             Schema::table('categories', function (Blueprint $table) {
                 $table->softDeletes();
             });
         }
 
         // Fix products table - ensure deleted_at exists
-        if (Schema::hasTable('products') && !Schema::hasColumn('products', 'deleted_at')) {
+        if (Schema::hasTable('products') && ! Schema::hasColumn('products', 'deleted_at')) {
             Schema::table('products', function (Blueprint $table) {
                 $table->softDeletes();
             });

@@ -19,4 +19,6 @@ namespace App\Schemas;
  *     }
  * )
  */
-final class ProductDetailSchema {}
+final class ProductDetailSchema
+{
+}

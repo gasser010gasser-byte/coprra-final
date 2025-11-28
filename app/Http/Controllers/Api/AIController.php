@@ -21,7 +21,8 @@ class AIController extends BaseApiController
     public function __construct(
         private readonly AITextAnalysisService $textAnalysisService,
         private readonly AIImageAnalysisService $imageAnalysisService
-    ) {}
+    ) {
+    }
 
     /**
      * @OA\Post(

@@ -592,21 +592,21 @@ class TestOrchestrator
         $this->testProcessor = new ComprehensiveTestProcessor();
         $this->automationRunner = new TestAutomationRunner();
 
-        $this->testManager = new class {
+        $this->testManager = new class () {
             public function manage($tests)
             {
                 return $tests;
             }
         };
 
-        $this->testCoordinator = new class {
+        $this->testCoordinator = new class () {
             public function coordinate($tests)
             {
                 return $tests;
             }
         };
 
-        $this->testSupervisor = new class {
+        $this->testSupervisor = new class () {
             public function supervise($tests)
             {
                 return $tests;
@@ -616,35 +616,35 @@ class TestOrchestrator
 
     private function initializeOrchestrationEngines(): void
     {
-        $this->orchestrationEngine = new class {
+        $this->orchestrationEngine = new class () {
             public function orchestrate($data)
             {
                 return $data;
             }
         };
 
-        $this->coordinationEngine = new class {
+        $this->coordinationEngine = new class () {
             public function coordinate($data)
             {
                 return $data;
             }
         };
 
-        $this->managementEngine = new class {
+        $this->managementEngine = new class () {
             public function manage($data)
             {
                 return $data;
             }
         };
 
-        $this->supervisionEngine = new class {
+        $this->supervisionEngine = new class () {
             public function supervise($data)
             {
                 return $data;
             }
         };
 
-        $this->controlEngine = new class {
+        $this->controlEngine = new class () {
             public function control($data)
             {
                 return $data;
@@ -654,35 +654,35 @@ class TestOrchestrator
 
     private function initializeAdvancedFeatures(): void
     {
-        $this->intelligentOrchestrator = new class {
+        $this->intelligentOrchestrator = new class () {
             public function orchestrate($data)
             {
                 return $data;
             }
         };
 
-        $this->adaptiveOrchestrator = new class {
+        $this->adaptiveOrchestrator = new class () {
             public function adapt($data)
             {
                 return $data;
             }
         };
 
-        $this->predictiveOrchestrator = new class {
+        $this->predictiveOrchestrator = new class () {
             public function predict($data)
             {
                 return $data;
             }
         };
 
-        $this->selfManagingOrchestrator = new class {
+        $this->selfManagingOrchestrator = new class () {
             public function manage($data)
             {
                 return $data;
             }
         };
 
-        $this->learningOrchestrator = new class {
+        $this->learningOrchestrator = new class () {
             public function learn($data)
             {
                 return $data;
@@ -692,35 +692,35 @@ class TestOrchestrator
 
     private function initializeLifecycleManagement(): void
     {
-        $this->lifecycleManager = new class {
+        $this->lifecycleManager = new class () {
             public function manage($lifecycle)
             {
                 return $lifecycle;
             }
         };
 
-        $this->phaseManager = new class {
+        $this->phaseManager = new class () {
             public function manage($phase)
             {
                 return $phase;
             }
         };
 
-        $this->stageManager = new class {
+        $this->stageManager = new class () {
             public function manage($stage)
             {
                 return $stage;
             }
         };
 
-        $this->transitionManager = new class {
+        $this->transitionManager = new class () {
             public function manage($transition)
             {
                 return $transition;
             }
         };
 
-        $this->completionManager = new class {
+        $this->completionManager = new class () {
             public function manage($completion)
             {
                 return $completion;

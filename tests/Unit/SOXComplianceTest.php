@@ -193,7 +193,7 @@ final class SOXComplianceTest extends TestCase
 
     private function createMockSOXComplianceService(): object
     {
-        return new class {
+        return new class () {
             public function recordFinancialTransaction(array $transaction): array
             {
                 return [

@@ -13,7 +13,8 @@ final class MigrationGenerator
 {
     public function __construct(
         private readonly ColumnDefinitionParser $columnParser
-    ) {}
+    ) {
+    }
 
     /**
      * Generate a migration file for the given operations.

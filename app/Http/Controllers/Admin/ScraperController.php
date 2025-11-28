@@ -51,7 +51,7 @@ class ScraperController extends Controller
         $urls = array_filter(
             array_map('trim', explode("\n", $request->urls)),
             static function ($url) {
-                return !empty($url) && filter_var($url, \FILTER_VALIDATE_URL);
+                return ! empty($url) && filter_var($url, \FILTER_VALIDATE_URL);
             }
         );
 

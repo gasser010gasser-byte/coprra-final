@@ -29,4 +29,6 @@ namespace App\Schemas;
  *     @OA\Property(property="updated_at", type="string", format="date-time")
  * )
  */
-final class PriceOfferSchema {}
+final class PriceOfferSchema
+{
+}

@@ -17,7 +17,8 @@ class AgentExecutorService
 {
     public function __construct(
         private readonly AgentRegistryService $registry
-    ) {}
+    ) {
+    }
 
     /**
      * Initialize an agent and set it to active state.

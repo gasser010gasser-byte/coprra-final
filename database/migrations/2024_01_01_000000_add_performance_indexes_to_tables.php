@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\SQLiteConnection;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,43 +15,43 @@ return new class extends Migration {
     {
         // Add indexes to products table if exists
         if (Schema::hasTable('products')) {
-        Schema::table('products', function (Blueprint $table) {
-            if (! $this->indexExists('products', 'products_category_id_index')) {
-                $table->index('category_id');
-            }
-            if (! $this->indexExists('products', 'products_brand_id_index')) {
-                $table->index('brand_id');
-            }
-            if (! $this->indexExists('products', 'products_is_active_index')) {
-                $table->index('is_active');
-            }
-            if (! $this->indexExists('products', 'products_created_at_index')) {
-                $table->index('created_at');
-            }
-            // Compound index for common queries
-            if (! $this->indexExists('products', 'products_category_id_is_active_index')) {
-                $table->index(['category_id', 'is_active']);
-            }
-        });
+            Schema::table('products', function (Blueprint $table) {
+                if (! $this->indexExists('products', 'products_category_id_index')) {
+                    $table->index('category_id');
+                }
+                if (! $this->indexExists('products', 'products_brand_id_index')) {
+                    $table->index('brand_id');
+                }
+                if (! $this->indexExists('products', 'products_is_active_index')) {
+                    $table->index('is_active');
+                }
+                if (! $this->indexExists('products', 'products_created_at_index')) {
+                    $table->index('created_at');
+                }
+                // Compound index for common queries
+                if (! $this->indexExists('products', 'products_category_id_is_active_index')) {
+                    $table->index(['category_id', 'is_active']);
+                }
+            });
         }
 
         // Add indexes to price_offers table if exists
         if (Schema::hasTable('price_offers')) {
-        Schema::table('price_offers', function (Blueprint $table) {
-            if (! $this->indexExists('price_offers', 'price_offers_product_id_index')) {
-                $table->index('product_id');
-            }
-            if (! $this->indexExists('price_offers', 'price_offers_store_id_index')) {
-                $table->index('store_id');
-            }
-            if (! $this->indexExists('price_offers', 'price_offers_in_stock_index')) {
-                $table->index('in_stock');
-            }
-            // Compound index for price searches
-            if (! $this->indexExists('price_offers', 'price_offers_product_id_in_stock_index')) {
-                $table->index(['product_id', 'in_stock']);
-            }
-        });
+            Schema::table('price_offers', function (Blueprint $table) {
+                if (! $this->indexExists('price_offers', 'price_offers_product_id_index')) {
+                    $table->index('product_id');
+                }
+                if (! $this->indexExists('price_offers', 'price_offers_store_id_index')) {
+                    $table->index('store_id');
+                }
+                if (! $this->indexExists('price_offers', 'price_offers_in_stock_index')) {
+                    $table->index('in_stock');
+                }
+                // Compound index for price searches
+                if (! $this->indexExists('price_offers', 'price_offers_product_id_in_stock_index')) {
+                    $table->index(['product_id', 'in_stock']);
+                }
+            });
         }
 
         // Add indexes to orders table if exists
@@ -87,77 +87,77 @@ return new class extends Migration {
 
         // Add indexes to price_alerts table if exists
         if (Schema::hasTable('price_alerts')) {
-        Schema::table('price_alerts', function (Blueprint $table) {
-            if (! $this->indexExists('price_alerts', 'price_alerts_user_id_index')) {
-                $table->index('user_id');
-            }
-            if (! $this->indexExists('price_alerts', 'price_alerts_product_id_index')) {
-                $table->index('product_id');
-            }
-            if (! $this->indexExists('price_alerts', 'price_alerts_is_active_index')) {
-                $table->index('is_active');
-            }
-            // Compound index for user alerts
-            if (! $this->indexExists('price_alerts', 'price_alerts_user_id_is_active_index')) {
-                $table->index(['user_id', 'is_active']);
-            }
-        });
+            Schema::table('price_alerts', function (Blueprint $table) {
+                if (! $this->indexExists('price_alerts', 'price_alerts_user_id_index')) {
+                    $table->index('user_id');
+                }
+                if (! $this->indexExists('price_alerts', 'price_alerts_product_id_index')) {
+                    $table->index('product_id');
+                }
+                if (! $this->indexExists('price_alerts', 'price_alerts_is_active_index')) {
+                    $table->index('is_active');
+                }
+                // Compound index for user alerts
+                if (! $this->indexExists('price_alerts', 'price_alerts_user_id_is_active_index')) {
+                    $table->index(['user_id', 'is_active']);
+                }
+            });
         }
 
         // Add indexes to wishlists table if exists
         if (Schema::hasTable('wishlists')) {
-        Schema::table('wishlists', function (Blueprint $table) {
-            if (! $this->indexExists('wishlists', 'wishlists_user_id_index')) {
-                $table->index('user_id');
-            }
-            if (! $this->indexExists('wishlists', 'wishlists_product_id_index')) {
-                $table->index('product_id');
-            }
-            // Compound unique index
-            if (! $this->indexExists('wishlists', 'wishlists_user_id_product_id_index')) {
-                $table->index(['user_id', 'product_id']);
-            }
-        });
+            Schema::table('wishlists', function (Blueprint $table) {
+                if (! $this->indexExists('wishlists', 'wishlists_user_id_index')) {
+                    $table->index('user_id');
+                }
+                if (! $this->indexExists('wishlists', 'wishlists_product_id_index')) {
+                    $table->index('product_id');
+                }
+                // Compound unique index
+                if (! $this->indexExists('wishlists', 'wishlists_user_id_product_id_index')) {
+                    $table->index(['user_id', 'product_id']);
+                }
+            });
         }
 
         // Add indexes to reviews table if exists
         if (Schema::hasTable('reviews')) {
-        Schema::table('reviews', function (Blueprint $table) {
-            if (! $this->indexExists('reviews', 'reviews_product_id_index')) {
-                $table->index('product_id');
-            }
-            if (! $this->indexExists('reviews', 'reviews_user_id_index')) {
-                $table->index('user_id');
-            }
-            if (! $this->indexExists('reviews', 'reviews_is_approved_index')) {
-                $table->index('is_approved');
-            }
-            // Compound index for product reviews
-            if (! $this->indexExists('reviews', 'reviews_product_id_is_approved_index')) {
-                $table->index(['product_id', 'is_approved']);
-            }
-        });
+            Schema::table('reviews', function (Blueprint $table) {
+                if (! $this->indexExists('reviews', 'reviews_product_id_index')) {
+                    $table->index('product_id');
+                }
+                if (! $this->indexExists('reviews', 'reviews_user_id_index')) {
+                    $table->index('user_id');
+                }
+                if (! $this->indexExists('reviews', 'reviews_is_approved_index')) {
+                    $table->index('is_approved');
+                }
+                // Compound index for product reviews
+                if (! $this->indexExists('reviews', 'reviews_product_id_is_approved_index')) {
+                    $table->index(['product_id', 'is_approved']);
+                }
+            });
         }
 
         // Add indexes to users table (additional) if exists
         if (Schema::hasTable('users')) {
-        Schema::table('users', function (Blueprint $table) {
-            if (! $this->indexExists('users', 'users_created_at_index')) {
-                $table->index('created_at');
-            }
-        });
+            Schema::table('users', function (Blueprint $table) {
+                if (! $this->indexExists('users', 'users_created_at_index')) {
+                    $table->index('created_at');
+                }
+            });
         }
 
         // Add indexes to stores table if exists
         if (Schema::hasTable('stores')) {
-        Schema::table('stores', function (Blueprint $table) {
-            if (! $this->indexExists('stores', 'stores_is_active_index')) {
-                $table->index('is_active');
-            }
-            if (! $this->indexExists('stores', 'stores_country_code_index')) {
-                $table->index('country_code');
-            }
-        });
+            Schema::table('stores', function (Blueprint $table) {
+                if (! $this->indexExists('stores', 'stores_is_active_index')) {
+                    $table->index('is_active');
+                }
+                if (! $this->indexExists('stores', 'stores_country_code_index')) {
+                    $table->index('country_code');
+                }
+            });
         }
     }
 
@@ -254,6 +254,7 @@ return new class extends Migration {
                     return true;
                 }
             }
+
             return false;
         }
 
