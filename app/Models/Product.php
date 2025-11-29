@@ -417,7 +417,7 @@ class Product extends Model
         static::created(static function (self $product): void {
             try {
                 // Only create if price exists and is valid
-                $price = $product->price;
+                $price = $product->getAttribute('price') ?? $product->price;
                 $priceFloat = $price !== null && $price !== '' ? (float) $price : null;
                 
                 if ($priceFloat !== null && $priceFloat > 0) {
@@ -444,16 +444,21 @@ class Product extends Model
         // Record price change on update when price actually changes
         static::updated(static function (self $product): void {
             try {
-                // Check if price was changed by comparing original and current values
+                // Check if price was changed
+                if (!$product->wasChanged('price')) {
+                    return;
+                }
+                
+                // Get old and new prices
                 $oldPrice = $product->getOriginal('price');
-                $newPrice = $product->price;
+                $newPrice = $product->getAttribute('price') ?? $product->price;
                 
                 // Convert to float for comparison
                 $oldPriceFloat = $oldPrice !== null && $oldPrice !== '' ? (float) $oldPrice : null;
                 $newPriceFloat = $newPrice !== null && $newPrice !== '' ? (float) $newPrice : null;
                 
                 // Create price history if price actually changed and new price is valid
-                if ($product->wasChanged('price') && $newPriceFloat !== null && $newPriceFloat > 0 && $oldPriceFloat !== $newPriceFloat) {
+                if ($newPriceFloat !== null && $newPriceFloat > 0 && $oldPriceFloat !== $newPriceFloat) {
                     PriceHistory::create([
                         'product_id' => $product->id,
                         'price' => $newPriceFloat,
