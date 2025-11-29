@@ -460,36 +460,57 @@ class PriceSearchController extends BaseApiController
                 }
             }
 
-            // Get alternative products for suggestions (same category and brand for better relevance)
-            $alternativeProducts = Product::where('is_active', true)
+            // Get alternative products for suggestions (same category, prioritize same brand and name similarity)
+            $alternativeProductsQuery = Product::where('is_active', true)
                 ->where('id', '!=', $product->id)
                 ->where('category_id', $product->category_id)
-                ->when($product->brand_id, function ($query) use ($product) {
-                    return $query->where('brand_id', $product->brand_id);
-                })
-                ->with(['category:id,name', 'brand:id,name'])
-                ->limit(3)
-                ->get()
+                ->with(['category:id,name', 'brand:id,name']);
+            
+            // Get candidates and filter by name similarity
+            $candidates = $alternativeProductsQuery->limit(10)->get();
+            
+            $alternativeProducts = $candidates
                 ->map(static function (Product $p) use ($product): array {
                     // Calculate similarity score based on name similarity
-                    $similarityScore = 75;
+                    $similarityScore = 50;
+                    
+                    // Brand match increases relevance
                     if ($p->brand_id === $product->brand_id) {
-                        $similarityScore = 85;
+                        $similarityScore += 20;
                     }
-                    // Simple name similarity check
-                    $productNameWords = explode(' ', strtolower($product->name));
-                    $pNameWords = explode(' ', strtolower($p->name));
-                    $commonWords = count(array_intersect($productNameWords, $pNameWords));
-                    if ($commonWords > 0) {
-                        $similarityScore = min(95, $similarityScore + ($commonWords * 5));
+                    
+                    // Name word overlap check
+                    $productNameWords = array_filter(explode(' ', strtolower($product->name)));
+                    $pNameWords = array_filter(explode(' ', strtolower($p->name)));
+                    $commonWords = array_intersect($productNameWords, $pNameWords);
+                    $commonCount = count($commonWords);
+                    
+                    // If no common words at all, it's likely unrelated (e.g., iPhone vs Samsung Galaxy)
+                    if ($commonCount === 0 && count($productNameWords) > 1 && count($pNameWords) > 1) {
+                        $similarityScore = 0; // Mark as unrelated
+                    } else {
+                        $similarityScore += min(30, $commonCount * 10);
                     }
                     
                     return [
-                        'id' => $p->id,
-                        'name' => $p->name,
+                        'product' => $p,
                         'similarity_score' => $similarityScore,
                     ];
-                })->toArray();
+                })
+                ->filter(static function (array $item): bool {
+                    return $item['similarity_score'] > 0; // Exclude unrelated products
+                })
+                ->sortByDesc('similarity_score')
+                ->take(3)
+                ->map(static function (array $item): array {
+                    return [
+                        'id' => $item['product']->id,
+                        'name' => $item['product']->name,
+                        'similarity_score' => $item['similarity_score'],
+                    ];
+                })
+                ->values()
+                ->toArray();
 
             return $this->success([
                 'product_id' => $product->id,
