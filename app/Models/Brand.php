@@ -132,7 +132,7 @@ class Brand extends ValidatableModel
 
         static::creating(static function (Brand $brand): void {
             // Always generate slug from name if name is provided
-            $name = $brand->getAttribute('name') ?? $brand->attributes['name'] ?? $brand->name ?? null;
+            $name = $brand->attributes['name'] ?? null;
             if (!empty($name)) {
                 $brand->generateSlug();
             }
@@ -150,8 +150,8 @@ class Brand extends ValidatableModel
      */
     private function generateSlug(): void
     {
-        // Get name from attributes or property
-        $name = $this->getAttribute('name') ?? $this->attributes['name'] ?? $this->name ?? null;
+        // Get name directly from attributes array (most reliable during events)
+        $name = $this->attributes['name'] ?? null;
 
         // Always generate slug from name if name is provided
         if (!empty($name) && is_string($name)) {
@@ -165,17 +165,15 @@ class Brand extends ValidatableModel
             // 1. Slug is null or empty
             // 2. Name is dirty (being changed)
             // 3. Slug doesn't match expected slug from name
-            $currentSlug = $this->getAttribute('slug') ?? $this->attributes['slug'] ?? $this->slug ?? null;
+            $currentSlug = $this->attributes['slug'] ?? null;
 
             if (empty($currentSlug) || $currentSlug === '' ||
                 $this->isDirty('name') ||
                 ($currentSlug !== $expectedSlug)) {
-                // Set in attributes array first (this is what gets saved to DB)
+                // Set in attributes array (this is what gets saved to DB)
                 $this->attributes['slug'] = $expectedSlug;
                 // Also set the property for immediate access
                 $this->slug = $expectedSlug;
-                // Use setAttribute to ensure it's properly set
-                $this->setAttribute('slug', $expectedSlug);
             }
         }
     }
