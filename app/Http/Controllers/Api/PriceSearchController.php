@@ -226,70 +226,86 @@ class PriceSearchController extends BaseApiController
 
                 // If only one product, return it in the same format as single product response
                 if ($products->count() === 1) {
-                    $product = $products->first();
-                    // Ensure priceOffers is loaded
-                    if (!$product->relationLoaded('priceOffers')) {
-                        $product->load('priceOffers');
-                    }
-                    
-                    if ($product->priceOffers->isEmpty()) {
-                        try {
-                            $productUrl = $product->slug 
-                                ? route('products.show', $product->slug) 
-                                : url("/products/{$product->id}");
-                        } catch (\Exception $e) {
-                            $productUrl = url("/products/{$product->id}");
+                    try {
+                        $product = $products->first();
+                        // Ensure priceOffers is loaded
+                        if (!$product->relationLoaded('priceOffers')) {
+                            $product->load('priceOffers');
                         }
+                        
+                        if ($product->priceOffers->isEmpty()) {
+                            try {
+                                $productUrl = $product->slug 
+                                    ? route('products.show', $product->slug) 
+                                    : url("/products/{$product->id}");
+                            } catch (\Exception $e) {
+                                $productUrl = url("/products/{$product->id}");
+                            }
 
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'No offers available for this product',
-                            'error_code' => 'NO_OFFERS_AVAILABLE',
-                            'product_info' => [
-                                'id' => $product->id,
-                                'name' => $product->name ?? '',
-                                'description' => $product->description ?? null,
-                                'price' => (float) ($product->price ?? 0),
-                                'url' => $productUrl,
-                            ],
-                        ], 404);
-                    }
-                    
-                    $bestOffer = $product->priceOffers->first();
-                    $prices = $product->priceOffers->pluck('price')->map(fn ($price) => (float) $price)->toArray();
-                    $lowestPrice = min($prices);
-                    $highestPrice = max($prices);
-                    $averagePrice = array_sum($prices) / count($prices);
-                    $savingsAmount = $highestPrice - $lowestPrice;
-                    
-                    return $this->success(
-                        [
-                            'product_id' => $product->id,
-                            'product_name' => $product->name,
-                            'total_offers' => $product->priceOffers->count(),
-                            'best_offer' => [
-                                'id' => $bestOffer->id,
-                                'price' => (float) $bestOffer->price,
-                                'store_name' => $bestOffer->store->name ?? 'Unknown Store',
-                                'expires_at' => $bestOffer->expires_at ? $bestOffer->expires_at->toIso8601String() : null,
-                                'stock_quantity' => $bestOffer->stock_quantity ?? 0,
-                                'is_available' => (bool) $bestOffer->is_available,
-                                'store' => [
-                                    'id' => $bestOffer->store->id ?? null,
-                                    'name' => $bestOffer->store->name ?? 'Unknown Store',
-                                    'slug' => $bestOffer->store->slug ?? null,
-                                    'contact_email' => $bestOffer->store->contact_email ?? null,
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'No offers available for this product',
+                                'error_code' => 'NO_OFFERS_AVAILABLE',
+                                'product_info' => [
+                                    'id' => $product->id,
+                                    'name' => $product->name ?? '',
+                                    'description' => $product->description ?? null,
+                                    'price' => (float) ($product->price ?? 0),
+                                    'url' => $productUrl,
+                                ],
+                            ], 404);
+                        }
+                        
+                        $bestOffer = $product->priceOffers->first();
+                        if (!$bestOffer) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'No offers available for this product',
+                                'error_code' => 'NO_OFFERS_AVAILABLE',
+                            ], 404);
+                        }
+                        
+                        $prices = $product->priceOffers->pluck('price')->map(fn ($price) => (float) $price)->toArray();
+                        $lowestPrice = min($prices);
+                        $highestPrice = max($prices);
+                        $averagePrice = array_sum($prices) / count($prices);
+                        $savingsAmount = $highestPrice - $lowestPrice;
+                        
+                        return $this->success(
+                            [
+                                'product_id' => $product->id,
+                                'product_name' => $product->name ?? '',
+                                'total_offers' => $product->priceOffers->count(),
+                                'best_offer' => [
+                                    'id' => $bestOffer->id,
+                                    'price' => (float) $bestOffer->price,
+                                    'store_name' => $bestOffer->store->name ?? 'Unknown Store',
+                                    'expires_at' => $bestOffer->expires_at ? $bestOffer->expires_at->toIso8601String() : null,
+                                    'stock_quantity' => $bestOffer->stock_quantity ?? 0,
+                                    'is_available' => (bool) $bestOffer->is_available,
+                                    'store' => [
+                                        'id' => $bestOffer->store->id ?? null,
+                                        'name' => $bestOffer->store->name ?? 'Unknown Store',
+                                        'slug' => $bestOffer->store->slug ?? null,
+                                        'contact_email' => $bestOffer->store->contact_email ?? null,
+                                    ],
+                                ],
+                                'price_comparison' => [
+                                    'lowest_price' => (float) $lowestPrice,
+                                    'highest_price' => (float) $highestPrice,
+                                    'average_price' => (float) $averagePrice,
+                                    'savings_amount' => (float) $savingsAmount,
                                 ],
                             ],
-                            'price_comparison' => [
-                                'lowest_price' => (float) $lowestPrice,
-                                'highest_price' => (float) $highestPrice,
-                                'average_price' => (float) $averagePrice,
-                                'savings_amount' => (float) $savingsAmount,
-                            ],
-                        ],
-                        'Best offer retrieved successfully'
-                    );
+                            'Best offer retrieved successfully'
+                        );
+                    } catch (\Exception $e) {
+                        Log::error('Error processing single product in best-offer', [
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString(),
+                        ]);
+                        // Fall through to return products list
+                    }
                 }
                 
                 return $this->success(
