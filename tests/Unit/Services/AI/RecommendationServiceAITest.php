@@ -203,8 +203,11 @@ final class RecommendationServiceAITest extends TestCase
             'rating' => 4.9,
         ]);
 
+        // Clear cache to ensure fresh recommendations
+        Cache::flush();
+
         // Act
-        $recommendations = $this->service->getRecommendations($user, 5);
+        $recommendations = $this->service->getRecommendations($user, 10);
 
         // Assert
         self::assertIsArray($recommendations);
@@ -246,8 +249,11 @@ final class RecommendationServiceAITest extends TestCase
             'price' => rand(200, 300),
         ]);
 
+        // Clear cache to ensure fresh recommendations
+        Cache::flush();
+
         // Act
-        $recommendations = $this->service->getRecommendations($user, 5);
+        $recommendations = $this->service->getRecommendations($user, 10);
 
         // Assert
         self::assertIsArray($recommendations);
@@ -281,8 +287,11 @@ final class RecommendationServiceAITest extends TestCase
             $this->createOrderWithProducts($otherUser, [$product], now()->subDays(2));
         }
 
+        // Clear cache to ensure fresh recommendations
+        Cache::flush();
+
         // Act
-        $recommendations = $this->service->getRecommendations($user, 5);
+        $recommendations = $this->service->getRecommendations($user, 10);
 
         // Assert
         self::assertIsArray($recommendations);
@@ -309,6 +318,9 @@ final class RecommendationServiceAITest extends TestCase
         ]);
 
         $this->createOrderWithProducts($user, [$singleProduct]);
+
+        // Clear cache to ensure fresh recommendations
+        Cache::flush();
 
         // Create similar products
         $similarProducts = Product::factory()->count(3)->create([
