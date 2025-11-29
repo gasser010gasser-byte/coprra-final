@@ -283,18 +283,25 @@ final class AnalyticsIntegrationTest extends TestCase
 
     public function testAnalyticsEventTimestamps(): void
     {
-        $beforeTracking = now();
+        $beforeTracking = now()->subSecond();
 
         $event = $this->analyticsService->track(
             AnalyticsEvent::TYPE_PRODUCT_VIEW,
             'Product Viewed'
         );
 
-        $afterTracking = now();
+        $afterTracking = now()->addSecond();
 
         self::assertInstanceOf(AnalyticsEvent::class, $event);
-        self::assertTrue($event->created_at->between($beforeTracking, $afterTracking));
-        self::assertTrue($event->updated_at->between($beforeTracking, $afterTracking));
+        // Allow 1 second buffer for timing precision
+        self::assertTrue(
+            $event->created_at->gte($beforeTracking) && $event->created_at->lte($afterTracking),
+            'created_at should be between beforeTracking and afterTracking'
+        );
+        self::assertTrue(
+            $event->updated_at->gte($beforeTracking) && $event->updated_at->lte($afterTracking),
+            'updated_at should be between beforeTracking and afterTracking'
+        );
     }
 
     public function testAnalyticsIntegrationWorkflow(): void

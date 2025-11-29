@@ -110,16 +110,20 @@ final class PerformanceAnalysisServiceTest extends TestCase
 
     public function testAnalyzeWithMissingPublicMixManifest(): void
     {
-        // Temporarily move or check if mix-manifest.json exists
-        $manifestPath = public_path('mix-manifest.json');
-        $manifestExists = File::exists($manifestPath);
+        // Check if either mix-manifest.json or Vite manifest exists
+        $mixManifestPath = public_path('mix-manifest.json');
+        $viteManifestPath = public_path('build/manifest.json');
+        $mixManifestExists = File::exists($mixManifestPath);
+        $viteManifestExists = File::exists($viteManifestPath);
+        $anyManifestExists = $mixManifestExists || $viteManifestExists;
 
-        if ($manifestExists) {
-            // If manifest exists, we can't test the missing scenario easily
-            $result = $this->service->analyze();
+        $result = $this->service->analyze();
+
+        if ($anyManifestExists) {
+            // If any manifest exists, the issue should not be present
             self::assertNotContains('Assets not compiled (mix-manifest.json missing)', $result['issues']);
         } else {
-            $result = $this->service->analyze();
+            // If no manifest exists, the issue should be present
             self::assertContains('Assets not compiled (mix-manifest.json missing)', $result['issues']);
         }
     }

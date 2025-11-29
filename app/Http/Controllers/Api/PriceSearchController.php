@@ -329,7 +329,7 @@ class PriceSearchController extends BaseApiController
             $bestOffer = $product->priceOffers->first();
 
             // Calculate price comparison statistics
-            $prices = $product->priceOffers->pluck('price')->toArray();
+            $prices = $product->priceOffers->pluck('price')->map(fn ($price) => (float) $price)->toArray();
             $lowestPrice = min($prices);
             $highestPrice = max($prices);
             $averagePrice = array_sum($prices) / count($prices);
@@ -355,10 +355,10 @@ class PriceSearchController extends BaseApiController
                         ],
                     ],
                     'price_comparison' => [
-                        'lowest_price' => $lowestPrice,
-                        'highest_price' => $highestPrice,
-                        'average_price' => round($averagePrice, 2),
-                        'savings_amount' => $savingsAmount,
+                        'lowest_price' => (float) $lowestPrice,
+                        'highest_price' => (float) $highestPrice,
+                        'average_price' => round((float) $averagePrice, 2),
+                        'savings_amount' => (float) $savingsAmount,
                     ],
                 ],
                 'Best offer retrieved successfully'
