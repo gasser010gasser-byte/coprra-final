@@ -602,7 +602,7 @@ class PriceSearchController extends BaseApiController
                 'price_statistics' => [
                     'lowest_price' => (float) $lowestPrice,
                     'highest_price' => (float) $highestPrice,
-                    'average_price' => round((float) $averagePrice, 2),
+                    'average_price' => (float) $averagePrice,
                     'price_range' => (float) ($highestPrice - $lowestPrice),
                     'savings_amount' => (float) ($highestPrice - $lowestPrice),
                 ],
