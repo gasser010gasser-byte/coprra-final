@@ -165,14 +165,14 @@ class Category extends ValidatableModel
     private function handleCreatingEvent(): bool
     {
         // Always generate slug from name if name is provided and slug is empty
-        $name = $this->attributes['name'] ?? $this->name ?? null;
-        $slug = $this->attributes['slug'] ?? $this->slug ?? null;
-        if (!empty($name) && empty($slug)) {
+        $name = $this->getAttribute('name') ?? $this->attributes['name'] ?? $this->name ?? null;
+        $slug = $this->getAttribute('slug') ?? $this->attributes['slug'] ?? $this->slug ?? null;
+        if (!empty($name) && (empty($slug) || $slug === '')) {
             $this->generateSlug();
         }
         // Calculate level based on parent or set default
-        $parentId = $this->attributes['parent_id'] ?? $this->parent_id ?? null;
-        $level = $this->attributes['level'] ?? $this->level ?? null;
+        $parentId = $this->getAttribute('parent_id') ?? $this->attributes['parent_id'] ?? $this->parent_id ?? null;
+        $level = $this->getAttribute('level') ?? $this->attributes['level'] ?? $this->level ?? null;
         if (null !== $parentId || null === $level) {
             $this->calculateLevel();
         }
@@ -196,7 +196,7 @@ class Category extends ValidatableModel
     private function generateSlug(): void
     {
         // Get name from attributes or property
-        $name = $this->attributes['name'] ?? $this->name ?? null;
+        $name = $this->getAttribute('name') ?? $this->attributes['name'] ?? $this->name ?? null;
         
         // Always generate slug from name if name is provided
         if (!empty($name) && is_string($name)) {
@@ -210,15 +210,17 @@ class Category extends ValidatableModel
             // 1. Slug is null or empty
             // 2. Name is dirty (being changed)
             // 3. Slug doesn't match expected slug from name
-            $currentSlug = $this->attributes['slug'] ?? $this->slug ?? null;
+            $currentSlug = $this->getAttribute('slug') ?? $this->attributes['slug'] ?? $this->slug ?? null;
             
-            if (empty($currentSlug) || 
+            if (empty($currentSlug) || $currentSlug === '' || 
                 $this->isDirty('name') || 
                 ($currentSlug !== $expectedSlug)) {
                 // Set in attributes array first (this is what gets saved to DB)
                 $this->attributes['slug'] = $expectedSlug;
                 // Also set the property for immediate access
                 $this->slug = $expectedSlug;
+                // Use setAttribute to ensure it's properly set
+                $this->setAttribute('slug', $expectedSlug);
             }
         }
     }

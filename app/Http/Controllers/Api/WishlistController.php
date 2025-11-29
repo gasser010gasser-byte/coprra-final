@@ -16,42 +16,61 @@ class WishlistController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
+        try {
+            /** @var \App\Models\User $user */
+            $user = $request->user();
 
-        $items = $user->wishlist()
-            ->with([
-                'brand:id,name,slug',
-                'category:id,name,slug',
-            ])
-            ->orderByPivot('created_at', 'desc')
-            ->get()
-            ->map(static function (Product $product): array {
-                $pivot = $product->pivot;
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated',
+                ], 401);
+            }
 
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'slug' => $product->slug,
-                    'price' => $product->price,
-                    'image' => $product->image ?? $product->image_url,
-                    'brand' => $product->brand?->name,
-                    'category' => $product->category?->name,
-                    'pivot' => [
-                        'id' => $pivot->id ?? null,
-                        'created_at' => $pivot->created_at ?? null,
-                        'updated_at' => $pivot->updated_at ?? null,
-                        'notes' => $pivot->notes ?? null,
-                    ],
-                ];
-            });
+            $items = $user->wishlist()
+                ->with([
+                    'brand:id,name,slug',
+                    'category:id,name,slug',
+                ])
+                ->orderByPivot('created_at', 'desc')
+                ->get()
+                ->map(static function (Product $product): array {
+                    $pivot = $product->pivot;
 
-        return response()->json([
-            'success' => true,
-            'count' => $items->count(),
-            'data' => $items,
-            'message' => __('Wishlist loaded successfully.'),
-        ]);
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'price' => $product->price,
+                        'image' => $product->image ?? $product->image_url,
+                        'brand' => $product->brand?->name,
+                        'category' => $product->category?->name,
+                        'pivot' => [
+                            'id' => $pivot->id ?? null,
+                            'created_at' => $pivot->created_at ?? null,
+                            'updated_at' => $pivot->updated_at ?? null,
+                            'notes' => $pivot->notes ?? null,
+                        ],
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'count' => $items->count(),
+                'data' => $items,
+                'message' => __('Wishlist loaded successfully.'),
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('WishlistController@index failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while loading the wishlist.',
+            ], 500);
+        }
     }
 
     /**

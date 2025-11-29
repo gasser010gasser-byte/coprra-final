@@ -260,9 +260,9 @@ class Store extends ValidatableModel
 
         static::creating(static function (Store $store): void {
             // Always generate slug from name if name is provided and slug is empty
-            $name = $store->attributes['name'] ?? $store->name ?? null;
-            $slug = $store->attributes['slug'] ?? $store->slug ?? null;
-            if (!empty($name) && empty($slug)) {
+            $name = $store->getAttribute('name') ?? $store->attributes['name'] ?? $store->name ?? null;
+            $slug = $store->getAttribute('slug') ?? $store->attributes['slug'] ?? $store->slug ?? null;
+            if (!empty($name) && (empty($slug) || $slug === '')) {
                 $store->generateSlug();
             }
             // Ensure supported_countries is properly encoded before saving
@@ -321,7 +321,7 @@ class Store extends ValidatableModel
     private function generateSlug(): void
     {
         // Get name from attributes or property
-        $name = $this->attributes['name'] ?? $this->name ?? null;
+        $name = $this->getAttribute('name') ?? $this->attributes['name'] ?? $this->name ?? null;
         
         // Always generate slug from name if name is provided
         if (!empty($name) && is_string($name)) {
@@ -335,15 +335,17 @@ class Store extends ValidatableModel
             // 1. Slug is null or empty
             // 2. Name is dirty (being changed)
             // 3. Slug doesn't match expected slug from name
-            $currentSlug = $this->attributes['slug'] ?? $this->slug ?? null;
+            $currentSlug = $this->getAttribute('slug') ?? $this->attributes['slug'] ?? $this->slug ?? null;
             
-            if (empty($currentSlug) || 
+            if (empty($currentSlug) || $currentSlug === '' || 
                 $this->isDirty('name') || 
                 ($currentSlug !== $expectedSlug)) {
                 // Set in attributes array first (this is what gets saved to DB)
                 $this->attributes['slug'] = $expectedSlug;
                 // Also set the property for immediate access
                 $this->slug = $expectedSlug;
+                // Use setAttribute to ensure it's properly set
+                $this->setAttribute('slug', $expectedSlug);
             }
         }
     }
