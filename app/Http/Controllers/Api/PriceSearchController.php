@@ -18,11 +18,8 @@ class PriceSearchController extends BaseApiController
         try {
             // Reject invalid types and detect security threats
             $securityIssues = [];
-            $parameterName = null;
-            $receivedType = null;
             
             // Check all query parameters for invalid types
-            $allQueryParams = $request->query();
             foreach (['q', 'query', 'name'] as $paramName) {
                 if (!$request->has($paramName)) {
                     continue;
