@@ -295,7 +295,7 @@ class PriceSearchController extends BaseApiController
                             'category' => $p->category->name ?? 'Uncategorized',
                             'brand' => $p->brand->name ?? 'Unknown',
                             'price' => (float) $p->price,
-                            'url' => route('products.show', $p->slug),
+                            'url' => url("/api/price-search/best-offer?product_id={$p->id}"),
                         ];
                     })->toArray();
 
