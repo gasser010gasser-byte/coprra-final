@@ -18,55 +18,80 @@ class HomeController extends Controller
      */
     public function index(): Response|View
     {
-        // Cache featured products for 60 minutes
-        $featuredProducts = Cache::remember('home_featured_products', 3600, function () {
-            // Get featured products (is_featured = true) or latest products
-            $products = Product::query()
-                ->where('is_active', true)
-                ->where('is_featured', true)
-                ->with(['category', 'brand'])
-                ->limit(8)
-                ->get();
-
-            // If no featured products, get latest products instead
-            if ($products->isEmpty()) {
+        try {
+            // Cache featured products for 60 minutes
+            $featuredProducts = Cache::remember('home_featured_products', 3600, function () {
+                // Get featured products (is_featured = true) or latest products
                 $products = Product::query()
                     ->where('is_active', true)
-                    ->with(['category', 'brand'])
-                    ->latest()
+                    ->where('is_featured', true)
+                    ->with(['category:id,name,slug', 'brand:id,name,slug'])
                     ->limit(8)
                     ->get();
-            }
 
-            return $products;
-        });
+                // If no featured products, get latest products instead
+                if ($products->isEmpty()) {
+                    $products = Product::query()
+                        ->where('is_active', true)
+                        ->with(['category:id,name,slug', 'brand:id,name,slug'])
+                        ->latest()
+                        ->limit(8)
+                        ->get();
+                }
 
-        // Cache top categories for 60 minutes
-        $categories = Cache::remember('home_top_categories', 3600, function () {
-            return Category::query()
-                ->where('is_active', true)
-                ->withCount('products')
-                ->having('products_count', '>', 0)
-                ->orderBy('products_count', 'desc')
-                ->limit(6)
-                ->get();
-        });
+                return $products;
+            });
 
-        // Cache top brands for 60 minutes
-        $brands = Cache::remember('home_top_brands', 3600, function () {
-            return Brand::query()
-                ->where('is_active', true)
-                ->withCount('products')
-                ->having('products_count', '>', 0)
-                ->orderBy('products_count', 'desc')
-                ->limit(6)
-                ->get();
-        });
+            // Cache top categories for 60 minutes
+            $categories = Cache::remember('home_top_categories', 3600, function () {
+                try {
+                    return Category::query()
+                        ->where('is_active', true)
+                        ->withCount('products')
+                        ->having('products_count', '>', 0)
+                        ->orderBy('products_count', 'desc')
+                        ->limit(6)
+                        ->get();
+                } catch (\Exception $e) {
+                    // Fallback if withCount fails
+                    return Category::query()
+                        ->where('is_active', true)
+                        ->limit(6)
+                        ->get();
+                }
+            });
 
-        return view('home', [
-            'featuredProducts' => $featuredProducts,
-            'categories' => $categories,
-            'brands' => $brands,
-        ]);
+            // Cache top brands for 60 minutes
+            $brands = Cache::remember('home_top_brands', 3600, function () {
+                try {
+                    return Brand::query()
+                        ->where('is_active', true)
+                        ->withCount('products')
+                        ->having('products_count', '>', 0)
+                        ->orderBy('products_count', 'desc')
+                        ->limit(6)
+                        ->get();
+                } catch (\Exception $e) {
+                    // Fallback if withCount fails
+                    return Brand::query()
+                        ->where('is_active', true)
+                        ->limit(6)
+                        ->get();
+                }
+            });
+
+            return view('home', [
+                'featuredProducts' => $featuredProducts,
+                'categories' => $categories,
+                'brands' => $brands,
+            ]);
+        } catch (\Exception $e) {
+            // Return empty data if there's an error
+            return view('home', [
+                'featuredProducts' => collect(),
+                'categories' => collect(),
+                'brands' => collect(),
+            ]);
+        }
     }
 }

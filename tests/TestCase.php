@@ -379,7 +379,20 @@ abstract class TestCase extends BaseTestCase
 
             // Clean up storage fake directories only if app is properly initialized
             if (app()->bound('filesystem')) {
-                Storage::fake()->deleteDirectory('');
+                try {
+                    $disk = Storage::disk('local');
+                    if (method_exists($disk, 'getRootPath')) {
+                        $rootPath = $disk->getRootPath();
+                        if ($rootPath !== null && is_dir($rootPath)) {
+                            $disk->deleteDirectory('');
+                        }
+                    } else {
+                        // Fallback for fake storage
+                        $disk->deleteDirectory('');
+                    }
+                } catch (\Exception $e) {
+                    // Ignore storage cleanup errors
+                }
             }
         } catch (\Exception $e) {
             // Silently ignore cleanup errors during test teardown

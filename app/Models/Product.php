@@ -56,9 +56,6 @@ class Product extends Model
      */
     protected static $factory = ProductFactory::class;
 
-    /**
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'slug',
@@ -85,6 +82,7 @@ class Product extends Model
         'stock_quantity' => 'integer',
         'year_of_manufacture' => 'integer',
         'available_colors' => 'array',
+        'store_mappings' => 'array',
     ];
 
     /**
@@ -169,6 +167,14 @@ class Product extends Model
     }
 
     /**
+     * @return HasMany<OrderItem, Product>
+     */
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
      * @return BelongsTo<Category, Product>
      */
     public function category(): BelongsTo
@@ -197,8 +203,8 @@ class Product extends Model
      */
     public function priceHistory(): HasMany
     {
-        // Order by effective_date to ensure oldest() reflects chronological price history
-        return $this->hasMany(PriceHistory::class)->orderBy('effective_date');
+        // Order by recorded_at to ensure oldest() reflects chronological price history
+        return $this->hasMany(PriceHistory::class)->orderBy('recorded_at');
     }
 
     // --- Scopes ---
@@ -323,7 +329,10 @@ class Product extends Model
      */
     public function isInWishlist(int $userId): bool
     {
-        return $this->wishlists()->where('user_id', $userId)->exists();
+        // Use the relation which automatically handles soft deletes
+        return $this->wishlists()
+            ->where('user_id', $userId)
+            ->exists();
     }
 
     /**
@@ -340,6 +349,36 @@ class Product extends Model
     public function getAverageRating(): float
     {
         return (float) $this->reviews()->avg('rating') ?: 0.0;
+    }
+
+    /**
+     * Check if product has significant price change.
+     *
+     * @param float $threshold Percentage threshold (e.g., 10 for 10%)
+     *
+     * @return bool True if price change exceeds threshold
+     */
+    public function hasSignificantPriceChange(float $threshold = 10.0): bool
+    {
+        $currentPrice = (float) $this->price;
+        if ($currentPrice <= 0) {
+            return false;
+        }
+
+        // Get the oldest price from price history
+        $oldestPriceHistory = $this->priceHistory()->orderBy('recorded_at', 'asc')->first();
+        if (!$oldestPriceHistory) {
+            return false;
+        }
+
+        $oldPrice = (float) $oldestPriceHistory->price;
+        if ($oldPrice <= 0) {
+            return false;
+        }
+
+        $changePercentage = abs(($currentPrice - $oldPrice) / $oldPrice * 100);
+
+        return $changePercentage >= $threshold;
     }
 
     /**
@@ -375,21 +414,49 @@ class Product extends Model
 
         // Record initial price on creation
         static::created(static function (self $product): void {
-            if (method_exists($product, 'priceHistory')) {
-                $product->priceHistory()->create([
-                    'price' => (float) $product->price,
-                    'effective_date' => now(),
-                ]);
+            try {
+                // Only create if price exists and is valid
+                if (isset($product->price) && $product->price !== null) {
+                    $product->priceHistory()->create([
+                        'product_id' => $product->id,
+                        'price' => (float) $product->price,
+                        'old_price' => null,
+                        'currency' => 'USD',
+                        'recorded_at' => now(),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                // Log error but don't fail the creation
+                if (app()->bound('log')) {
+                    \Log::warning('Failed to create initial price history', [
+                        'product_id' => $product->id ?? null,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
         });
 
         // Record price change on update when price actually changes
         static::updated(static function (self $product): void {
-            if ($product->wasChanged('price') && method_exists($product, 'priceHistory')) {
-                $product->priceHistory()->create([
-                    'price' => (float) $product->price,
-                    'effective_date' => now(),
-                ]);
+            try {
+                if ($product->wasChanged('price') && isset($product->price) && $product->price !== null) {
+                    $oldPrice = $product->getOriginal('price');
+                    $product->priceHistory()->create([
+                        'product_id' => $product->id,
+                        'price' => (float) $product->price,
+                        'old_price' => $oldPrice ? (float) $oldPrice : null,
+                        'currency' => 'USD',
+                        'recorded_at' => now(),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                // Log error but don't fail the update
+                if (app()->bound('log')) {
+                    \Log::warning('Failed to create price history on update', [
+                        'product_id' => $product->id ?? null,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
         });
 

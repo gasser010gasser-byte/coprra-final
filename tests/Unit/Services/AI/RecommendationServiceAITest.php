@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Repositories\RecommendationRepository;
 use App\Services\RecommendationService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,7 +31,8 @@ final class RecommendationServiceAITest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new RecommendationService();
+        $repository = new RecommendationRepository();
+        $this->service = new RecommendationService($repository);
     }
 
     // Collaborative Filtering Algorithm Tests
@@ -623,7 +625,7 @@ final class RecommendationServiceAITest extends TestCase
                 'order_id' => $order->id,
                 'product_id' => $product->id ?? $product['id'],
                 'quantity' => rand(1, 3),
-                'price' => $product->price ?? $product['price'] ?? rand(10, 100),
+                'unit_price' => $product->price ?? $product['price'] ?? rand(10, 100),
             ]);
         }
 

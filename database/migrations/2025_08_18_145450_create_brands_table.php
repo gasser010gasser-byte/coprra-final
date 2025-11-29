@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create('brands', static function (Blueprint $table): void {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
+            $table->string('slug')->nullable()->unique();
             $table->text('description')->nullable();
 
             // ✅ *** هذه هي الأسطر التي تمت إضافتها ***

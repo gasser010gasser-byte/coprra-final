@@ -17,9 +17,13 @@ final readonly class ExternalStoreService
     /** @var array<string, mixed> */
     private array $storeConfigs;
 
-    public function __construct()
+    private StoreClientFactory $storeClientFactory;
+
+    public function __construct(?StoreClientFactory $storeClientFactory = null)
     {
-        $this->storeConfigs = Config::get('external_stores', []);
+        $config = Config::get('external_stores', []);
+        $this->storeConfigs = is_array($config) ? $config : [];
+        $this->storeClientFactory = $storeClientFactory ?? new StoreClientFactory();
     }
 
     /**
@@ -34,7 +38,7 @@ final readonly class ExternalStoreService
         $results = [];
         foreach (array_keys($this->storeConfigs) as $storeName) {
             try {
-                $client = StoreClientFactory::create($storeName);
+                $client = $this->storeClientFactory->create($storeName);
                 if ($client instanceof GenericStoreClient) {
                     $storeResults = $client->search($query, $filters);
                     $results = array_merge($results, $this->normalizeProducts($storeResults, $storeName));
@@ -54,7 +58,7 @@ final readonly class ExternalStoreService
     {
         return Cache::remember("external_product_{$storeName}_{$productId}", 3600, function () use ($storeName, $productId): ?array {
             try {
-                $client = StoreClientFactory::create($storeName);
+                $client = $this->storeClientFactory->create($storeName);
                 if ($client instanceof GenericStoreClient) {
                     $productData = $client->getProduct($productId);
 
@@ -76,7 +80,7 @@ final readonly class ExternalStoreService
         $syncedCount = 0;
 
         try {
-            $client = StoreClientFactory::create($storeName);
+            $client = $this->storeClientFactory->create($storeName);
             if ($client instanceof GenericStoreClient) {
                 $client->syncProducts(function ($productData) use ($storeName, &$syncedCount): void {
                     $this->syncProduct($productData, $storeName);
@@ -98,9 +102,15 @@ final readonly class ExternalStoreService
     public function getStoreStatus(): array
     {
         $status = [];
+        
+        // Ensure storeConfigs is an array and not empty
+        if (empty($this->storeConfigs) || !is_array($this->storeConfigs)) {
+            return [];
+        }
+        
         foreach (array_keys($this->storeConfigs) as $storeName) {
             try {
-                $client = StoreClientFactory::create($storeName);
+                $client = $this->storeClientFactory->create($storeName);
                 $status[$storeName] = $client instanceof GenericStoreClient ? $client->getStatus() : ['status' => 'error', 'error' => 'Invalid configuration'];
                 $status[$storeName]['last_check'] = now()->toISOString();
             } catch (\Exception $e) {

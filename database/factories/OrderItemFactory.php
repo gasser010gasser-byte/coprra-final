@@ -38,9 +38,11 @@ class OrderItemFactory extends Factory
             'order_id' => Order::factory(),
             'product_id' => Product::factory(),
             'quantity' => $quantity,
-            // Align with RefreshDatabase migrations that define unit_price/total_price
             'unit_price' => $unitPrice,
-            'total_price' => $quantity * $unitPrice,
+            'total' => $quantity * $unitPrice,
+            // For backward compatibility
+            'price' => $unitPrice,
+            'subtotal' => $quantity * $unitPrice,
         ];
     }
 }

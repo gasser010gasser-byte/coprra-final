@@ -21,7 +21,7 @@ final class PriceAccuracyTest extends TestCase
     public function testBasePriceCalculation(): void
     {
         $product = Product::factory()->create(['price' => 100.00]);
-        self::assertSame(100.00, $product->price);
+        self::assertEquals(100.00, (float) $product->price);
     }
 
     // \PHPUnit\Framework\Attributes\Test

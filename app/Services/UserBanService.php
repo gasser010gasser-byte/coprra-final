@@ -9,7 +9,6 @@ use Carbon\Carbon;
 use Illuminate\Auth\AuthManager;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
 
 final readonly class UserBanService
@@ -67,14 +66,14 @@ final readonly class UserBanService
             'ban_description' => $description,
             'ban_expires_at' => $expiresAt,
             'banned_at' => now(),
-            'banned_by' => Auth::id(),
+            'banned_by' => Auth::id() ?? $this->auth->id(),
         ]);
 
         $this->logger->info('User banned', [
             'user_id' => $user->id,
             'reason' => $reason,
             'expires_at' => $expiresAt?->toDateTimeString(),
-            'banned_by' => Auth::id(),
+            'banned_by' => Auth::id() ?? $this->auth->id(),
         ]);
 
         return true;
@@ -95,12 +94,12 @@ final readonly class UserBanService
             'ban_description' => null,
             'ban_expires_at' => null,
             'unbanned_at' => now(),
-            'unbanned_by' => Auth::id(),
+            'unbanned_by' => Auth::id() ?? $this->auth->id(),
         ]);
 
-        Log::info('User unbanned', [
+        $this->logger->info('User unbanned', [
             'user_id' => $user->id,
-            'unbanned_by' => Auth::id(),
+            'unbanned_by' => Auth::id() ?? $this->auth->id(),
         ]);
 
         return true;
@@ -221,10 +220,12 @@ final readonly class UserBanService
 
     /**
      * Check if a user can be unbanned.
+     * Users with expired bans or active bans can be unbanned.
      */
     public function canUnbanUser(User $user): bool
     {
-        return $this->isUserBanned($user);
+        // Can unbanned if currently blocked (including expired bans)
+        return $user->is_blocked === true;
     }
 
     /**
@@ -262,7 +263,7 @@ final readonly class UserBanService
         $this->logger->info('Ban extended', [
             'user_id' => $user->id,
             'new_expiry' => $newExpiry->toDateTimeString(),
-            'extended_by' => Auth::id(),
+            'extended_by' => Auth::id() ?? $this->auth->id(),
         ]);
 
         return true;
@@ -289,7 +290,7 @@ final readonly class UserBanService
         $this->logger->info('Ban reduced', [
             'user_id' => $user->id,
             'new_expiry' => $newExpiry->toDateTimeString(),
-            'reduced_by' => Auth::id(),
+            'reduced_by' => Auth::id() ?? $this->auth->id(),
         ]);
 
         return true;

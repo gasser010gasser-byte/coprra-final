@@ -24,7 +24,8 @@ final class BehaviorAnalysisServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new BehaviorAnalysisService();
+        $repository = new \App\Repositories\BehaviorAnalysisRepository();
+        $this->service = new BehaviorAnalysisService($repository);
     }
 
     protected function tearDown(): void

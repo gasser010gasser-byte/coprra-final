@@ -1,0 +1,530 @@
+{
+    "scanned": [
+        {
+            "uri": "livewire\/livewire.js",
+            "name": "unnamed",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "livewire\/livewire.min.js.map",
+            "name": "unnamed",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "livewire\/preview-file\/1",
+            "name": "livewire.preview-file",
+            "query_count": 0,
+            "status": 401
+        },
+        {
+            "uri": "api",
+            "name": "unnamed",
+            "query_count": 0,
+            "status": 500
+        },
+        {
+            "uri": "healthz",
+            "name": "unnamed",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "health",
+            "name": "health.index",
+            "query_count": 1,
+            "status": 200
+        },
+        {
+            "uri": "health\/check",
+            "name": "health.check",
+            "query_count": 1,
+            "status": 200
+        },
+        {
+            "uri": "health\/ping",
+            "name": "health.ping",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "health-check",
+            "name": "health.legacy",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "status",
+            "name": "status",
+            "query_count": 1,
+            "status": 200
+        },
+        {
+            "uri": "dashboard\/costs",
+            "name": "dashboard.costs",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "ai\/health",
+            "name": "ai.health.status",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "ai\/health\/stats",
+            "name": "ai.health.stats",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "ai\/health\/errors",
+            "name": "ai.health.errors",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "ai\/health\/agent\/1",
+            "name": "ai.health.agent",
+            "query_count": 0,
+            "status": 404
+        },
+        {
+            "uri": "ai\/health\/circuit-breaker",
+            "name": "ai.health.circuit.status",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "ai\/health\/agents\/1\/detect-corruption",
+            "name": "ai.health.",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "\/",
+            "name": "home",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "sitemap.xml",
+            "name": "sitemap",
+            "query_count": 3,
+            "status": 200
+        },
+        {
+            "uri": "about",
+            "name": "about",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "contact",
+            "name": "contact",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "privacy",
+            "name": "privacy",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "terms",
+            "name": "terms",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "faq",
+            "name": "faq",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "stores",
+            "name": "stores.index",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "dashboard",
+            "name": "dashboard",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "login",
+            "name": "login",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "password\/reset",
+            "name": "password.request",
+            "query_count": 0,
+            "status": 500
+        },
+        {
+            "uri": "password\/reset\/1",
+            "name": "password.reset",
+            "query_count": 0,
+            "status": 500
+        },
+        {
+            "uri": "email\/verify",
+            "name": "verification.notice",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "email\/verify\/1\/1",
+            "name": "verification.verify",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "auth\/google\/redirect",
+            "name": "auth.google.redirect",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "auth\/google\/callback",
+            "name": "auth.google.callback",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "auth\/facebook\/redirect",
+            "name": "auth.facebook.redirect",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "auth\/facebook\/callback",
+            "name": "auth.facebook.callback",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "products",
+            "name": "products.index",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "products\/search",
+            "name": "products.search",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "products\/1\/price-comparison",
+            "name": "products.price-comparison",
+            "query_count": 1,
+            "status": 404
+        },
+        {
+            "uri": "products\/1",
+            "name": "products.show",
+            "query_count": 1,
+            "status": 500
+        },
+        {
+            "uri": "compare",
+            "name": "compare.index",
+            "query_count": 1,
+            "status": 200
+        },
+        {
+            "uri": "categories",
+            "name": "categories.index",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "categories\/1",
+            "name": "categories.show",
+            "query_count": 2,
+            "status": 500
+        },
+        {
+            "uri": "language\/1",
+            "name": "change.language",
+            "query_count": 1,
+            "status": 302
+        },
+        {
+            "uri": "currency\/1",
+            "name": "change.currency",
+            "query_count": 1,
+            "status": 302
+        },
+        {
+            "uri": "country\/1",
+            "name": "change.country",
+            "query_count": 1,
+            "status": 302
+        },
+        {
+            "uri": "profile",
+            "name": "profile.edit",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "price-alerts",
+            "name": "price-alerts.index",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "price-alerts\/create",
+            "name": "price-alerts.create",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "price-alerts\/1",
+            "name": "price-alerts.show",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "price-alerts\/1\/edit",
+            "name": "price-alerts.edit",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "account\/wishlist",
+            "name": "account.wishlist",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "account\/points",
+            "name": "account.points",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "products\/1\/reviews\/create",
+            "name": "reviews.create",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "reviews\/1\/edit",
+            "name": "reviews.edit",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "cart",
+            "name": "cart.index",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "admin",
+            "name": "admin.",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/dashboard",
+            "name": "admin.dashboard",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/users",
+            "name": "admin.users",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/stores",
+            "name": "admin.stores",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/products",
+            "name": "admin.products.index",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/products\/1\/edit",
+            "name": "admin.products.edit",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/categories",
+            "name": "admin.categories.index",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/categories\/1\/edit",
+            "name": "admin.categories.edit",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/brands",
+            "name": "admin.brands.index",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai",
+            "name": "admin.ai.index",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai\/status",
+            "name": "admin.ai.status",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai\/dashboard",
+            "name": "admin.ai.dashboard.index",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai\/dashboard\/data",
+            "name": "admin.ai.dashboard.data",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai\/dashboard\/stream",
+            "name": "admin.ai.dashboard.stream",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai\/dashboard\/agents\/1",
+            "name": "admin.ai.dashboard.agent.details",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai\/dashboard\/metrics",
+            "name": "admin.ai.dashboard.metrics",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai\/dashboard\/search",
+            "name": "admin.ai.dashboard.search",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai\/agents\/1\/config",
+            "name": "admin.ai.agents.config.get",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/ai\/agents\/1\/debug",
+            "name": "admin.ai.agents.debug",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/scraper",
+            "name": "admin.scraper.index",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/scraper\/logs",
+            "name": "admin.scraper.logs",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "admin\/scraper\/jobs",
+            "name": "admin.scraper.jobs",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "brands",
+            "name": "brands.index",
+            "query_count": 2,
+            "status": 200
+        },
+        {
+            "uri": "brands\/1",
+            "name": "brands.show",
+            "query_count": 1,
+            "status": 404
+        },
+        {
+            "uri": "brands\/create",
+            "name": "brands.create",
+            "query_count": 1,
+            "status": 404
+        },
+        {
+            "uri": "brands\/1\/edit",
+            "name": "brands.edit",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "files\/1",
+            "name": "files.show",
+            "query_count": 0,
+            "status": 403
+        },
+        {
+            "uri": "public-test-ai",
+            "name": "public-test-ai",
+            "query_count": 0,
+            "status": 200
+        },
+        {
+            "uri": "auth-test-ai",
+            "name": "auth-test-ai",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "ai-status-simple",
+            "name": "unnamed",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "test-ai-status",
+            "name": "test-ai-status",
+            "query_count": 0,
+            "status": 302
+        },
+        {
+            "uri": "sentry-test",
+            "name": "unnamed",
+            "query_count": 0,
+            "status": 500
+        }
+    ],
+    "problematic": [],
+    "errors": [],
+    "total_routes": 245,
+    "scanned_routes": 87
+}

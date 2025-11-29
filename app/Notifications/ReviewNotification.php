@@ -33,6 +33,19 @@ class ReviewNotification extends Mailable implements ShouldQueue
     }
 
     /**
+     * Build the message.
+     */
+    public function build(): self
+    {
+        return $this->subject('New Review for '.$this->product->name)
+            ->view('emails.review-notification', [
+                'product' => $this->product,
+                'reviewer' => $this->reviewer,
+                'rating' => $this->rating,
+            ]);
+    }
+
+    /**
      * Get the array representation of the notification.
      *
      * @return array<float|int>

@@ -8,6 +8,7 @@ use Database\Factories\PriceOfferFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int         $id
@@ -52,6 +53,9 @@ class PriceOffer extends Model
         'specifications',
         'is_available',
         'original_price',
+        'description',
+        'expires_at',
+        'status',
     ];
 
     /**
@@ -65,4 +69,20 @@ class PriceOffer extends Model
         'price' => 'decimal:2',
         'original_price' => 'decimal:2',
     ];
+
+    /**
+     * Get the store that owns the price offer.
+     */
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
+    }
+
+    /**
+     * Get the product that owns the price offer.
+     */
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

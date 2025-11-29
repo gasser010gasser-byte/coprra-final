@@ -33,7 +33,9 @@ final class UserServiceTest extends BaseTestCase
         parent::setUp();
 
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->auth = $this->createMock(AuthManager::class);
+        // Use Auth facade mock instead of AuthManager mock since id() is called via facade
+        Auth::shouldReceive('id')->andReturn(1);
+        $this->auth = app(AuthManager::class);
         $this->userBanService = new UserBanService($this->auth, $this->logger);
     }
 
@@ -84,7 +86,6 @@ final class UserServiceTest extends BaseTestCase
 
     public function testBanUserSuccessfully(): void
     {
-        Auth::shouldReceive('id')->andReturn(1);
         $this->logger->expects(self::once())->method('info');
 
         $user = User::factory()->create(['is_blocked' => false]);
@@ -127,8 +128,7 @@ final class UserServiceTest extends BaseTestCase
 
     public function testUnbanUserSuccessfully(): void
     {
-        Auth::shouldReceive('id')->andReturn(1);
-        Log::shouldReceive('info')->once();
+        $this->logger->expects(self::once())->method('info');
 
         $user = User::factory()->create([
             'is_blocked' => true,
@@ -261,8 +261,7 @@ final class UserServiceTest extends BaseTestCase
 
     public function testCleanupExpiredBans(): void
     {
-        Auth::shouldReceive('id')->andReturn(1);
-        Log::shouldReceive('info')->times(2);
+        $this->logger->expects(self::exactly(2))->method('info');
 
         // Create expired bans
         User::factory()->count(2)->create([

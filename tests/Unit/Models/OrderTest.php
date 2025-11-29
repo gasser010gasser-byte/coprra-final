@@ -88,8 +88,8 @@ final class OrderTest extends TestCase
         $order = Order::factory()->create();
 
         self::assertNotNull($order->user_id);
-        self::assertIsString($order->status);
-        self::assertSame('pending', (string) $order->status); // Cast enum to string
+        self::assertInstanceOf(\App\Enums\OrderStatus::class, $order->status);
+        self::assertSame('pending', $order->status->value);
         self::assertGreaterThan(0, $order->total_amount);
         self::assertNotNull($order->created_at);
     }

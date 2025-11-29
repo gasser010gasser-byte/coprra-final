@@ -12,13 +12,18 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('price_histories', static function (Blueprint $table): void {
-            $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->decimal('price', 8, 2);
-            $table->timestamp('effective_date');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('price_histories')) {
+            Schema::create('price_histories', static function (Blueprint $table): void {
+                $table->id();
+                $table->foreignId('product_id')->constrained()->onDelete('cascade');
+                $table->decimal('price', 10, 2);
+                $table->decimal('old_price', 10, 2)->nullable();
+                $table->string('currency', 3)->default('USD');
+                $table->timestamp('recorded_at')->useCurrent();
+                // Keep timestamps disabled to match model's $timestamps = false
+                // $table->timestamps();
+            });
+        }
     }
 
     /**

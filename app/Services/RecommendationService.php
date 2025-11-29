@@ -25,16 +25,25 @@ final class RecommendationService
      *
      * @psalm-suppress PossiblyUnusedMethod
      */
-    public function getRecommendations(User $user, int $limit = 10): array
+    public function getRecommendations(User|int $user, int $limit = 10): array
     {
+        // Handle both User object and user ID
+        if (is_int($user)) {
+            $userModel = User::find($user);
+            if (!$userModel) {
+                return [];
+            }
+            $user = $userModel;
+        }
+
         $cacheKey = "recommendations_user_{$user->id}";
         $cacheTtl = (int) config('coprra.cache.durations.default', 3600);
 
         return Cache::remember(
             $cacheKey,
             $cacheTtl, /**
-            * @psalm-return array<int, mixed>
-            */
+             * @psalm-return array<int, mixed>
+             */
             function () use ($user, $limit): array {
                 $recommendations = $this->collectRecommendations($user, $limit);
 
@@ -188,7 +197,7 @@ final class RecommendationService
         $prices = $purchases->map(static function (OrderItem $item): float {
             $product = $item->product;
 
-            return $product ? $product->price : 0.0;
+            return $product ? (float) $product->price : 0.0;
         });
 
         return [
@@ -321,16 +330,38 @@ final class RecommendationService
      */
     private function getTrendingRecommendations(int $limit): array
     {
-        return Product::where('is_active', true)
+        // Get all active products with recent purchases count and total purchases count
+        $products = Product::where('is_active', true)
             ->withCount([
                 'orderItems as recent_purchases' => $this->getRecentPurchasesQuery(),
             ])
-            ->orderByDesc('recent_purchases')
-            ->orderBy('rating', 'desc')
-            ->limit($limit)
+            ->withCount([
+                'orderItems as total_purchases',
+            ])
             ->get()
             ->all()
         ;
+
+        // Sort by recent purchases first, then total purchases, then rating
+        usort($products, static function ($a, $b) {
+            // First sort by recent purchases (descending)
+            $recentDiff = ($b->recent_purchases ?? 0) - ($a->recent_purchases ?? 0);
+            if ($recentDiff !== 0) {
+                return $recentDiff;
+            }
+
+            // Then by total purchases (descending)
+            $totalDiff = ($b->total_purchases ?? 0) - ($a->total_purchases ?? 0);
+            if ($totalDiff !== 0) {
+                return $totalDiff;
+            }
+
+            // Finally by rating (descending)
+            return ($b->rating ?? 0) <=> ($a->rating ?? 0);
+        });
+
+        // Return limited results
+        return array_slice($products, 0, $limit);
     }
 
     /**

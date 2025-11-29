@@ -150,15 +150,20 @@ class Brand extends ValidatableModel
         $name = $this->attributes['name'] ?? $this->name ?? null;
         
         // Always generate slug from name if name is provided
-        if (!empty($name)) {
+        if (!empty($name) && is_string($name)) {
             $expectedSlug = str($name)->slug()->toString();
-            // Always set slug if it's null, empty, or doesn't match the expected slug
-            // This ensures factory-generated slugs are overridden when name is provided
-            if (($this->slug === null || $this->slug === '') ||
-                $this->isDirty('name') ||
-                ($this->slug !== $expectedSlug)) {
-                $this->slug = $expectedSlug;
+            
+            // Always generate slug if:
+            // 1. Slug is null or empty
+            // 2. Name is dirty (being changed)
+            // 3. Slug doesn't match expected slug from name
+            $currentSlug = $this->attributes['slug'] ?? $this->slug ?? null;
+            
+            if (empty($currentSlug) || 
+                $this->isDirty('name') || 
+                ($currentSlug !== $expectedSlug)) {
                 $this->attributes['slug'] = $expectedSlug;
+                $this->slug = $expectedSlug;
             }
         }
     }

@@ -15,9 +15,9 @@ return new class () extends Migration {
         Schema::create('categories', static function (Blueprint $table): void {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
+            $table->string('slug')->nullable()->unique();
             $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
-            $table->integer('level')->default(1);
+            $table->unsignedInteger('level')->default(0);
             $table->text('description')->nullable();
 
             // ✅ *** هذا هو السطر الذي تمت إضافته ***

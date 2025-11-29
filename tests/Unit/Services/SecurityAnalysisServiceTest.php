@@ -80,6 +80,8 @@ final class SecurityAnalysisServiceTest extends TestCase
 
     public function testAnalyzeWithEmptyAppUrl(): void
     {
+        // Use config() helper to set value, then Config::set to ensure facade is updated
+        config(['app.url' => '']);
         Config::set('app.url', '');
 
         $result = $this->service->analyze();
@@ -89,6 +91,8 @@ final class SecurityAnalysisServiceTest extends TestCase
 
     public function testAnalyzeWithNullAppUrl(): void
     {
+        // Use config() helper to set value, then Config::set to ensure facade is updated
+        config(['app.url' => null]);
         Config::set('app.url', null);
 
         $result = $this->service->analyze();

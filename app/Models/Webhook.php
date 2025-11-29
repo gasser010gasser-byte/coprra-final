@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -127,5 +128,37 @@ class Webhook extends Model
             'message' => $message,
             'metadata' => $metadata,
         ]);
+    }
+
+    /**
+     * Scope a query to only include pending webhooks.
+     */
+    public function scopePending(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    /**
+     * Scope a query to filter by status.
+     */
+    public function scopeStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * Scope a query to filter by store identifier.
+     */
+    public function scopeStore(Builder $query, string $storeIdentifier): Builder
+    {
+        return $query->where('store_identifier', $storeIdentifier);
+    }
+
+    /**
+     * Scope a query to filter by event type.
+     */
+    public function scopeEventType(Builder $query, string $eventType): Builder
+    {
+        return $query->where('event_type', $eventType);
     }
 }

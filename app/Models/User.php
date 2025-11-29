@@ -71,8 +71,12 @@ class User extends Authenticatable
         'ban_description',
         'banned_at',
         'ban_expires_at',
+        'banned_by',
+        'unbanned_at',
+        'unbanned_by',
         'session_id',
         'role',
+        'permissions',
         'password_confirmed_at',
     ];
 
@@ -157,6 +161,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the custom notifications for the user.
+     *
+     * @return HasMany<Notification, User>
+     */
+    public function customNotifications(): HasMany
+    {
+        return $this->hasMany(Notification::class, 'user_id');
+    }
+
+    /**
      * Check if user is admin.
      */
     public function isAdmin(): bool
@@ -208,6 +222,7 @@ class User extends Authenticatable
             'is_blocked' => 'boolean',
             'banned_at' => 'datetime',
             'ban_expires_at' => 'datetime',
+            'permissions' => 'array',
             'password_confirmed_at' => 'datetime',
         ];
     }

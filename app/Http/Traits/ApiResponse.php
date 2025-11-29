@@ -33,6 +33,7 @@ trait ApiResponse
         $response = [
             'success' => false,
             'message' => $message,
+            'error_code' => $this->getErrorCode($status),
         ];
 
         if ($errors) {
@@ -63,9 +64,19 @@ trait ApiResponse
     /**
      * Not found response.
      */
-    protected function notFound(string $message = 'Resource not found'): JsonResponse
+    protected function notFound(string $message = 'Resource not found', ?array $additionalData = null): JsonResponse
     {
-        return $this->error($message, null, 404);
+        $response = [
+            'success' => false,
+            'message' => $message,
+            'error_code' => $this->getErrorCode(404),
+        ];
+
+        if ($additionalData) {
+            $response = array_merge($response, $additionalData);
+        }
+
+        return response()->json($response, 404);
     }
 
     /**
@@ -128,5 +139,22 @@ trait ApiResponse
                 'total' => $paginator->total(),
             ],
         ], 200);
+    }
+
+    /**
+     * Get error code based on HTTP status.
+     */
+    private function getErrorCode(int $status): string
+    {
+        return match ($status) {
+            400 => 'BAD_REQUEST',
+            401 => 'UNAUTHORIZED',
+            403 => 'FORBIDDEN',
+            404 => 'NOT_FOUND',
+            422 => 'VALIDATION_ERROR',
+            429 => 'RATE_LIMIT_EXCEEDED',
+            500 => 'INTERNAL_SERVER_ERROR',
+            default => 'ERROR',
+        };
     }
 }

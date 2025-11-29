@@ -217,9 +217,17 @@ class NotificationService
     public function markAsRead(string $notificationId, User $user): bool
     {
         try {
-            $notification = $user->notifications()->find($notificationId);
+            // Try custom notifications first, then fall back to standard notifications
+            $notification = $user->customNotifications()->find($notificationId);
+            if (! $notification) {
+                $notification = $user->notifications()->find($notificationId);
+            }
 
-            if ($notification && ! $notification->read_at) {
+            if (! $notification) {
+                return false;
+            }
+
+            if (! $notification->read_at) {
                 $notification->markAsRead();
 
                 Log::info('Notification marked as read', [

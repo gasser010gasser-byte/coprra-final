@@ -386,7 +386,7 @@ final class ConcurrentUserTest extends TestCase
         self::assertLessThan(
             self::MAX_RESPONSE_TIME_MS * self::STRESS_TEST_USERS * 1.5,
             $totalTime,
-            "Stress test with {$stressResults} users took {$totalTime}ms"
+            "Stress test with " . self::STRESS_TEST_USERS . " users took {$totalTime}ms"
         );
 
         // Analyze stress test results

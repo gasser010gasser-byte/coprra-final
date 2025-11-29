@@ -177,7 +177,7 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
             'description' => $maliciousOfferData['description'],
         ]);
         // Verify product price is updated to the lowest offer
-        self::assertSame(80.00, $product->fresh()->price);
+        self::assertEquals(80.00, (float) $product->fresh()->price);
     }
 
     public function testCreatePriceOfferWithExcessivePrice(): void
@@ -185,10 +185,13 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
         // Arrange
         $product = Product::factory()->create(['price' => 100.00]);
         $offerData = [
-            'price' => 1000000.00, // Excessive price
+            'price' => 1000001.00, // Excessive price (exceeds limit of 1,000,000)
             'expires_at' => now()->addDays(7)->toDateString(),
             'description' => 'Test offer',
         ];
+
+        // Mock audit service - should not be called when validation fails
+        $this->mockAuditService->shouldNotReceive('logCreated');
 
         // Act & Assert
         $this->expectException(\App\Exceptions\ValidationException::class);

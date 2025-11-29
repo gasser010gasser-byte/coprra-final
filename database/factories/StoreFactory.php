@@ -30,7 +30,7 @@ class StoreFactory extends Factory
             'logo_url' => $this->faker->imageUrl(200, 200),
             'website_url' => $this->faker->url(),
             'country_code' => ['EG', 'US', 'UK', 'DE', 'FR'][array_rand(['EG', 'US', 'UK', 'DE', 'FR'])],
-            'supported_countries' => \array_slice(['US', 'CA', 'UK', 'DE', 'FR', 'IT', 'ES', 'AU'], 0, 3),
+            'supported_countries' => json_encode(\array_slice(['US', 'CA', 'UK', 'DE', 'FR', 'IT', 'ES', 'AU'], 0, 3)),
             'is_active' => $this->faker->boolean(80),
             'priority' => $this->faker->numberBetween(0, 100),
             'affiliate_base_url' => $this->faker->optional()->url,

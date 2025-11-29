@@ -24,6 +24,16 @@ class PriceDropNotification extends Notification implements ShouldQueue
     }
 
     /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<string>
+     */
+    public function via($notifiable): array
+    {
+        return ['database', 'mail'];
+    }
+
+    /**
      * @return array<float|int>
      *
      * @psalm-return array{product_id: int, old_price: float, new_price: float, target_price: float}

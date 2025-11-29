@@ -30,7 +30,7 @@ class BehaviorAnalysisService
      *
      * @param  array<string, string|int|float|bool|* @method static \App\Models\Brand create(array<string, string|bool|null>  $data
      */
-    public function trackUserBehavior(User $user, string $action, array $data = []): void
+    public function trackUserBehavior(User $user, string $action, ?array $data = []): void
     {
         $payload = [
             'user_id' => $user->id,

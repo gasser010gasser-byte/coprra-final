@@ -60,6 +60,13 @@ abstract class SafeTestBase extends TestCase
         $this->createCategoriesTable($conn);
         $this->createBrandsTable($conn);
         $this->createStoresTable($conn);
+        $this->createAddressesTable($conn);
+        $this->createOrdersTable($conn);
+        $this->createOrderItemsTable($conn);
+        $this->createPaymentsTable($conn);
+        $this->createPriceOffersTable($conn);
+        $this->createReviewsTable($conn);
+        $this->createWishlistsTable($conn);
         $this->createLanguagesTable($conn);
         $this->createCurrenciesTable($conn);
         $this->createExchangeRatesTable($conn);
@@ -144,10 +151,15 @@ abstract class SafeTestBase extends TestCase
                 CREATE TABLE categories (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255) NOT NULL,
+                    slug VARCHAR(255) NULL UNIQUE,
                     description TEXT NULL,
                     parent_id INTEGER NULL,
+                    level INTEGER DEFAULT 0,
+                    image_url VARCHAR(255) NULL,
+                    is_active BOOLEAN DEFAULT 1,
                     created_at TIMESTAMP NULL,
-                    updated_at TIMESTAMP NULL
+                    updated_at TIMESTAMP NULL,
+                    deleted_at TIMESTAMP NULL
                 )
             ');
         }
@@ -175,9 +187,23 @@ abstract class SafeTestBase extends TestCase
                 CREATE TABLE stores (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255) NOT NULL,
-                    url VARCHAR(255) NULL,
+                    slug VARCHAR(255) NULL UNIQUE,
+                    description TEXT NULL,
+                    logo_url VARCHAR(255) NULL,
+                    website_url VARCHAR(255) NULL,
+                    country_code VARCHAR(2) NULL,
+                    supported_countries TEXT NULL,
+                    is_active BOOLEAN DEFAULT 1,
+                    priority INTEGER DEFAULT 0,
+                    affiliate_base_url TEXT NULL,
+                    affiliate_code VARCHAR(255) NULL,
+                    api_config TEXT NULL,
+                    currency_id INTEGER NULL,
+                    contact_email VARCHAR(255) NULL,
+                    email VARCHAR(255) NULL,
                     created_at TIMESTAMP NULL,
-                    updated_at TIMESTAMP NULL
+                    updated_at TIMESTAMP NULL,
+                    deleted_at TIMESTAMP NULL
                 )
             ');
         }
@@ -279,6 +305,168 @@ abstract class SafeTestBase extends TestCase
                     expires_at TIMESTAMP NULL,
                     created_at TIMESTAMP NULL,
                     updated_at TIMESTAMP NULL
+                )
+            ');
+        }
+    }
+
+    protected function createAddressesTable(string $connection): void
+    {
+        if (! $this->tableExists($connection, 'addresses')) {
+            DB::connection($connection)->statement('
+                CREATE TABLE addresses (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    type VARCHAR(50) NOT NULL,
+                    street VARCHAR(255) NULL,
+                    city VARCHAR(255) NULL,
+                    state VARCHAR(255) NULL,
+                    country VARCHAR(255) NULL,
+                    postal_code VARCHAR(20) NULL,
+                    is_default BOOLEAN DEFAULT 0,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL
+                )
+            ');
+        }
+    }
+
+    protected function createOrdersTable(string $connection): void
+    {
+        if (! $this->tableExists($connection, 'orders')) {
+            DB::connection($connection)->statement('
+                CREATE TABLE orders (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    order_number VARCHAR(255) NOT NULL UNIQUE,
+                    subtotal DECIMAL(10,2) NOT NULL,
+                    tax_amount DECIMAL(10,2) DEFAULT 0,
+                    shipping_amount DECIMAL(10,2) DEFAULT 0,
+                    discount_amount DECIMAL(10,2) DEFAULT 0,
+                    total_amount DECIMAL(10,2) NOT NULL,
+                    status VARCHAR(255) DEFAULT "pending",
+                    currency VARCHAR(3) DEFAULT "USD",
+                    shipping_address TEXT NULL,
+                    billing_address TEXT NULL,
+                    notes TEXT NULL,
+                    order_date DATETIME NULL,
+                    shipped_at DATETIME NULL,
+                    delivered_at DATETIME NULL,
+                    weight DECIMAL(10,2) NULL,
+                    dimensions TEXT NULL,
+                    tracking_number VARCHAR(255) NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL
+                )
+            ');
+        }
+    }
+
+    protected function createOrderItemsTable(string $connection): void
+    {
+        if (! $this->tableExists($connection, 'order_items')) {
+            DB::connection($connection)->statement('
+                CREATE TABLE order_items (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    order_id INTEGER NOT NULL,
+                    product_id INTEGER NOT NULL,
+                    quantity INTEGER NOT NULL DEFAULT 1,
+                    unit_price DECIMAL(10,2) NOT NULL,
+                    total DECIMAL(10,2) NOT NULL,
+                    subtotal DECIMAL(10,2) NULL,
+                    price DECIMAL(10,2) NULL,
+                    product_details TEXT NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL
+                )
+            ');
+        }
+    }
+
+    protected function createPaymentsTable(string $connection): void
+    {
+        if (! $this->tableExists($connection, 'payments')) {
+            DB::connection($connection)->statement('
+                CREATE TABLE payments (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    order_id INTEGER NOT NULL,
+                    amount DECIMAL(10,2) NOT NULL,
+                    currency VARCHAR(3) DEFAULT "USD",
+                    status VARCHAR(50) DEFAULT "pending",
+                    method VARCHAR(50) NULL,
+                    gateway VARCHAR(50) NULL,
+                    transaction_id VARCHAR(255) NULL,
+                    gateway_response TEXT NULL,
+                    metadata TEXT NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL
+                )
+            ');
+        }
+    }
+
+    protected function createPriceOffersTable(string $connection): void
+    {
+        if (! $this->tableExists($connection, 'price_offers')) {
+            DB::connection($connection)->statement('
+                CREATE TABLE price_offers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    product_id INTEGER NOT NULL,
+                    product_sku VARCHAR(255) NULL,
+                    store_id INTEGER NOT NULL,
+                    price DECIMAL(10,2) NOT NULL,
+                    currency VARCHAR(3) DEFAULT "USD",
+                    product_url TEXT NULL,
+                    affiliate_url TEXT NULL,
+                    in_stock BOOLEAN DEFAULT 1,
+                    stock_quantity INTEGER DEFAULT 0,
+                    condition VARCHAR(255) NULL,
+                    rating DECIMAL(2,1) NULL,
+                    shipping_cost DECIMAL(8,2) NULL,
+                    delivery_time VARCHAR(255) NULL,
+                    expires_at DATETIME NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL
+                )
+            ');
+        }
+    }
+
+    protected function createReviewsTable(string $connection): void
+    {
+        if (! $this->tableExists($connection, 'reviews')) {
+            DB::connection($connection)->statement('
+                CREATE TABLE reviews (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    product_id INTEGER NOT NULL,
+                    title VARCHAR(255) NULL,
+                    content TEXT NULL,
+                    rating INTEGER NOT NULL DEFAULT 5,
+                    is_verified_purchase BOOLEAN DEFAULT 0,
+                    is_approved BOOLEAN DEFAULT 0,
+                    helpful_votes TEXT NULL,
+                    helpful_count INTEGER DEFAULT 0,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL
+                )
+            ');
+        }
+    }
+
+    protected function createWishlistsTable(string $connection): void
+    {
+        if (! $this->tableExists($connection, 'wishlists')) {
+            DB::connection($connection)->statement('
+                CREATE TABLE wishlists (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    product_id INTEGER NOT NULL,
+                    notes TEXT NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL,
+                    deleted_at TIMESTAMP NULL,
+                    UNIQUE(user_id, product_id)
                 )
             ');
         }

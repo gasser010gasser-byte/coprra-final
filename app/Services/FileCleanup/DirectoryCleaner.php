@@ -6,7 +6,7 @@ namespace App\Services\FileCleanup;
 
 use Carbon\Carbon;
 
-final class DirectoryCleaner
+class DirectoryCleaner
 {
     /**
      * @return array<int>

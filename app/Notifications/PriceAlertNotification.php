@@ -15,6 +15,16 @@ class PriceAlertNotification extends Notification implements ShouldQueue
     use Queueable;
 
     /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<string>
+     */
+    public function via($notifiable): array
+    {
+        return ['database', 'mail'];
+    }
+
+    /**
      * @return array{product_id?: int, current_price: float, target_price: float}
      */
     public function toArray(): array

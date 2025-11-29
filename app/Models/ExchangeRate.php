@@ -64,4 +64,27 @@ class ExchangeRate extends Model
 
         return $rate ? (float) $rate->rate : null;
     }
+
+    /**
+     * Check if exchange rate is stale (older than 24 hours).
+     */
+    public function isStale(): bool
+    {
+        if (!$this->fetched_at) {
+            return true;
+        }
+
+        return $this->fetched_at->diffInHours(now()) > 24;
+    }
+
+    /**
+     * Scope to get stale exchange rates.
+     */
+    public function scopeStale($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('fetched_at')
+                ->orWhere('fetched_at', '<', now()->subHours(24));
+        });
+    }
 }

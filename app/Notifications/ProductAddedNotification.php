@@ -25,6 +25,16 @@ class ProductAddedNotification extends Notification
     }
 
     /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<string>
+     */
+    public function via($notifiable): array
+    {
+        return ['database', 'mail'];
+    }
+
+    /**
      * Get the array representation of the notification.
      *
      * @return array<int|string>

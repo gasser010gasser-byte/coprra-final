@@ -318,24 +318,21 @@ class Store extends ValidatableModel
         // Get name from attributes or property
         $name = $this->attributes['name'] ?? $this->name ?? null;
         
-        // Always generate slug from name if slug is null/empty or name has changed
-        // Override factory-generated slug if name is provided
-        if (!empty($name)) {
+        // Always generate slug from name if name is provided
+        if (!empty($name) && is_string($name)) {
             $expectedSlug = Str::slug($name);
-            // For creating: always set slug if it's null, empty, or doesn't match expected
-            // For updating: only update if name has changed
-            if (!$this->exists) {
-                // New model being created - always set slug from name
-                $this->slug = $expectedSlug;
+            
+            // Always generate slug if:
+            // 1. Slug is null or empty
+            // 2. Name is dirty (being changed)
+            // 3. Slug doesn't match expected slug from name
+            $currentSlug = $this->attributes['slug'] ?? $this->slug ?? null;
+            
+            if (empty($currentSlug) || 
+                $this->isDirty('name') || 
+                ($currentSlug !== $expectedSlug)) {
                 $this->attributes['slug'] = $expectedSlug;
-            } elseif ($this->isDirty('name')) {
-                // Existing model with name change
                 $this->slug = $expectedSlug;
-                $this->attributes['slug'] = $expectedSlug;
-            } elseif (($this->slug === null || $this->slug === '') || ($this->slug !== $expectedSlug)) {
-                // Slug doesn't match name - update it
-                $this->slug = $expectedSlug;
-                $this->attributes['slug'] = $expectedSlug;
             }
         }
     }

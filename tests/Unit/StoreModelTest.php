@@ -57,9 +57,13 @@ final class StoreModelTest extends TestCase
         $store = Store::factory()->create([
             'is_active' => '1', // string
             'priority' => '5', // string
-            'supported_countries' => json_encode(['US', 'CA']),
-            'api_config' => json_encode(['key' => 'value']),
+            'supported_countries' => ['US', 'CA'], // Pass as array, will be encoded
+            'api_config' => ['key' => 'value'], // Pass as array, will be cast
         ]);
+
+        // Refresh to ensure casts are applied - need to reload from DB
+        $storeId = $store->id;
+        $store = Store::find($storeId);
 
         // Act & Assert
         self::assertIsBool($store->is_active);
@@ -68,6 +72,7 @@ final class StoreModelTest extends TestCase
         self::assertSame(5, $store->priority);
         self::assertIsArray($store->supported_countries);
         self::assertSame(['US', 'CA'], $store->supported_countries);
+        // api_config should be cast to array when reading from DB
         self::assertIsArray($store->api_config);
         self::assertSame(['key' => 'value'], $store->api_config);
     }

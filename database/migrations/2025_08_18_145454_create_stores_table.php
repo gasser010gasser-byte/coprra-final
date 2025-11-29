@@ -12,7 +12,7 @@ return new class () extends Migration {
         Schema::create('stores', static function (Blueprint $table): void {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
+            $table->string('slug')->nullable()->unique();
             $table->string('logo_url')->nullable();
             $table->string('website_url')->nullable();
             $table->string('country_code', 2)->nullable();
@@ -23,6 +23,7 @@ return new class () extends Migration {
             $table->string('affiliate_code')->nullable();
             $table->json('api_config')->nullable();
             $table->foreignId('currency_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('contact_email')->nullable();
             $table->timestamps();
         });
     }

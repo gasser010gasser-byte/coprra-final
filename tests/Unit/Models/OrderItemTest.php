@@ -28,8 +28,10 @@ final class OrderItemTest extends TestCase
             'order_id',
             'product_id',
             'quantity',
+            'price',
+            'total',
             'unit_price',
-            'total_price',
+            'subtotal',
             'product_details',
         ];
 
@@ -41,11 +43,27 @@ final class OrderItemTest extends TestCase
      */
     public function testCasts(): void
     {
-        $casts = [
-            'product_details' => 'array',
-        ];
+        $orderItem = new OrderItem();
+        $actualCasts = $orderItem->getCasts();
 
-        self::assertSame($casts, (new OrderItem())->getCasts());
+        // Assert required casts exist
+        // Note: getCasts() may include 'id' => 'int' automatically in some Laravel versions
+        // We only check for the explicitly defined casts and don't assert the entire array
+        self::assertArrayHasKey('product_details', $actualCasts);
+        self::assertSame('array', $actualCasts['product_details']);
+        
+        self::assertArrayHasKey('price', $actualCasts);
+        self::assertSame('decimal:2', $actualCasts['price']);
+        
+        self::assertArrayHasKey('total', $actualCasts);
+        self::assertSame('decimal:2', $actualCasts['total']);
+        
+        // Verify that id is not explicitly in $casts property (it may be added by Laravel automatically)
+        $reflection = new \ReflectionClass($orderItem);
+        $castsProperty = $reflection->getProperty('casts');
+        $castsProperty->setAccessible(true);
+        $definedCasts = $castsProperty->getValue($orderItem);
+        self::assertArrayNotHasKey('id', $definedCasts, 'id should not be explicitly cast in $casts property');
     }
 
     /**

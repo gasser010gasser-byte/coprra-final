@@ -18,7 +18,7 @@ class PriceHistoryFactory extends Factory
     /**
      * @return (\DateTime|float|ProductFactory)[]
      *
-     * @psalm-return array{product_id: ProductFactory, price: float, effective_date: \DateTime}
+     * @psalm-return array{product_id: ProductFactory, price: float, recorded_at: \DateTime}
      */
     #[\Override]
     public function definition()
@@ -26,7 +26,9 @@ class PriceHistoryFactory extends Factory
         return [
             'product_id' => Product::factory(),
             'price' => $this->faker->randomFloat(2, 10, 1000),
-            'effective_date' => $this->faker->dateTimeThisYear(),
+            'old_price' => null,
+            'currency' => 'USD',
+            'recorded_at' => $this->faker->dateTimeThisYear(),
         ];
     }
 }

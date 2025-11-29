@@ -28,7 +28,18 @@ class PriceSearchController extends BaseApiController
                 ] as $value
             ) {
                 if (\is_array($value) || \is_object($value) || \is_bool($value)) {
-                    return $this->error('Search query is required. Use parameter: q, query, or name', null, 400);
+                    return $this->error('Search query is required. Use parameter: q, query, or name', [
+                        'validation_errors' => [
+                            'parameter' => 'q',
+                            'expected_type' => 'string',
+                            'received_type' => \gettype($value),
+                            'security_issues' => ['Invalid parameter type'],
+                        ],
+                        'suggestions' => [
+                            'correct_format' => 'Use string parameter: ?q=product_name',
+                            'examples' => ['?q=laptop', '?query=phone'],
+                        ],
+                    ], 400);
                 }
             }
             // Support parameters from query string, request body, or headers
@@ -57,7 +68,20 @@ class PriceSearchController extends BaseApiController
                 $products = $queryBuilder->where('is_active', true)->limit(10)->get();
 
                 if ($products->isEmpty()) {
-                    return $this->notFound('No products available');
+                    return $this->notFound('No products available', [
+                        'error_code' => 'NO_PRODUCTS_FOUND',
+                        'empty_state' => [
+                            'title' => 'No Products Available',
+                            'description' => 'There are currently no products in the system.',
+                            'icon' => 'empty-box',
+                            'suggestions' => [
+                                [
+                                    'action' => 'Check back later',
+                                    'description' => 'Products may be added soon',
+                                ],
+                            ],
+                        ],
+                    ]);
                 }
 
                 return $this->success(
@@ -116,7 +140,14 @@ class PriceSearchController extends BaseApiController
             }
 
             if (! $product) {
-                return $this->notFound('Product not found');
+                return $this->notFound('Product not found', [
+                    'error_code' => 'PRODUCT_NOT_FOUND',
+                    'resource_info' => [
+                        'type' => 'product',
+                        'id' => $productId ?? 'N/A',
+                        'action_attempted' => 'price_search',
+                    ],
+                ]);
             }
 
             if ($product->priceOffers->isEmpty()) {

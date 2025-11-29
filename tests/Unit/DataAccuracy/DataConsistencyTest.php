@@ -54,7 +54,7 @@ final class DataConsistencyTest extends TestCase
         ]);
 
         $expectedTotal = 200; // 2 * 100
-        self::assertSame($expectedTotal, $order->total_amount);
+        self::assertEquals($expectedTotal, (float) $order->total_amount);
     }
 
     // Removed stock consistency test as stock decrement logic is not implemented
@@ -77,14 +77,14 @@ final class DataConsistencyTest extends TestCase
     #[Test]
     public function testOrderStatusConsistency(): void
     {
-        $order = Order::factory()->create(['status' => 'completed']);
+        $order = Order::factory()->create(['status' => 'delivered']);
         $payment = Payment::factory()->create([
             'order_id' => $order->id,
             'amount' => 100.00,
             'status' => 'completed',
         ]);
 
-        self::assertSame('completed', $order->status);
-        self::assertSame(100.00, $payment->amount);
+        self::assertSame('delivered', $order->status->value);
+        self::assertEquals(100.00, (float) $payment->amount);
     }
 }

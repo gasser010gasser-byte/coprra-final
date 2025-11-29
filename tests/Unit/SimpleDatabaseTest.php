@@ -57,8 +57,15 @@ final class SimpleDatabaseTest extends SimpleTestCase
     public function testTablesExist(): void
     {
         // Check if essential tables exist
-        $tables = \DB::select("SELECT name FROM sqlite_master WHERE type='table'");
-        $tableNames = array_column($tables, 'name');
+        $connection = config('database.default');
+        if ($connection === 'sqlite') {
+            $tables = \DB::select("SELECT name FROM sqlite_master WHERE type='table'");
+            $tableNames = array_column($tables, 'name');
+        } else {
+            $tables = \DB::select("SHOW TABLES");
+            $tableKey = 'Tables_in_'.config('database.connections.'.$connection.'.database');
+            $tableNames = array_column($tables, $tableKey);
+        }
 
         self::assertContains('users', $tableNames);
         self::assertContains('products', $tableNames);

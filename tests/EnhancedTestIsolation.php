@@ -389,17 +389,18 @@ trait EnhancedTestIsolation
 
     /**
      * Clear all caches comprehensively.
+     * MODIFIED: Disabled file-based cache clearing to prevent parallel testing conflicts.
      */
     protected function clearAllCaches(): void
     {
         $this->clearApplicationCache();
-        $this->clearConfigCache();
+        // $this->clearConfigCache(); // DISABLED: Can conflict with parallel testing
         $this->clearViewCache();
-        $this->clearRouteCache();
+        // $this->clearRouteCache(); // DISABLED: File manipulation conflicts with parallel testing
         $this->clearEventCache();
         $this->clearOpcache();
         $this->clearRedisCache();
-        $this->clearFileCache();
+        // $this->clearFileCache(); // DISABLED: File manipulation conflicts with parallel testing
     }
 
     /**
@@ -413,11 +414,13 @@ trait EnhancedTestIsolation
 
                 // Clear all cache stores
                 $stores = (\function_exists('app') && app()->bound('config')) ? config('cache.stores', []) : [];
-                foreach ($stores as $store => $config) {
-                    try {
-                        Cache::store($store)->flush();
-                    } catch (\Throwable $e) {
-                        // Ignore individual store flush errors
+                if (is_array($stores) && !empty($stores)) {
+                    foreach ($stores as $store => $config) {
+                        try {
+                            Cache::store($store)->flush();
+                        } catch (\Throwable $e) {
+                            // Ignore individual store flush errors
+                        }
                     }
                 }
             } catch (\Exception $e) {
@@ -462,13 +465,16 @@ trait EnhancedTestIsolation
 
     /**
      * Clear route cache.
+     * DISABLED: Commented out to prevent conflicts with parallel testing.
+     * Laravel's default test environment handles cache management.
      */
     protected function clearRouteCache(): void
     {
-        $routeCachePath = app()->bootstrapPath('cache/routes.php');
-        if (file_exists($routeCachePath)) {
-            unlink($routeCachePath);
-        }
+        // COMMENTED OUT: File manipulation conflicts with parallel testing
+        // $routeCachePath = app()->bootstrapPath('cache/routes.php');
+        // if (file_exists($routeCachePath)) {
+        //     unlink($routeCachePath);
+        // }
     }
 
     /**
@@ -515,21 +521,24 @@ trait EnhancedTestIsolation
 
     /**
      * Clear file cache.
+     * DISABLED: Commented out to prevent conflicts with parallel testing.
+     * Laravel's default test environment handles cache management.
      */
     protected function clearFileCache(): void
     {
-        $cachePaths = [
-            storage_path('framework/cache'),
-            storage_path('framework/sessions'),
-            storage_path('framework/views'),
-            app()->bootstrapPath('cache'),
-        ];
-
-        foreach ($cachePaths as $path) {
-            if (is_dir($path)) {
-                $this->clearDirectory($path);
-            }
-        }
+        // COMMENTED OUT: File manipulation conflicts with parallel testing
+        // $cachePaths = [
+        //     storage_path('framework/cache'),
+        //     storage_path('framework/sessions'),
+        //     storage_path('framework/views'),
+        //     app()->bootstrapPath('cache'),
+        // ];
+        //
+        // foreach ($cachePaths as $path) {
+        //     if (is_dir($path)) {
+        //         $this->clearDirectory($path);
+        //     }
+        // }
     }
 
     /**
@@ -755,9 +764,16 @@ trait EnhancedTestIsolation
 
     /**
      * Clear directory contents.
+     * DISABLED: Commented out to prevent conflicts with parallel testing.
+     * Only used for bootstrap/cache which conflicts with parallel processes.
      */
     protected function clearDirectory(string $directory): void
     {
+        // COMMENTED OUT: Skip bootstrap/cache directory to prevent parallel testing conflicts
+        if (str_contains($directory, 'bootstrap/cache')) {
+            return;
+        }
+
         if (! is_dir($directory)) {
             return;
         }
@@ -771,7 +787,10 @@ trait EnhancedTestIsolation
             $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
 
             try {
-                $todo($fileinfo->getRealPath());
+                $path = $fileinfo->getRealPath();
+                if ($path !== false) {
+                    $todo($path);
+                }
             } catch (\Exception $e) {
                 // Ignore cleanup errors
             }

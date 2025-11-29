@@ -27,12 +27,35 @@ final class SecurityAnalysisServiceEdgeCaseTest extends TestCase
     {
         parent::setUp();
 
-        // Configure database settings after parent::setUp() so Laravel container is initialized
-        Config::set('database.default', 'sqlite');
-        Config::set('database.connections.sqlite.driver', 'sqlite');
-        Config::set('database.connections.sqlite.database', ':memory:');
-        Config::set('database.connections.sqlite.prefix', '');
-        Config::set('database.connections.sqlite.foreign_key_constraints', true);
+        // Configure database settings using app config instead of facade
+        $this->app['config']->set('database.default', 'sqlite');
+        $this->app['config']->set('database.connections.sqlite.driver', 'sqlite');
+        $this->app['config']->set('database.connections.sqlite.database', ':memory:');
+        $this->app['config']->set('database.connections.sqlite.prefix', '');
+        $this->app['config']->set('database.connections.sqlite.foreign_key_constraints', true);
+
+        // Allow RefreshDatabase to access config during setup
+        Config::shouldReceive('offsetGet')
+            ->with(\Mockery::any())
+            ->andReturnUsing(function ($key) {
+                return match ($key) {
+                    'database.default' => 'sqlite',
+                    'database.connections.sqlite.driver' => 'sqlite',
+                    'database.connections.sqlite.database' => ':memory:',
+                    'database.connections.sqlite.prefix' => '',
+                    'database.connections.sqlite.foreign_key_constraints' => true,
+                    default => $this->app['config']->get($key),
+                };
+            })
+            ->byDefault();
+
+        Config::shouldReceive('set')->andReturnSelf()->byDefault();
+        Config::shouldReceive('get')
+            ->with(\Mockery::any(), \Mockery::any())
+            ->andReturnUsing(function ($key, $default = null) {
+                return $this->app['config']->get($key, $default);
+            })
+            ->byDefault();
 
         $this->securityService = new SecurityAnalysisService();
     }
@@ -205,7 +228,8 @@ final class SecurityAnalysisServiceEdgeCaseTest extends TestCase
         // config() helper uses Config::get() internally
         Config::shouldReceive('get')
             ->with('app.url', null)
-            ->andReturn(null);
+            ->andReturn(null)
+            ->once();
 
         $result = $this->securityService->checkHttpsConfiguration();
 
@@ -251,9 +275,9 @@ final class SecurityAnalysisServiceEdgeCaseTest extends TestCase
     public function testCheckDebugModeWithMissingConfig(): void
     {
         Config::shouldReceive('get')
-            ->with('app.debug')
+            ->with('app.debug', \Mockery::any())
             ->andReturn(null)
-        ;
+            ->once();
 
         $result = $this->securityService->checkDebugMode();
 

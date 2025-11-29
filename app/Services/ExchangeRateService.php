@@ -24,6 +24,11 @@ final readonly class ExchangeRateService
 
     private RateProvider $rateProvider;
 
+    public function __construct(?RateProvider $rateProvider = null)
+    {
+        $this->rateProvider = $rateProvider ?? new \App\Services\ExchangeRates\DatabaseRateProvider();
+    }
+
     /**
      * Get exchange rate between two currencies.
      */
@@ -51,6 +56,16 @@ final readonly class ExchangeRateService
         $rate = $this->getRate($fromCurrency, $toCurrency);
 
         return round($amount * $rate, 2);
+    }
+
+    /**
+     * Get list of supported currencies.
+     *
+     * @return array<string>
+     */
+    public function getSupportedCurrencies(): array
+    {
+        return self::SUPPORTED_CURRENCIES;
     }
 
     /**

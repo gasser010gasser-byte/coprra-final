@@ -100,7 +100,7 @@ final class OrderTest extends TestCase
     {
         // Arrange
         Order::factory()->create(['status' => 'pending']);
-        Order::factory()->create(['status' => 'completed']);
+        Order::factory()->create(['status' => 'delivered']);
         Order::factory()->create(['status' => 'pending']);
 
         // Act
@@ -109,7 +109,7 @@ final class OrderTest extends TestCase
         // Assert
         self::assertCount(2, $pendingOrders);
         $pendingOrders->each(function ($order) {
-            $this->assertSame('pending', $order->status);
+            $this->assertSame('pending', $order->status->value);
         });
     }
 

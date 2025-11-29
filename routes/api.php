@@ -64,11 +64,27 @@ Route::middleware(['throttle:public'])->group(static function (): void {
 
     // Additional API routes for testing
     Route::get('/categories', static function () {
-        return response()->json(['data' => [], 'message' => 'Categories endpoint']);
+        $categories = \App\Models\Category::where('is_active', true)
+            ->limit(20)
+            ->get(['id', 'name', 'slug']);
+        
+        return response()->json([
+            'success' => true,
+            'data' => $categories,
+            'message' => 'Categories retrieved successfully'
+        ]);
     });
 
     Route::get('/brands', static function () {
-        return response()->json(['data' => [], 'message' => 'Brands endpoint']);
+        $brands = \App\Models\Brand::where('is_active', true)
+            ->limit(20)
+            ->get(['id', 'name', 'slug']);
+        
+        return response()->json([
+            'success' => true,
+            'data' => $brands,
+            'message' => 'Brands retrieved successfully'
+        ]);
     });
 
     Route::get('/price-alerts', static function () {

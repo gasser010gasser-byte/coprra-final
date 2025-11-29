@@ -28,10 +28,13 @@ final class StoreAdapterManagerTest extends TestCase
     {
         $adapters = $this->manager->getAllAdapters();
 
-        self::assertCount(3, $adapters);
+        // The manager now registers 5 adapters: amazon, ebay, noon, jumia, bestbuy
+        self::assertCount(5, $adapters);
         self::assertArrayHasKey('amazon', $adapters);
         self::assertArrayHasKey('ebay', $adapters);
         self::assertArrayHasKey('noon', $adapters);
+        self::assertArrayHasKey('jumia', $adapters);
+        self::assertArrayHasKey('bestbuy', $adapters);
     }
 
     public function testItGetsAdapterByIdentifier(): void
@@ -127,7 +130,8 @@ final class StoreAdapterManagerTest extends TestCase
         self::assertArrayHasKey('total_adapters', $stats);
         self::assertArrayHasKey('available_adapters', $stats);
         self::assertArrayHasKey('adapters', $stats);
-        self::assertSame(3, $stats['total_adapters']);
+        // The manager now registers 5 adapters: amazon, ebay, noon, jumia, bestbuy
+        self::assertSame(5, $stats['total_adapters']);
     }
 
     public function testItGetsAdapterRateLimits(): void

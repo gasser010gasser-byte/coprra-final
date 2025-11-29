@@ -91,6 +91,8 @@ final class DataAccuracyTest extends TestCase
         }
         
         $actualTotal = (float) ($order->total_amount ?? $calculatedTotal ?? 0);
+        // Ensure we have a valid numeric value before rounding
+        $actualTotal = $actualTotal !== null && is_numeric($actualTotal) ? $actualTotal : 0.0;
         self::assertSame($expectedTotal, round($actualTotal, 2));
     }
 

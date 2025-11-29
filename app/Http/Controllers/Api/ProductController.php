@@ -42,6 +42,145 @@ final class ProductController extends BaseApiController
      *     )
      * )
      */
+    public function index(\Illuminate\Http\Request $request): JsonResponse
+    {
+        try {
+            $query = Product::query()->where('is_active', true);
+
+            // Search by name if provided
+            if ($request->has('name')) {
+                $name = $request->input('name');
+                if (\is_string($name) && '' !== $name) {
+                    $query->where('name', 'like', "%{$name}%");
+                }
+            }
+
+            $products = $query->with(['category:id,name', 'brand:id,name'])
+                ->limit(20)
+                ->get();
+
+            return $this->success(
+                $products->map(fn (Product $product) => $this->formatProductResponse($product))->all(),
+                'Products retrieved successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->serverError('An error occurred while retrieving products', $e);
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/products/{id}",
+     *     summary="Get product by ID",
+     *     description="Get a single product by its ID",
+     *     operationId="getProduct",
+     *     tags={"Products"},
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product retrieved successfully",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Product not found"
+     *     )
+     * )
+     */
+    public function show(int $id): JsonResponse
+    {
+        try {
+            $product = Product::with(['category:id,name', 'brand:id,name', 'stores:id,name'])
+                ->where('is_active', true)
+                ->findOrFail($id);
+
+            return $this->success(
+                $this->formatProductResponse($product),
+                'Product retrieved successfully'
+            );
+        } catch (ModelNotFoundException $e) {
+            return $this->notFound('Product not found', [
+                'error_code' => 'PRODUCT_NOT_FOUND',
+                'resource' => [
+                    'type' => 'product',
+                    'id' => $id,
+                    'action_attempted' => 'get',
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return $this->serverError('An error occurred while retrieving the product', $e);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/products",
+     *     summary="Create product",
+     *     description="Create a new product (Admin only)",
+     *     operationId="createProduct",
+     *     tags={"Products"},
+     *     security={{"sanctum": {}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/ProductCreateRequest")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Product created successfully",
+     *
+     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - Admin access required"
+     *     )
+     * )
+     */
+    public function store(\Illuminate\Http\Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'category_id' => 'nullable|exists:categories,id',
+                'brand_id' => 'nullable|exists:brands,id',
+                'is_active' => 'boolean',
+            ]);
+
+            $validated['slug'] = Str::slug($validated['name']);
+
+            $product = Product::create($validated);
+
+            return $this->created(
+                $this->formatProductResponse($product->load(['category:id,name', 'brand:id,name'])),
+                'Product created successfully'
+            );
+        } catch (ValidationException $e) {
+            return $this->validationError($e->errors());
+        } catch (\Exception $e) {
+            return $this->serverError('An error occurred while creating the product', $e);
+        }
+    }
 
     /**
      * @OA\Put(
@@ -100,7 +239,19 @@ final class ProductController extends BaseApiController
                 'Product updated successfully'
             );
         } catch (ModelNotFoundException $e) {
-            return $this->notFound('Product not found');
+            return $this->notFound('Product not found', [
+                'error_code' => 'PRODUCT_NOT_FOUND',
+                'resource' => [
+                    'type' => 'product',
+                    'id' => $id,
+                    'action_attempted' => 'update',
+                ],
+                'suggestions' => [
+                    'check_id' => 'Verify the product ID is correct',
+                    'verify_permissions' => 'Ensure you have permission to update products',
+                    'alternative_actions' => ['List all products', 'Search for products'],
+                ],
+            ]);
         } catch (ValidationException $e) {
             return $this->validationError($e->errors());
         } catch (\Exception $e) {
@@ -109,37 +260,22 @@ final class ProductController extends BaseApiController
     }
 
     /**
-     * @OA\Post(
-     *     path="/products",
-     *     summary="Create product",
-     *     description="Create a new product (Admin only)",
-     *     operationId="createProduct",
-     *     tags={"Products"},
-     *     security={{"sanctum": {}}},
-     *
-     *     @OA\RequestBody(
-     *         required=true,
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/ProductCreateRequest")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=201,
-     *         description="Product created successfully",
-     *
-     *         @OA\JsonContent(ref="#/components/schemas/Product")
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation failed"
-     *     ),
-     *     @OA\Response(
-     *         response=403,
-     *         description="Forbidden - Admin access required"
-     *     )
-     * )
+     * Delete a product.
      */
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
+
+            return $this->success(null, 'Product deleted successfully');
+        } catch (ModelNotFoundException $e) {
+            return $this->notFound('Product not found');
+        } catch (\Exception $e) {
+            return $this->serverError('An error occurred while deleting the product', $e);
+        }
+    }
+
     private function updateProductSlug(array $validated, int $id): string
     {
         if (! isset($validated['name'])) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,11 +30,15 @@ final class Order extends Model
         'order_date',
         'shipped_at',
         'delivered_at',
+        'weight',
+        'dimensions',
     ];
 
     protected $casts = [
+        'status' => OrderStatus::class,
         'shipping_address' => 'array',
         'billing_address' => 'array',
+        'dimensions' => 'array',
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'shipping_amount' => 'decimal:2',

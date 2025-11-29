@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services;
 
-use App\Services\AIImageAnalysisService;
+use App\Services\AI\Services\AIImageAnalysisService;
 use App\Services\AIService;
-use App\Services\AITextAnalysisService;
+use App\Services\AI\Services\AITextAnalysisService;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
@@ -54,7 +54,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andThrow(new ConnectException(
                 'Connection timeout',
                 new Request('POST', 'https://api.example.com/analyze')
@@ -64,7 +64,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('timeout', strtolower($result['error']));
+        self::assertStringContainsString('timeout', strtolower($result['error']));
     }
 
     public function testAnalyzeTextWithRateLimitExceeded(): void
@@ -72,7 +72,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andThrow(new RequestException(
                 'Rate limit exceeded',
                 new Request('POST', 'https://api.example.com/analyze'),
@@ -83,7 +83,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('rate limit', strtolower($result['error']));
+        self::assertStringContainsString('rate limit', strtolower($result['error']));
     }
 
     public function testAnalyzeTextWithMalformedApiResponse(): void
@@ -91,14 +91,14 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andReturn('invalid_json_response') // Not an array
         ;
 
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('malformed', strtolower($result['error']));
+        self::assertStringContainsString('malformed', strtolower($result['error']));
     }
 
     public function testAnalyzeTextWithEmptyApiResponse(): void
@@ -106,14 +106,14 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andReturn([])
         ;
 
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('empty', strtolower($result['error']));
+        self::assertStringContainsString('empty', strtolower($result['error']));
     }
 
     public function testAnalyzeTextWithServerError(): void
@@ -121,7 +121,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andThrow(new ServerException(
                 'Internal server error',
                 new Request('POST', 'https://api.example.com/analyze'),
@@ -132,7 +132,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('server error', strtolower($result['error']));
+        self::assertStringContainsString('server error', strtolower($result['error']));
     }
 
     public function testAnalyzeSentimentWithExtremelyLongText(): void
@@ -142,7 +142,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with($longText)
+            ->with($longText, \Mockery::type('array'))
             ->andThrow(new RequestException(
                 'Request entity too large',
                 new Request('POST', 'https://api.example.com/analyze'),
@@ -153,7 +153,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeSentiment($longText);
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('too large', strtolower($result['error']));
+        self::assertStringContainsString('too large', strtolower($result['error']));
     }
 
     public function testAnalyzeSentimentWithInvalidCharacters(): void
@@ -163,7 +163,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with($invalidText)
+            ->with($invalidText, \Mockery::type('array'))
             ->andThrow(new RequestException(
                 'Invalid characters in request',
                 new Request('POST', 'https://api.example.com/analyze'),
@@ -174,7 +174,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeSentiment($invalidText);
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('invalid', strtolower($result['error']));
+        self::assertStringContainsString('invalid', strtolower($result['error']));
     }
 
     public function testClassifyTextWithIncompleteResponse(): void
@@ -182,7 +182,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('classifyText')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andReturn([
                 'category' => 'electronics',
                 // Missing confidence field
@@ -192,7 +192,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->classifyText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('incomplete', strtolower($result['error']));
+        self::assertStringContainsString('incomplete', strtolower($result['error']));
     }
 
     public function testClassifyProductWithNegativeConfidence(): void
@@ -200,7 +200,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('classifyProduct')
             ->once()
-            ->with('Product description')
+            ->with('Product description', \Mockery::any())
             ->andReturn([
                 'category' => 'electronics',
                 'confidence' => -0.5, // Invalid negative confidence
@@ -210,15 +210,18 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->classifyProduct('Product description');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('invalid confidence', strtolower($result['error']));
+        self::assertStringContainsString('invalid confidence', strtolower($result['error']));
     }
 
     public function testGenerateRecommendationsWithNetworkFailure(): void
     {
+        // AIService converts int to ['user_id' => int] and second arg to options
         $this->mockTextAnalysisService
             ->shouldReceive('generateRecommendations')
             ->once()
-            ->with(1, ['category' => 'electronics'])
+            ->with(\Mockery::on(function ($arg) {
+                return is_array($arg) && isset($arg['user_id']) && $arg['user_id'] === 1;
+            }), \Mockery::any(), \Mockery::any())
             ->andThrow(new ConnectException(
                 'Network unreachable',
                 new Request('POST', 'https://api.example.com/recommendations')
@@ -228,15 +231,18 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->generateRecommendations(1, ['category' => 'electronics']);
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('network', strtolower($result['error']));
+        self::assertStringContainsString('network', strtolower($result['error']));
     }
 
     public function testGenerateRecommendationsWithInvalidUserId(): void
     {
+        // AIService converts int to ['user_id' => int]
         $this->mockTextAnalysisService
             ->shouldReceive('generateRecommendations')
             ->once()
-            ->with(-1, [])
+            ->with(\Mockery::on(function ($arg) {
+                return is_array($arg) && isset($arg['user_id']) && $arg['user_id'] === -1;
+            }), \Mockery::any(), \Mockery::any())
             ->andThrow(new RequestException(
                 'Invalid user ID',
                 new Request('POST', 'https://api.example.com/recommendations'),
@@ -247,17 +253,18 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->generateRecommendations(-1, []);
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('invalid user', strtolower($result['error']));
+        self::assertStringContainsString('invalid user', strtolower($result['error']));
     }
 
     public function testAnalyzeImageWithInvalidUrl(): void
     {
         $invalidUrl = 'not-a-valid-url';
 
+        // AIService converts string prompt to ['prompt' => string] in options
         $this->mockImageAnalysisService
             ->shouldReceive('analyzeImage')
             ->once()
-            ->with($invalidUrl, 'Analyze this image')
+            ->with($invalidUrl, 'Analyze this image', \Mockery::any())
             ->andThrow(new RequestException(
                 'Invalid URL format',
                 new Request('POST', 'https://api.example.com/image-analysis'),
@@ -268,7 +275,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeImage($invalidUrl, 'Analyze this image');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('invalid url', strtolower($result['error']));
+        self::assertStringContainsString('invalid url', strtolower($result['error']));
     }
 
     public function testAnalyzeImageWithUnsupportedFormat(): void
@@ -278,7 +285,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockImageAnalysisService
             ->shouldReceive('analyzeImage')
             ->once()
-            ->with($imageUrl, 'Analyze this image')
+            ->with($imageUrl, 'Analyze this image', \Mockery::any())
             ->andThrow(new RequestException(
                 'Unsupported image format',
                 new Request('POST', 'https://api.example.com/image-analysis'),
@@ -289,7 +296,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeImage($imageUrl, 'Analyze this image');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('unsupported', strtolower($result['error']));
+        self::assertStringContainsString('unsupported', strtolower($result['error']));
     }
 
     public function testAnalyzeImageWithImageTooLarge(): void
@@ -299,7 +306,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockImageAnalysisService
             ->shouldReceive('analyzeImage')
             ->once()
-            ->with($imageUrl, 'Analyze this image')
+            ->with($imageUrl, 'Analyze this image', \Mockery::any())
             ->andThrow(new RequestException(
                 'Image too large',
                 new Request('POST', 'https://api.example.com/image-analysis'),
@@ -310,17 +317,20 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeImage($imageUrl, 'Analyze this image');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('too large', strtolower($result['error']));
+        self::assertStringContainsString('too large', strtolower($result['error']));
     }
 
     public function testExtractTextFromImageWithCorruptedImage(): void
     {
         $imageUrl = 'https://example.com/corrupted-image.jpg';
 
+        // AIService's extractTextFromImage calls analyzeImage with extract_text option
         $this->mockImageAnalysisService
-            ->shouldReceive('extractTextFromImage')
+            ->shouldReceive('analyzeImage')
             ->once()
-            ->with($imageUrl)
+            ->with($imageUrl, null, \Mockery::on(function ($options) {
+                return is_array($options) && isset($options['extract_text']) && $options['extract_text'] === true;
+            }))
             ->andThrow(new RequestException(
                 'Corrupted image data',
                 new Request('POST', 'https://api.example.com/ocr'),
@@ -331,7 +341,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->extractTextFromImage($imageUrl);
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('corrupted', strtolower($result['error']));
+        self::assertStringContainsString('corrupted', strtolower($result['error']));
     }
 
     public function testAnalyzeTextWithApiKeyExpired(): void
@@ -339,7 +349,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andThrow(new RequestException(
                 'API key expired',
                 new Request('POST', 'https://api.example.com/analyze'),
@@ -350,7 +360,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('api key', strtolower($result['error']));
+        self::assertStringContainsString('api key', strtolower($result['error']));
     }
 
     public function testAnalyzeTextWithQuotaExceeded(): void
@@ -358,7 +368,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andThrow(new RequestException(
                 'Quota exceeded',
                 new Request('POST', 'https://api.example.com/analyze'),
@@ -369,7 +379,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('quota', strtolower($result['error']));
+        self::assertStringContainsString('quota', strtolower($result['error']));
     }
 
     public function testAnalyzeTextWithConcurrentRequestLimit(): void
@@ -377,7 +387,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andThrow(new RequestException(
                 'Too many concurrent requests',
                 new Request('POST', 'https://api.example.com/analyze'),
@@ -388,7 +398,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('concurrent', strtolower($result['error']));
+        self::assertStringContainsString('concurrent', strtolower($result['error']));
     }
 
     public function testAnalyzeTextWithServiceMaintenance(): void
@@ -396,7 +406,7 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andThrow(new RequestException(
                 'Service temporarily unavailable',
                 new Request('POST', 'https://api.example.com/analyze'),
@@ -407,7 +417,12 @@ final class AIServiceEdgeCaseTest extends TestCase
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('maintenance', strtolower($result['error']));
+        // The exception message is "Service temporarily unavailable", so check for "unavailable" or "maintenance"
+        $errorLower = strtolower($result['error']);
+        self::assertTrue(
+            str_contains($errorLower, 'unavailable') || str_contains($errorLower, 'maintenance'),
+            "Error message should contain 'unavailable' or 'maintenance', got: {$result['error']}"
+        );
     }
 
     public function testAnalyzeTextWithUnexpectedException(): void
@@ -415,14 +430,14 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andThrow(new \RuntimeException('Unexpected error occurred'))
         ;
 
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('unexpected', strtolower($result['error']));
+        self::assertStringContainsString('unexpected', strtolower($result['error']));
     }
 
     public function testAnalyzeTextWithMemoryExhaustion(): void
@@ -430,13 +445,13 @@ final class AIServiceEdgeCaseTest extends TestCase
         $this->mockTextAnalysisService
             ->shouldReceive('analyzeSentiment')
             ->once()
-            ->with('Test text')
+            ->with('Test text', \Mockery::any())
             ->andThrow(new \Error('Allowed memory size exhausted'))
         ;
 
         $result = $this->aiService->analyzeText('Test text');
 
         self::assertArrayHasKey('error', $result);
-        $this->assertStringContains('memory', strtolower($result['error']));
+        self::assertStringContainsString('memory', strtolower($result['error']));
     }
 }
