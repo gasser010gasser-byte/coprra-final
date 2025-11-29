@@ -132,6 +132,33 @@ class PriceSearchController extends BaseApiController
                 $products = $queryBuilder->where('is_active', true)->limit(10)->get();
 
                 if ($products->isEmpty()) {
+                    // Check if a search query was provided
+                    $searchQuery = $request->input('q') ?? $request->input('query') ?? $request->input('name');
+                    
+                    if ($searchQuery) {
+                        return $this->notFound("No products found matching '{$searchQuery}'", [
+                            'error_code' => 'NO_PRODUCTS_MATCHING_SEARCH',
+                            'search_query' => $searchQuery,
+                            'empty_state' => [
+                                'title' => 'No Products Found',
+                                'description' => "No products match your search for '{$searchQuery}'.",
+                                'icon' => 'package-search',
+                                'suggestions' => [
+                                    [
+                                        'action' => 'try_different_search',
+                                        'description' => 'Try different search terms to find products',
+                                        'url' => url('/api/products'),
+                                    ],
+                                    [
+                                        'action' => 'browse_categories',
+                                        'description' => 'Browse available product categories',
+                                        'url' => url('/api/categories'),
+                                    ],
+                                ],
+                            ],
+                        ]);
+                    }
+                    
                     $totalProducts = Product::count();
                     $activeProducts = Product::where('is_active', true)->count();
                     $lastProduct = Product::latest('created_at')->first();
