@@ -17,7 +17,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Manager for store adapters.
  */
-final class StoreAdapterManager
+class StoreAdapterManager
 {
     /**
      * @var array<string, StoreAdapter>
