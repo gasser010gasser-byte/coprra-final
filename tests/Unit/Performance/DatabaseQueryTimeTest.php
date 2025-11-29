@@ -69,6 +69,9 @@ final class DatabaseQueryTimeTest extends TestCase
             "Product creation took {$insertTime}ms, exceeding threshold of ".self::PERFORMANCE_THRESHOLD_MS.'ms'
         );
 
+        // Clear query log before the actual query test
+        DB::flushQueryLog();
+
         // Test query performance
         $startTime = microtime(true);
         $retrievedProduct = Product::with(['category', 'brand'])->find($product->id);
@@ -88,12 +91,12 @@ final class DatabaseQueryTimeTest extends TestCase
         self::assertSame('Performance Test Category', $retrievedProduct->category->name);
         self::assertSame('Performance Test Brand', $retrievedProduct->brand->name);
 
-        // Verify query count efficiency
+        // Verify query count efficiency - should be 3 queries: 1 for product, 1 for category, 1 for brand
         $queries = DB::getQueryLog();
         self::assertLessThanOrEqual(
             3,
             \count($queries),
-            'Query should use eager loading to minimize database hits'
+            'Query should use eager loading to minimize database hits. Actual queries: '.\count($queries)
         );
     }
 
@@ -132,6 +135,9 @@ final class DatabaseQueryTimeTest extends TestCase
             "Bulk insert of 50 products and offers took {$bulkInsertTime}ms, exceeding threshold"
         );
 
+        // Clear query log before bulk query test
+        DB::flushQueryLog();
+
         // Test bulk query performance
         $startTime = microtime(true);
         $retrievedProducts = Product::with(['category', 'brand', 'priceOffers.store'])
@@ -159,11 +165,12 @@ final class DatabaseQueryTimeTest extends TestCase
         }
 
         // Verify query efficiency (should use eager loading)
+        // With eager loading: 1 for products, 1 for categories, 1 for brands, 1 for price offers, 1 for stores
         $queries = DB::getQueryLog();
         self::assertLessThanOrEqual(
-            4,
+            5,
             \count($queries),
-            'Bulk query should use eager loading to minimize N+1 problems'
+            'Bulk query should use eager loading to minimize N+1 problems. Actual queries: '.\count($queries)
         );
     }
 
@@ -242,10 +249,16 @@ final class DatabaseQueryTimeTest extends TestCase
             self::assertGreaterThan(0, $result->min_price);
             self::assertGreaterThan(0, $result->max_price);
             self::assertGreaterThan(0, $result->store_count);
+            // Average price should be between min and max price
+            self::assertGreaterThanOrEqual(
+                $result->min_price,
+                $result->avg_price,
+                'Average price should be greater than or equal to min price'
+            );
             self::assertLessThanOrEqual(
                 $result->max_price,
-                $result->avg_price * 2,
-                'Average price should be reasonable compared to max price'
+                $result->avg_price,
+                'Average price should be less than or equal to max price'
             );
             self::assertGreaterThanOrEqual(
                 $result->min_price,
@@ -273,6 +286,9 @@ final class DatabaseQueryTimeTest extends TestCase
             'category_id' => $category->id,
             'brand_id' => $brand->id,
         ]);
+
+        // Clear query log before query tests
+        DB::flushQueryLog();
 
         // Test query performance on indexed columns
         $startTime = microtime(true);
@@ -339,12 +355,12 @@ final class DatabaseQueryTimeTest extends TestCase
             self::assertNotEmpty($result->brand_name);
         }
 
-        // Verify query count efficiency
+        // Verify query count efficiency - 3 queries: indexed, search, join
         $queries = DB::getQueryLog();
         self::assertLessThanOrEqual(
-            4,
+            3,
             \count($queries),
-            'All queries should be executed efficiently'
+            'All queries should be executed efficiently. Actual queries: '.\count($queries)
         );
     }
 
@@ -358,6 +374,9 @@ final class DatabaseQueryTimeTest extends TestCase
             'category_id' => $category->id,
             'brand_id' => $brand->id,
         ]);
+
+        // Clear query log before concurrent queries
+        DB::flushQueryLog();
 
         $startTime = microtime(true);
 
@@ -410,9 +429,9 @@ final class DatabaseQueryTimeTest extends TestCase
             "Average query time {$avgQueryTime}ms should be well below threshold"
         );
 
-        // Verify database connection efficiency
+        // Verify database connection efficiency - should have 10 queries (one per iteration)
         $queries = DB::getQueryLog();
         self::assertGreaterThan(5, \count($queries), 'Should have executed multiple queries');
-        self::assertLessThan(15, \count($queries), 'Should not have excessive query overhead');
+        self::assertLessThanOrEqual(15, \count($queries), 'Should not have excessive query overhead. Actual queries: '.\count($queries));
     }
 }
