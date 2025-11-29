@@ -460,18 +460,34 @@ class PriceSearchController extends BaseApiController
                 }
             }
 
-            // Get alternative products for suggestions
+            // Get alternative products for suggestions (same category and brand for better relevance)
             $alternativeProducts = Product::where('is_active', true)
                 ->where('id', '!=', $product->id)
                 ->where('category_id', $product->category_id)
+                ->when($product->brand_id, function ($query) use ($product) {
+                    return $query->where('brand_id', $product->brand_id);
+                })
                 ->with(['category:id,name', 'brand:id,name'])
                 ->limit(3)
                 ->get()
-                ->map(static function (Product $p): array {
+                ->map(static function (Product $p) use ($product): array {
+                    // Calculate similarity score based on name similarity
+                    $similarityScore = 75;
+                    if ($p->brand_id === $product->brand_id) {
+                        $similarityScore = 85;
+                    }
+                    // Simple name similarity check
+                    $productNameWords = explode(' ', strtolower($product->name));
+                    $pNameWords = explode(' ', strtolower($p->name));
+                    $commonWords = count(array_intersect($productNameWords, $pNameWords));
+                    if ($commonWords > 0) {
+                        $similarityScore = min(95, $similarityScore + ($commonWords * 5));
+                    }
+                    
                     return [
                         'id' => $p->id,
                         'name' => $p->name,
-                        'similarity_score' => 75, // Placeholder similarity score
+                        'similarity_score' => $similarityScore,
                     ];
                 })->toArray();
 

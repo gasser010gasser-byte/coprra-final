@@ -56,6 +56,8 @@ class PriceOffer extends Model
         'description',
         'expires_at',
         'status',
+        'shipping_cost',
+        'delivery_time',
     ];
 
     /**
@@ -68,6 +70,7 @@ class PriceOffer extends Model
         'rating' => 'decimal:1',
         'price' => 'decimal:2',
         'original_price' => 'decimal:2',
+        'shipping_cost' => 'decimal:2',
     ];
 
     /**
