@@ -170,8 +170,10 @@ class Category extends ValidatableModel
         if (!empty($name) && empty($slug)) {
             $this->generateSlug();
         }
-        // Respect explicitly provided level when no parent is set
-        if (null !== $this->parent_id || null === $this->level) {
+        // Calculate level based on parent or set default
+        $parentId = $this->attributes['parent_id'] ?? $this->parent_id ?? null;
+        $level = $this->attributes['level'] ?? $this->level ?? null;
+        if (null !== $parentId || null === $level) {
             $this->calculateLevel();
         }
 
@@ -223,17 +225,23 @@ class Category extends ValidatableModel
 
     private function calculateLevel(): void
     {
+        // Get parent_id from attributes or property
+        $parentId = $this->attributes['parent_id'] ?? $this->parent_id ?? null;
+        
         // Recalculate level based on parent when applicable
-        if (null !== $this->parent_id) {
+        if (null !== $parentId) {
             // Query the database directly to get parent level
             // Don't use relationship loading during creating event as it may fail
-            $parent = self::find($this->parent_id);
+            $parent = self::find($parentId);
             
             // If parent exists, calculate level based on parent's level
             if ($parent) {
-                $this->level = (int) $parent->level + 1;
+                $calculatedLevel = (int) $parent->level + 1;
+                $this->attributes['level'] = $calculatedLevel;
+                $this->level = $calculatedLevel;
             } else {
                 // Parent doesn't exist yet, set to 0
+                $this->attributes['level'] = 0;
                 $this->level = 0;
             }
 
@@ -241,7 +249,9 @@ class Category extends ValidatableModel
         }
 
         // No parent: set default only if not explicitly provided
-        if (null === $this->level) {
+        $currentLevel = $this->attributes['level'] ?? $this->level ?? null;
+        if (null === $currentLevel) {
+            $this->attributes['level'] = 0;
             $this->level = 0;
         }
     }
