@@ -244,7 +244,8 @@ final class ProductController extends BaseApiController
 
             $validated = $request->validated();
 
-            $validated['slug'] = $this->updateProductSlug($validated, $id);
+            $slugData = $this->updateProductSlug($validated, $id);
+            $validated['slug'] = $slugData['slug'];
 
             $product->update($validated);
             
@@ -270,6 +271,14 @@ final class ProductController extends BaseApiController
                     'email' => $user->email,
                 ];
             }
+            
+            // Add slug generation info to data
+            $responseData['slug_generation'] = [
+                'original_slug' => $slugData['original_slug'],
+                'final_slug' => $slugData['final_slug'],
+                'conflicts_resolved' => $slugData['conflict_resolved'] ? 1 : 0,
+                'generation_method' => $slugData['conflict_resolved'] ? 'conflict_resolution' : 'standard',
+            ];
             
             // Build response with audit trail
             $response = response()->json([
@@ -326,21 +335,44 @@ final class ProductController extends BaseApiController
         }
     }
 
-    private function updateProductSlug(array $validated, int $id): string
+    /**
+     * Update product slug with conflict resolution.
+     *
+     * @return array{slug: string, original_slug: string, conflict_resolved: bool, final_slug: string}
+     */
+    private function updateProductSlug(array $validated, int $id): array
     {
+        $product = Product::find($id);
+        $originalSlug = $product?->slug ?? '';
+        
         if (! isset($validated['name'])) {
             // If name is not being updated, keep existing slug or generate from current product
             if (isset($validated['slug']) && $validated['slug'] !== '') {
-                return $validated['slug'];
+                return [
+                    'slug' => $validated['slug'],
+                    'original_slug' => $originalSlug,
+                    'conflict_resolved' => false,
+                    'final_slug' => $validated['slug'],
+                ];
             }
             
             // Fallback to existing product slug
-            $product = Product::find($id);
             if ($product && $product->slug) {
-                return $product->slug;
+                return [
+                    'slug' => $product->slug,
+                    'original_slug' => $originalSlug,
+                    'conflict_resolved' => false,
+                    'final_slug' => $product->slug,
+                ];
             }
             
-            return 'product-'.$id;
+            $fallbackSlug = 'product-'.$id;
+            return [
+                'slug' => $fallbackSlug,
+                'original_slug' => $originalSlug,
+                'conflict_resolved' => false,
+                'final_slug' => $fallbackSlug,
+            ];
         }
 
         $nameValue = $validated['name'];
@@ -349,19 +381,25 @@ final class ProductController extends BaseApiController
         
         // Ensure slug is not empty
         if ($baseSlug === '') {
-            $product = Product::find($id);
             $baseSlug = $product && $product->slug ? $product->slug : 'product-'.$id;
         }
         
         $slug = $baseSlug;
         $counter = 1;
+        $conflictResolved = false;
 
         while (Product::where('slug', $slug)->where('id', '!=', $id)->exists()) {
             $slug = $baseSlug.'-'.$counter;
             ++$counter;
+            $conflictResolved = true;
         }
 
-        return $slug;
+        return [
+            'slug' => $slug,
+            'original_slug' => $originalSlug,
+            'conflict_resolved' => $conflictResolved,
+            'final_slug' => $slug,
+        ];
     }
 
     /**
