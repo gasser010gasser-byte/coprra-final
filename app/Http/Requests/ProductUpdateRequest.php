@@ -57,6 +57,7 @@ class ProductUpdateRequest extends FormRequest
             // Unauthenticated - return 401
             throw new \Illuminate\Http\Exceptions\HttpResponseException(
                 response()->json([
+                    'success' => false,
                     'message' => 'Unauthenticated',
                     'error_code' => 'AUTH_REQUIRED',
                     'timestamp' => now()->toIso8601String(),

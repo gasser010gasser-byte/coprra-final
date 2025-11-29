@@ -81,6 +81,7 @@ class Handler extends ExceptionHandler
             $e instanceof ValidationException => response()->json([
                 'success' => false,
                 'message' => 'The given data was invalid.',
+                'error_code' => 'VALIDATION_ERROR',
                 'errors' => $e->errors(),
             ], 422),
             $e instanceof NotFoundHttpException => response()->json([
