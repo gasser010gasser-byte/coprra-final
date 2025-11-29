@@ -47,6 +47,39 @@ class ProductUpdateRequest extends FormRequest
     }
 
     /**
+     * Handle a failed authorization attempt.
+     */
+    protected function failedAuthorization(): void
+    {
+        $user = $this->user();
+        
+        if (!$user) {
+            // Unauthenticated - return 401
+            throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                response()->json([
+                    'message' => 'Unauthenticated',
+                    'error_code' => 'AUTH_REQUIRED',
+                    'timestamp' => now()->toIso8601String(),
+                    'request_id' => request()->header('X-Request-ID') ?? uniqid('req_', true),
+                    'security' => [
+                        'attempt_logged' => true,
+                        'ip_address' => request()->ip() ?? 'unknown',
+                        'user_agent_logged' => !empty(request()->userAgent()),
+                    ],
+                ], 401)
+            );
+        }
+        
+        // Authenticated but not authorized - return 403
+        throw new \Illuminate\Http\Exceptions\HttpResponseException(
+            response()->json([
+                'message' => 'This action is unauthorized.',
+                'error_code' => 'FORBIDDEN',
+            ], 403)
+        );
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<array<Rule|string>>
