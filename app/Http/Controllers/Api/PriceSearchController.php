@@ -172,6 +172,11 @@ class PriceSearchController extends BaseApiController
                                 'endpoint' => '/api/products',
                                 'method' => 'POST',
                             ],
+                            [
+                                'action' => 'bulk_import',
+                                'endpoint' => '/api/products/import',
+                                'method' => 'POST',
+                            ],
                         ],
                     ]);
                 }
@@ -264,7 +269,7 @@ class PriceSearchController extends BaseApiController
                             : 'The requested product was not found.'),
                     'resource_info' => [
                         'type' => 'product',
-                        'id' => $productId ?? 'N/A',
+                        'id' => $productId !== null ? (int) $productId : 'N/A',
                         'action_attempted' => 'price_search',
                     ],
                     'suggestions' => [
