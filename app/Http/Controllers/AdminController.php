@@ -57,9 +57,9 @@ final class AdminController extends Controller
     public function createUser(Request $request): View|RedirectResponse
     {
         $user = $request->user();
-        // Only super_admin can create users, not regular admin
-        if (! $user || ! method_exists($user, 'hasRole') || $user->role !== 'super_admin') {
-            abort(403, 'Access denied. Super admin privilege required.');
+        // Admin and super_admin can create users
+        if (! $user || ! method_exists($user, 'hasRole') || ! ($user->hasRole('admin') || $user->hasRole('super_admin'))) {
+            abort(403, 'Access denied. Admin privilege required.');
         }
 
         return view('admin.users.create');
