@@ -242,13 +242,7 @@ final class ProductController extends BaseApiController
                 'category_id', 'brand_id', 'meta_title', 'meta_description'
             ]));
 
-            try {
-                $validated = $request->validated();
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                return $this->validationError($e->errors());
-            } catch (\Exception $e) {
-                return $this->serverError('Validation error occurred', $e);
-            }
+            $validated = $request->validated();
 
             try {
                 $slugData = $this->updateProductSlug($validated, $id);
@@ -298,43 +292,70 @@ final class ProductController extends BaseApiController
                 ]);
             }
 
-            $responseData = $this->formatProductResponse($product);
+            try {
+                $responseData = $this->formatProductResponse($product);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to format product response', [
+                    'product_id' => $product->id,
+                    'error' => $e->getMessage(),
+                ]);
+                return $this->serverError('Failed to format product response', $e);
+            }
             
             // Add updated_by information
             $user = Auth::user();
             if ($user) {
-                $responseData['updated_by'] = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ];
+                try {
+                    $responseData['updated_by'] = [
+                        'id' => $user->id,
+                        'name' => $user->name ?? '',
+                        'email' => $user->email ?? '',
+                    ];
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to add updated_by info', [
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
             
             // Add slug generation info to data
-            $responseData['slug_generation'] = [
-                'original_slug' => $slugData['original_slug'],
-                'final_slug' => $slugData['final_slug'],
-                'conflicts_resolved' => $slugData['conflict_resolved'] ? 1 : 0,
-                'generation_method' => $slugData['conflict_resolved'] ? 'conflict_resolution' : 'standard',
-            ];
+            try {
+                $responseData['slug_generation'] = [
+                    'original_slug' => $slugData['original_slug'] ?? '',
+                    'final_slug' => $slugData['final_slug'] ?? '',
+                    'conflicts_resolved' => ($slugData['conflict_resolved'] ?? false) ? 1 : 0,
+                    'generation_method' => ($slugData['conflict_resolved'] ?? false) ? 'conflict_resolution' : 'standard',
+                ];
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('Failed to add slug generation info', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
             
             // Build response with audit trail
-            $response = response()->json([
-                'success' => true,
-                'message' => 'Product updated successfully',
-                'data' => $responseData,
-                'audit' => [
-                    'action' => 'product_updated',
-                    'user_id' => $user?->id,
-                    'changes' => [
-                        'old_values' => $oldValues,
-                        'new_values' => $newValues,
+            try {
+                $response = response()->json([
+                    'success' => true,
+                    'message' => 'Product updated successfully',
+                    'data' => $responseData,
+                    'audit' => [
+                        'action' => 'product_updated',
+                        'user_id' => $user?->id,
+                        'changes' => [
+                            'old_values' => $oldValues,
+                            'new_values' => $newValues,
+                        ],
+                        'timestamp' => now()->toIso8601String(),
                     ],
-                    'timestamp' => now()->toIso8601String(),
-                ],
-            ], 200);
+                ], 200);
 
-            return $response;
+                return $response;
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to build response', [
+                    'error' => $e->getMessage(),
+                ]);
+                return $this->serverError('Failed to build response', $e);
+            }
         } catch (ModelNotFoundException $e) {
             return $this->notFound('Product not found', [
                 'error_code' => 'PRODUCT_NOT_FOUND',
