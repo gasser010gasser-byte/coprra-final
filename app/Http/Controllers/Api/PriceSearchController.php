@@ -167,7 +167,7 @@ class PriceSearchController extends BaseApiController
                                     [
                                         'action' => 'browse_categories',
                                         'description' => 'Browse available product categories',
-                                        'url' => url('/api/categories'),
+                                        'url' => '/api/categories',
                                     ],
                                 ],
                             ],
@@ -189,7 +189,7 @@ class PriceSearchController extends BaseApiController
                                 [
                                     'action' => 'browse_categories',
                                     'description' => 'Browse available product categories',
-                                    'url' => url('/api/categories'),
+                                    'url' => '/api/categories',
                                 ],
                             [
                                 'action' => 'try_different_search',
@@ -199,7 +199,7 @@ class PriceSearchController extends BaseApiController
                                 [
                                     'action' => 'check_back_later',
                                     'description' => 'Products may be added soon',
-                                    'url' => url('/api/products'),
+                                    'url' => '/api/products',
                                 ],
                             ],
                         ],
