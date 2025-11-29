@@ -290,6 +290,9 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
         Route::post('/clear-jobs', [ScraperController::class, 'clearJobs'])->name('clear-jobs');
     });
 
+    // System Settings - requires system.settings permission (super_admin only)
+    Route::get('system-settings', [AdminController::class, 'systemSettings'])->name('system-settings');
+
 });
 
 // --- Brand Routes ---

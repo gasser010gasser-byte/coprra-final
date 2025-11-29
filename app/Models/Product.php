@@ -417,10 +417,13 @@ class Product extends Model
         static::created(static function (self $product): void {
             try {
                 // Only create if price exists and is valid
-                if (isset($product->price) && $product->price !== null && $product->price > 0) {
+                $price = $product->price;
+                $priceFloat = $price !== null && $price !== '' ? (float) $price : null;
+                
+                if ($priceFloat !== null && $priceFloat > 0) {
                     PriceHistory::create([
                         'product_id' => $product->id,
-                        'price' => (float) $product->price,
+                        'price' => $priceFloat,
                         'old_price' => null,
                         'currency' => 'USD',
                         'recorded_at' => now(),
@@ -441,12 +444,20 @@ class Product extends Model
         // Record price change on update when price actually changes
         static::updated(static function (self $product): void {
             try {
-                if ($product->wasChanged('price') && isset($product->price) && $product->price !== null && $product->price > 0) {
-                    $oldPrice = $product->getOriginal('price');
+                // Check if price was changed by comparing original and current values
+                $oldPrice = $product->getOriginal('price');
+                $newPrice = $product->price;
+                
+                // Convert to float for comparison
+                $oldPriceFloat = $oldPrice !== null && $oldPrice !== '' ? (float) $oldPrice : null;
+                $newPriceFloat = $newPrice !== null && $newPrice !== '' ? (float) $newPrice : null;
+                
+                // Create price history if price actually changed and new price is valid
+                if ($product->wasChanged('price') && $newPriceFloat !== null && $newPriceFloat > 0 && $oldPriceFloat !== $newPriceFloat) {
                     PriceHistory::create([
                         'product_id' => $product->id,
-                        'price' => (float) $product->price,
-                        'old_price' => ($oldPrice !== null && $oldPrice !== '') ? (float) $oldPrice : null,
+                        'price' => $newPriceFloat,
+                        'old_price' => $oldPriceFloat,
                         'currency' => 'USD',
                         'recorded_at' => now(),
                     ]);

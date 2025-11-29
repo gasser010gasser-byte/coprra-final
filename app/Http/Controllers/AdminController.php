@@ -180,4 +180,25 @@ final class AdminController extends Controller
         // Placeholder: edit functionality will be implemented later
         return redirect()->route('admin.categories.edit', $category)->with('status', 'Update endpoint ready. Editing to be implemented.');
     }
+
+    public function systemSettings(Request $request): View|RedirectResponse
+    {
+        $user = $request->user();
+        if (! $user) {
+            abort(401, 'Unauthenticated');
+        }
+
+        // Check if user has system.settings permission (only super_admin should have this)
+        // For now, check if role is super_admin
+        $hasPermission = $user->role === 'super_admin' || 
+            (is_object($user->role) && method_exists($user->role, 'hasPermission') && $user->role->hasPermission('system.settings'));
+
+        if (! $hasPermission) {
+            abort(403, 'Access denied. System settings permission required.');
+        }
+
+        return view('admin.system-settings', [
+            'settings' => [],
+        ]);
+    }
 }
