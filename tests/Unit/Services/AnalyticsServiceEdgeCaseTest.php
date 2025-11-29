@@ -379,6 +379,12 @@ final class AnalyticsServiceEdgeCaseTest extends TestCase
 
     public function testTrackWithUnicodeMetadata(): void
     {
+        // Create required records for foreign key constraints
+        $user = \App\Models\User::factory()->create();
+        $product = \App\Models\Product::factory()->create();
+        $category = \App\Models\Category::factory()->create();
+        $store = \App\Models\Store::factory()->create();
+
         $unicodeMetadata = [
             'emoji' => '🚀🎉💻',
             'chinese' => '你好世界',
@@ -390,10 +396,10 @@ final class AnalyticsServiceEdgeCaseTest extends TestCase
         $result = $this->analyticsService->track(
             'test_type',
             'test_event',
-            1,
-            1,
-            1,
-            1,
+            $user->id,
+            $product->id,
+            $category->id,
+            $store->id,
             $unicodeMetadata
         );
 
