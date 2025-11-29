@@ -11,6 +11,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
@@ -111,11 +112,71 @@ class Handler extends ExceptionHandler
                 'message' => 'Forbidden.',
                 'error_code' => 'FORBIDDEN',
             ], 403),
+            $e instanceof HttpException => $this->handleHttpException($e),
             default => response()->json([
                 'success' => false,
                 'message' => 'An unexpected server error occurred.',
                 'error_code' => 'INTERNAL_SERVER_ERROR',
             ], 500),
+        };
+    }
+
+    /**
+     * Handle HTTP exceptions (like abort(401), abort(403), etc.).
+     */
+    private function handleHttpException(HttpException $e): JsonResponse
+    {
+        $statusCode = $e->getStatusCode();
+        $message = $e->getMessage() ?: $this->getDefaultMessageForStatusCode($statusCode);
+        $errorCode = $this->getErrorCodeForStatusCode($statusCode);
+
+        $response = [
+            'success' => false,
+            'message' => $message,
+            'error_code' => $errorCode,
+        ];
+
+        // Add additional fields for 401 errors
+        if ($statusCode === 401) {
+            $response['timestamp'] = now()->toIso8601String();
+            $response['request_id'] = request()->header('X-Request-ID') ?? uniqid('req_', true);
+            $response['security'] = [
+                'attempt_logged' => true,
+                'ip_address' => request()->ip() ?? 'unknown',
+                'user_agent_logged' => !empty(request()->userAgent()),
+            ];
+        }
+
+        return response()->json($response, $statusCode);
+    }
+
+    /**
+     * Get default message for HTTP status code.
+     */
+    private function getDefaultMessageForStatusCode(int $statusCode): string
+    {
+        return match ($statusCode) {
+            401 => 'Unauthenticated',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            422 => 'Validation Error',
+            500 => 'Internal Server Error',
+            default => 'An error occurred',
+        };
+    }
+
+    /**
+     * Get error code for HTTP status code.
+     */
+    private function getErrorCodeForStatusCode(int $statusCode): string
+    {
+        return match ($statusCode) {
+            401 => 'AUTH_REQUIRED',
+            403 => 'FORBIDDEN',
+            404 => 'NOT_FOUND',
+            422 => 'VALIDATION_ERROR',
+            500 => 'INTERNAL_SERVER_ERROR',
+            default => 'HTTP_ERROR',
         };
     }
 }
