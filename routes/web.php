@@ -228,6 +228,7 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
     // Dashboard and basic management pages
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('users', [AdminController::class, 'users'])->name('users');
+    Route::get('users/create', [AdminController::class, 'createUser'])->name('users.create');
     Route::get('stores', [AdminController::class, 'stores'])->name('stores');
     Route::post('users/{user}/toggle-admin', [AdminController::class, 'toggleUserAdmin'])->name('users.toggle-admin');
 
