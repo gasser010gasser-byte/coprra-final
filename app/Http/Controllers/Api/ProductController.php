@@ -244,8 +244,23 @@ final class ProductController extends BaseApiController
 
             $validated = $request->validated();
 
-            $slugData = $this->updateProductSlug($validated, $id);
-            $validated['slug'] = $slugData['slug'];
+            try {
+                $slugData = $this->updateProductSlug($validated, $id);
+                $validated['slug'] = $slugData['slug'];
+            } catch (\Exception $e) {
+                // If slug generation fails, use existing slug or generate basic one
+                \Illuminate\Support\Facades\Log::warning('Failed to generate product slug', [
+                    'product_id' => $id,
+                    'error' => $e->getMessage(),
+                ]);
+                $validated['slug'] = $validated['slug'] ?? $product->slug ?? 'product-' . $id;
+                $slugData = [
+                    'slug' => $validated['slug'],
+                    'original_slug' => $product->slug ?? '',
+                    'conflict_resolved' => false,
+                    'final_slug' => $validated['slug'],
+                ];
+            }
 
             $product->update($validated);
             
