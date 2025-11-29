@@ -131,7 +131,10 @@ class Brand extends ValidatableModel
         parent::boot();
 
         static::creating(static function (Brand $brand): void {
-            $brand->generateSlug();
+            // Always generate slug from name if name is provided and slug is empty
+            if (!empty($brand->name) && empty($brand->slug)) {
+                $brand->generateSlug();
+            }
         });
 
         static::updating(static function (Brand $brand): void {
@@ -153,6 +156,10 @@ class Brand extends ValidatableModel
         if (!empty($name) && is_string($name)) {
             $expectedSlug = str($name)->slug()->toString();
             
+            if (empty($expectedSlug)) {
+                return;
+            }
+            
             // Always generate slug if:
             // 1. Slug is null or empty
             // 2. Name is dirty (being changed)
@@ -162,7 +169,9 @@ class Brand extends ValidatableModel
             if (empty($currentSlug) || 
                 $this->isDirty('name') || 
                 ($currentSlug !== $expectedSlug)) {
+                // Set in attributes array first (this is what gets saved to DB)
                 $this->attributes['slug'] = $expectedSlug;
+                // Also set the property for immediate access
                 $this->slug = $expectedSlug;
             }
         }

@@ -25,15 +25,20 @@ final class PriceHistoryAccuracyTest extends TestCase
         $product->update(['price' => 120.00]);
         $product->update(['price' => 110.00]);
 
-        // Refresh to get latest price history
+        // Refresh to get latest price history and reload relationship
         $product->refresh();
+        $product->load('priceHistory');
         
-        self::assertCount(3, $product->priceHistory);
+        // Use the query builder to ensure we get all records
+        $priceHistory = $product->priceHistory()->get();
+        self::assertCount(3, $priceHistory);
         // Oldest record should be the initial price (100.00)
         $oldest = $product->priceHistory()->orderBy('recorded_at', 'asc')->first();
+        self::assertNotNull($oldest);
         self::assertEquals(100.00, (float) $oldest->price);
         // Latest record should be the current price (110.00)
         $latest = $product->priceHistory()->orderBy('recorded_at', 'desc')->first();
+        self::assertNotNull($latest);
         self::assertEquals(110.00, (float) $latest->price);
     }
 

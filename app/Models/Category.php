@@ -164,7 +164,10 @@ class Category extends ValidatableModel
 
     private function handleCreatingEvent(): bool
     {
-        $this->generateSlug();
+        // Always generate slug from name if name is provided and slug is empty
+        if (!empty($this->name) && empty($this->slug)) {
+            $this->generateSlug();
+        }
         // Respect explicitly provided level when no parent is set
         if (null !== $this->parent_id || null === $this->level) {
             $this->calculateLevel();
@@ -195,6 +198,10 @@ class Category extends ValidatableModel
         if (!empty($name) && is_string($name)) {
             $expectedSlug = Str::slug($name);
             
+            if (empty($expectedSlug)) {
+                return;
+            }
+            
             // Always generate slug if:
             // 1. Slug is null or empty
             // 2. Name is dirty (being changed)
@@ -204,7 +211,9 @@ class Category extends ValidatableModel
             if (empty($currentSlug) || 
                 $this->isDirty('name') || 
                 ($currentSlug !== $expectedSlug)) {
+                // Set in attributes array first (this is what gets saved to DB)
                 $this->attributes['slug'] = $expectedSlug;
+                // Also set the property for immediate access
                 $this->slug = $expectedSlug;
             }
         }
