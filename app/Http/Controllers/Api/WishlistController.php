@@ -17,14 +17,17 @@ class WishlistController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            /** @var \App\Models\User $user */
+            /** @var \App\Models\User|null $user */
             $user = $request->user();
 
             if (!$user) {
+                // Return empty wishlist for unauthenticated users
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthenticated',
-                ], 401);
+                    'success' => true,
+                    'count' => 0,
+                    'data' => [],
+                    'message' => __('Wishlist loaded successfully.'),
+                ], 200);
             }
 
             $items = $user->wishlist()
@@ -39,10 +42,10 @@ class WishlistController extends Controller
 
                     return [
                         'id' => $product->id,
-                        'name' => $product->name,
-                        'slug' => $product->slug,
-                        'price' => $product->price,
-                        'image' => $product->image ?? $product->image_url,
+                        'name' => $product->name ?? '',
+                        'slug' => $product->slug ?? '',
+                        'price' => $product->price ?? 0,
+                        'image' => $product->image ?? $product->image_url ?? null,
                         'brand' => $product->brand?->name,
                         'category' => $product->category?->name,
                         'pivot' => [
@@ -78,38 +81,57 @@ class WishlistController extends Controller
      */
     public function store(Request $request, ?Product $product = null): JsonResponse
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
+        try {
+            /** @var \App\Models\User|null $user */
+            $user = $request->user();
 
-        $productModel = $product ?? Product::query()->with(['category', 'brand'])->findOrFail((int) $request->input('product_id'));
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated',
+                ], 401);
+            }
 
-        $alreadyExists = $user->wishlist()->where('products.id', $productModel->id)->exists();
+            $productModel = $product ?? Product::query()->with(['category', 'brand'])->findOrFail((int) $request->input('product_id'));
 
-        $user->wishlist()->syncWithoutDetaching([$productModel->id]);
+            $alreadyExists = $user->wishlist()->where('products.id', $productModel->id)->exists();
 
-        $count = $user->wishlist()->count();
-        $item = [
-            'id' => $productModel->id,
-            'product_id' => $productModel->id,
-            'name' => $productModel->name,
-            'slug' => $productModel->slug,
-            'price' => $productModel->price,
-            'image' => $productModel->image ?? $productModel->image_url,
-            'product' => [
+            $user->wishlist()->syncWithoutDetaching([$productModel->id]);
+
+            $count = $user->wishlist()->count();
+            $item = [
                 'id' => $productModel->id,
-                'name' => $productModel->name,
-                'price' => $productModel->price,
-            ],
-        ];
+                'product_id' => $productModel->id,
+                'name' => $productModel->name ?? '',
+                'slug' => $productModel->slug ?? '',
+                'price' => $productModel->price ?? 0,
+                'image' => $productModel->image ?? $productModel->image_url ?? null,
+                'product' => [
+                    'id' => $productModel->id,
+                    'name' => $productModel->name ?? '',
+                    'price' => $productModel->price ?? 0,
+                ],
+            ];
 
-        return response()->json([
-            'success' => true,
-            'message' => $alreadyExists
-                ? __('Product is already in your wishlist.')
-                : __('Product added to your wishlist.'),
-            'count' => $count,
-            'data' => $item,
-        ], $alreadyExists ? 200 : 201);
+            return response()->json([
+                'success' => true,
+                'message' => $alreadyExists
+                    ? __('Product is already in your wishlist.')
+                    : __('Product added to your wishlist.'),
+                'count' => $count,
+                'data' => $item,
+            ], $alreadyExists ? 200 : 201);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('WishlistController@store failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while adding to wishlist.',
+            ], 500);
+        }
     }
 
     /**
@@ -117,17 +139,36 @@ class WishlistController extends Controller
      */
     public function destroy(Request $request, Product $product): JsonResponse
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
+        try {
+            /** @var \App\Models\User|null $user */
+            $user = $request->user();
 
-        $detached = (bool) $user->wishlist()->detach($product->id);
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated',
+                ], 401);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => $detached
-                ? __('Product removed from your wishlist.')
-                : __('Product was not in your wishlist.'),
-            'count' => $user->wishlist()->count(),
-        ]);
+            $detached = (bool) $user->wishlist()->detach($product->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => $detached
+                    ? __('Product removed from your wishlist.')
+                    : __('Product was not in your wishlist.'),
+                'count' => $user->wishlist()->count(),
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('WishlistController@destroy failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while removing from wishlist.',
+            ], 500);
+        }
     }
 }
