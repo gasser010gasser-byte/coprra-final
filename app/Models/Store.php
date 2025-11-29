@@ -260,7 +260,9 @@ class Store extends ValidatableModel
 
         static::creating(static function (Store $store): void {
             // Always generate slug from name if name is provided and slug is empty
-            if (!empty($store->name) && empty($store->slug)) {
+            $name = $store->attributes['name'] ?? $store->name ?? null;
+            $slug = $store->attributes['slug'] ?? $store->slug ?? null;
+            if (!empty($name) && empty($slug)) {
                 $store->generateSlug();
             }
             // Ensure supported_countries is properly encoded before saving

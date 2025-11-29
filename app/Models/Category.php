@@ -165,7 +165,9 @@ class Category extends ValidatableModel
     private function handleCreatingEvent(): bool
     {
         // Always generate slug from name if name is provided and slug is empty
-        if (!empty($this->name) && empty($this->slug)) {
+        $name = $this->attributes['name'] ?? $this->name ?? null;
+        $slug = $this->attributes['slug'] ?? $this->slug ?? null;
+        if (!empty($name) && empty($slug)) {
             $this->generateSlug();
         }
         // Respect explicitly provided level when no parent is set
