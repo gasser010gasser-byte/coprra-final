@@ -159,11 +159,11 @@ class PriceSearchController extends BaseApiController
                                 'description' => "No products match your search for '{$searchQuery}'.",
                                 'icon' => 'package-search',
                                 'suggestions' => [
-                                    [
-                                        'action' => 'try_different_search',
-                                        'description' => 'Try different search terms to find products',
-                                        'url' => url('/api/products'),
-                                    ],
+                            [
+                                'action' => 'try_different_search',
+                                'description' => 'Try different search terms to find products',
+                                'url' => '/api/products',
+                            ],
                                     [
                                         'action' => 'browse_categories',
                                         'description' => 'Browse available product categories',
@@ -191,11 +191,11 @@ class PriceSearchController extends BaseApiController
                                     'description' => 'Browse available product categories',
                                     'url' => url('/api/categories'),
                                 ],
-                                [
-                                    'action' => 'try_different_search',
-                                    'description' => 'Try different search terms to find products',
-                                    'url' => url('/api/products'),
-                                ],
+                            [
+                                'action' => 'try_different_search',
+                                'description' => 'Try different search terms to find products',
+                                'url' => '/api/products',
+                            ],
                                 [
                                     'action' => 'check_back_later',
                                     'description' => 'Products may be added soon',
@@ -410,12 +410,12 @@ class PriceSearchController extends BaseApiController
                         }, [
                             [
                                 'action' => 'browse_all_products',
-                                'endpoint' => '/api/products',
+                                'url' => '/api/products',
                                 'description' => 'View all available products',
                             ],
                             [
                                 'action' => 'search_by_name',
-                                'endpoint' => '/api/products/autocomplete',
+                                'url' => '/api/products/autocomplete',
                                 'description' => 'Search for products using autocomplete',
                             ],
                         ]),
