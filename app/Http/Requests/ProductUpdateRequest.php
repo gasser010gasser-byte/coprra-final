@@ -72,10 +72,37 @@ class ProductUpdateRequest extends FormRequest
         }
         
         // Authenticated but not authorized - return 403
+        $productId = $this->route('id');
+        $product = $productId ? Product::find($productId) : null;
+        
+        $requiredPermission = 'update';
+        $userPermissions = [];
+        if (is_object($user->role) && method_exists($user->role, 'permissions')) {
+            $userPermissions = $user->role->permissions();
+        } elseif (is_array($user->permissions ?? null)) {
+            $userPermissions = $user->permissions;
+        }
+        
         throw new \Illuminate\Http\Exceptions\HttpResponseException(
             response()->json([
+                'success' => false,
                 'message' => 'This action is unauthorized.',
                 'error_code' => 'FORBIDDEN',
+                'permissions' => [
+                    'required' => $requiredPermission,
+                    'user_has' => $userPermissions,
+                    'missing' => [$requiredPermission],
+                ],
+                'user_info' => [
+                    'id' => $user->id,
+                    'role' => $user->role ?? 'user',
+                    'permissions' => $userPermissions,
+                ],
+                'security' => [
+                    'attempt_logged' => true,
+                    'user_id' => $user->id,
+                    'action_attempted' => 'update',
+                ],
             ], 403)
         );
     }

@@ -306,6 +306,14 @@ class PriceSearchController extends BaseApiController
             }
 
             if ($product->priceOffers->isEmpty()) {
+                try {
+                    $productUrl = $product->slug 
+                        ? route('products.show', $product->slug) 
+                        : url("/products/{$product->id}");
+                } catch (\Exception $e) {
+                    $productUrl = url("/products/{$product->id}");
+                }
+
                 return response()->json([
                     'success' => false,
                     'message' => 'No offers available for this product',
@@ -313,9 +321,9 @@ class PriceSearchController extends BaseApiController
                     'product_info' => [
                         'id' => $product->id,
                         'name' => $product->name,
-                        'description' => $product->description,
+                        'description' => $product->description ?? null,
                         'price' => (float) $product->price,
-                        'url' => route('products.show', $product->slug ?? $product->id),
+                        'url' => $productUrl,
                     ],
                     'empty_state' => [
                         'title' => 'No Offers Available',

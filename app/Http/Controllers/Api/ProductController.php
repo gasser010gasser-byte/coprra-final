@@ -352,7 +352,16 @@ final class ProductController extends BaseApiController
     private function updateProductSlug(array $validated, int $id): array
     {
         $product = Product::find($id);
-        $originalSlug = $product?->slug ?? '';
+        if (!$product) {
+            // Product doesn't exist, return default slug data
+            return [
+                'slug' => $validated['slug'] ?? 'product-' . $id,
+                'original_slug' => '',
+                'conflict_resolved' => false,
+                'final_slug' => $validated['slug'] ?? 'product-' . $id,
+            ];
+        }
+        $originalSlug = $product->slug ?? '';
         
         if (! isset($validated['name'])) {
             // If name is not being updated, keep existing slug or generate from current product
