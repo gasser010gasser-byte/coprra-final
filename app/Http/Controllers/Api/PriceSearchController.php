@@ -61,7 +61,7 @@ class PriceSearchController extends BaseApiController
                         // @var \Illuminate\Database\Eloquent\Builder<\App\Models\PriceOffer> $query
                         $query->where('is_available', true)
                             ->orderBy('price', 'asc')
-                            ->with('store:id,name')
+                            ->with('store:id,name,slug,contact_email')
                         ;
                     },
                     'brand:id,name',
@@ -132,7 +132,7 @@ class PriceSearchController extends BaseApiController
                         // @var \Illuminate\Database\Eloquent\Builder<\App\Models\PriceOffer> $query
                         $query->where('is_available', true)
                             ->orderBy('price', 'asc')
-                            ->with('store:id,name')
+                            ->with('store:id,name,slug,contact_email')
                         ;
                     },
                     'brand:id,name',
@@ -146,7 +146,7 @@ class PriceSearchController extends BaseApiController
                         // @var \Illuminate\Database\Eloquent\Builder<\App\Models\PriceOffer> $query
                         $query->where('is_available', true)
                             ->orderBy('price', 'asc')
-                            ->with('store:id,name')
+                            ->with('store:id,name,slug,contact_email')
                         ;
                     },
                     'brand:id,name',
@@ -209,7 +209,7 @@ class PriceSearchController extends BaseApiController
                         'id' => $product->id,
                         'name' => $product->name,
                         'description' => $product->description,
-                        'price' => $product->price,
+                        'price' => (float) $product->price,
                         'url' => route('products.show', $product->slug ?? $product->id),
                     ],
                     'empty_state' => [
@@ -242,7 +242,7 @@ class PriceSearchController extends BaseApiController
                     'total_offers' => $product->priceOffers->count(),
                     'best_offer' => [
                         'id' => $bestOffer->id,
-                        'price' => $bestOffer->price,
+                        'price' => (float) $bestOffer->price,
                         'store_name' => $bestOffer->store->name ?? 'Unknown Store',
                         'expires_at' => $bestOffer->expires_at ? $bestOffer->expires_at->toIso8601String() : null,
                         'stock_quantity' => $bestOffer->stock_quantity ?? 0,
@@ -380,9 +380,9 @@ class PriceSearchController extends BaseApiController
                 'total_offers' => $product->priceOffers->count(),
                 'best_offer' => [
                     'id' => $bestOffer->id,
-                    'price' => $bestOffer->price,
-                    'shipping_cost' => $bestOffer->shipping_cost ?? 0.00,
-                    'total_cost' => ($bestOffer->price ?? 0) + ($bestOffer->shipping_cost ?? 0),
+                    'price' => (float) $bestOffer->price,
+                    'shipping_cost' => (float) ($bestOffer->shipping_cost ?? 0.00),
+                    'total_cost' => (float) (($bestOffer->price ?? 0) + ($bestOffer->shipping_cost ?? 0)),
                     'stock_quantity' => $bestOffer->stock_quantity ?? 0,
                     'delivery_time' => $bestOffer->delivery_time ?? null,
                     'is_available' => (bool) $bestOffer->is_available,
@@ -395,20 +395,20 @@ class PriceSearchController extends BaseApiController
                 'all_offers' => $product->priceOffers->map(static function (PriceOffer $offer): array {
                     return [
                         'id' => $offer->id,
-                        'price' => $offer->price,
-                        'shipping_cost' => $offer->shipping_cost ?? 0.00,
-                        'total_cost' => ($offer->price ?? 0) + ($offer->shipping_cost ?? 0),
+                        'price' => (float) $offer->price,
+                        'shipping_cost' => (float) ($offer->shipping_cost ?? 0.00),
+                        'total_cost' => (float) (($offer->price ?? 0) + ($offer->shipping_cost ?? 0)),
                         'stock_quantity' => $offer->stock_quantity ?? 0,
                         'store_name' => $offer->store->name ?? 'Unknown Store',
                     ];
                 })->toArray(),
                 'alternative_products' => $alternativeProducts,
                 'price_statistics' => [
-                    'lowest_price' => $lowestPrice,
-                    'highest_price' => $highestPrice,
-                    'average_price' => round($averagePrice, 2),
-                    'price_range' => $highestPrice - $lowestPrice,
-                    'savings_amount' => $highestPrice - $lowestPrice,
+                    'lowest_price' => (float) $lowestPrice,
+                    'highest_price' => (float) $highestPrice,
+                    'average_price' => round((float) $averagePrice, 2),
+                    'price_range' => (float) ($highestPrice - $lowestPrice),
+                    'savings_amount' => (float) ($highestPrice - $lowestPrice),
                 ],
             ], 'Price search completed successfully');
         } catch (\Exception $exception) {
