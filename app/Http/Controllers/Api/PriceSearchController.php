@@ -136,6 +136,24 @@ class PriceSearchController extends BaseApiController
                     $searchQuery = $request->input('q') ?? $request->input('query') ?? $request->input('name');
                     
                     if ($searchQuery) {
+                        // Log search analytics
+                        try {
+                            \Illuminate\Support\Facades\DB::table('search_analytics')->insert([
+                                'query' => $searchQuery,
+                                'results_count' => 0,
+                                'search_type' => 'price_search',
+                                'status' => 'no_results',
+                                'user_id' => $request->user()?->id,
+                                'ip_address' => $request->ip(),
+                                'user_agent' => $request->userAgent(),
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        } catch (\Exception $e) {
+                            // Log error but don't fail the request
+                            Log::warning('Failed to log search analytics', ['error' => $e->getMessage()]);
+                        }
+                        
                         return $this->notFound("No products found matching '{$searchQuery}'", [
                             'error_code' => 'NO_PRODUCTS_MATCHING_SEARCH',
                             'search_query' => $searchQuery,
