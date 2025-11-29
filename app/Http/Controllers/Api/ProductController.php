@@ -242,7 +242,13 @@ final class ProductController extends BaseApiController
                 'category_id', 'brand_id', 'meta_title', 'meta_description'
             ]));
 
-            $validated = $request->validated();
+            try {
+                $validated = $request->validated();
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return $this->validationError($e->errors());
+            } catch (\Exception $e) {
+                return $this->serverError('Validation error occurred', $e);
+            }
 
             try {
                 $slugData = $this->updateProductSlug($validated, $id);
