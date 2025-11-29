@@ -1562,6 +1562,9 @@ final class APIIntegrationTest extends TestCase
             'is_active' => true,
         ]);
 
+        // Authenticate user for protected endpoints
+        Sanctum::actingAs($this->regularUser);
+
         $endpoints = [
             '/api/products' => 200,
             '/api/categories' => 200,
@@ -1588,7 +1591,6 @@ final class APIIntegrationTest extends TestCase
                 self::assertIsString($response->json('message'));
             }
         }
-    }
 
     #[Test]
     public function testProductValidationErrorsReturnProperFormat(): void

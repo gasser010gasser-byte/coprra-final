@@ -79,14 +79,42 @@ class Handler extends ExceptionHandler
     {
         return match (true) {
             $e instanceof ValidationException => response()->json([
+                'success' => false,
                 'message' => 'The given data was invalid.',
                 'errors' => $e->errors(),
             ], 422),
-            $e instanceof NotFoundHttpException => response()->json(['message' => 'Resource not found.'], 404),
-            $e instanceof AuthenticationException => response()->json(['message' => 'Unauthenticated.'], 401),
-            $e instanceof QueryException => response()->json(['message' => 'A server-side database error occurred.'], 500),
-            $e instanceof AuthorizationException => response()->json(['message' => 'Forbidden.'], 403),
-            default => response()->json(['message' => 'An unexpected server error occurred.'], 500),
+            $e instanceof NotFoundHttpException => response()->json([
+                'success' => false,
+                'message' => 'Resource not found.',
+                'error_code' => 'NOT_FOUND',
+            ], 404),
+            $e instanceof AuthenticationException => response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+                'error_code' => 'AUTH_REQUIRED',
+                'timestamp' => now()->toIso8601String(),
+                'request_id' => request()->header('X-Request-ID') ?? uniqid('req_', true),
+                'security' => [
+                    'attempt_logged' => true,
+                    'ip_address' => request()->ip() ?? 'unknown',
+                    'user_agent_logged' => !empty(request()->userAgent()),
+                ],
+            ], 401),
+            $e instanceof QueryException => response()->json([
+                'success' => false,
+                'message' => 'A server-side database error occurred.',
+                'error_code' => 'DATABASE_ERROR',
+            ], 500),
+            $e instanceof AuthorizationException => response()->json([
+                'success' => false,
+                'message' => 'Forbidden.',
+                'error_code' => 'FORBIDDEN',
+            ], 403),
+            default => response()->json([
+                'success' => false,
+                'message' => 'An unexpected server error occurred.',
+                'error_code' => 'INTERNAL_SERVER_ERROR',
+            ], 500),
         };
     }
 }

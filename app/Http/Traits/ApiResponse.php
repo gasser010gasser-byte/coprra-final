@@ -102,7 +102,17 @@ trait ApiResponse
      */
     protected function validationError($errors, string $message = 'Validation failed'): JsonResponse
     {
-        return $this->error($message, $errors, 422);
+        $response = [
+            'success' => false,
+            'message' => $message,
+            'error_code' => $this->getErrorCode(422),
+        ];
+
+        if ($errors) {
+            $response['errors'] = $errors;
+        }
+
+        return response()->json($response, 422);
     }
 
     /**
@@ -148,7 +158,7 @@ trait ApiResponse
     {
         return match ($status) {
             400 => 'BAD_REQUEST',
-            401 => 'UNAUTHORIZED',
+            401 => 'AUTH_REQUIRED',
             403 => 'FORBIDDEN',
             404 => 'NOT_FOUND',
             422 => 'VALIDATION_ERROR',
