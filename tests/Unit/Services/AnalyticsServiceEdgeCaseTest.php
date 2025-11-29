@@ -262,45 +262,30 @@ final class AnalyticsServiceEdgeCaseTest extends TestCase
 
     public function testTrackWithMemoryExhaustion(): void
     {
-        // Simulate memory exhaustion by creating extremely large metadata
-        $memoryLimit = \ini_get('memory_limit');
-        $currentMemory = memory_get_usage(true);
-        $targetMemory = 1024 * 1024; // 1MB
-        
-        // Only set memory limit if current usage is less than target
-        if ($currentMemory < $targetMemory) {
-            try {
-                ini_set('memory_limit', '1M'); // Set very low memory limit
-            } catch (\Throwable $e) {
-                // If we can't set memory limit, skip this test
-                $this->markTestSkipped('Cannot set memory limit to 1M');
-                return;
-            }
-        } else {
-            // If current memory is already above target, skip this test
-            $this->markTestSkipped('Current memory usage is already above 1M');
-            return;
+        // Test that extremely large metadata is rejected by size limit (1MB)
+        // Create metadata that exceeds 1MB when serialized
+        $largeMetadata = [];
+        // Create enough data to exceed 1MB (approximately 1.1MB)
+        for ($i = 0; $i < 1100; ++$i) {
+            $largeMetadata["key_{$i}"] = str_repeat('x', 1000); // 1KB per entry
         }
 
-        try {
-            $largeArray = array_fill(0, 1000000, 'large_string_'.str_repeat('x', 1000));
+        // The sanitizeMetadata method should reject this and return null
+        // which will cause the track method to log a warning and return null
+        Log::shouldReceive('warning')->atLeast()->once();
 
-            Log::shouldReceive('warning')->once();
+        $result = $this->analyticsService->track(
+            'test_type',
+            'test_event',
+            1,
+            1,
+            1,
+            1,
+            $largeMetadata
+        );
 
-            $result = $this->analyticsService->track(
-                'test_type',
-                'test_event',
-                1,
-                1,
-                1,
-                1,
-                $largeArray
-            );
-
-            self::assertNull($result);
-        } finally {
-            ini_set('memory_limit', $memoryLimit); // Restore original limit
-        }
+        // Should return null due to metadata size limit
+        self::assertNull($result);
     }
 
     public function testTrackWithDatabaseTableMissing(): void

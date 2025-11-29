@@ -66,6 +66,15 @@ final class AnalyticsService
             // Sanitize metadata to remove null bytes and other problematic characters for JSON encoding
             $sanitizedMetadata = $this->sanitizeMetadata($metadata);
 
+            // If metadata was provided but sanitization returned null, it means metadata was too large or too deep
+            if ($metadata !== null && $sanitizedMetadata === null) {
+                Log::warning('Failed to track analytics event', [
+                    'error' => 'Metadata exceeds size or depth limits',
+                ]);
+
+                return null;
+            }
+
             return AnalyticsEvent::create([
                 'event_type' => $eventType,
                 'event_name' => $eventName,
@@ -276,12 +285,33 @@ final class AnalyticsService
      * Sanitize metadata array to remove null bytes and ensure JSON compatibility.
      *
      * @param  array<string, mixed>|null  $metadata
+     * @param  int  $depth
      *
      * @return array<string, mixed>|null
      */
-    private function sanitizeMetadata(?array $metadata): ?array
+    private function sanitizeMetadata(?array $metadata, int $depth = 0): ?array
     {
         if ($metadata === null) {
+            return null;
+        }
+
+        // Prevent infinite recursion and excessive depth (max 10 levels)
+        if ($depth > 10) {
+            Log::warning('Metadata sanitization depth limit exceeded', [
+                'depth' => $depth,
+            ]);
+
+            return null;
+        }
+
+        // Check metadata size to prevent memory exhaustion (max 1MB serialized)
+        $serializedSize = \strlen(serialize($metadata));
+        if ($serializedSize > 1024 * 1024) {
+            Log::warning('Metadata size exceeds limit, skipping sanitization', [
+                'size_bytes' => $serializedSize,
+                'max_size_bytes' => 1024 * 1024,
+            ]);
+
             return null;
         }
 
@@ -292,7 +322,7 @@ final class AnalyticsService
             if (\is_string($value)) {
                 $sanitized[$sanitizedKey] = str_replace("\0", '', $value);
             } elseif (\is_array($value)) {
-                $sanitized[$sanitizedKey] = $this->sanitizeMetadata($value);
+                $sanitized[$sanitizedKey] = $this->sanitizeMetadata($value, $depth + 1);
             } else {
                 $sanitized[$sanitizedKey] = $value;
             }

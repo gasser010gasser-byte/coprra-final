@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $product_id
  * @property int|null $category_id
  * @property int|null $store_id
- ** @property array<string, string|int|* @method static \App\Models\Brand create(array<string, string|bool|null>|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property string|null $ip_address
  * @property string|null $user_agent
  * @property string|null $session_id
