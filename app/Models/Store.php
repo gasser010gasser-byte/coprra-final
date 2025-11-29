@@ -260,7 +260,7 @@ class Store extends ValidatableModel
 
         static::creating(static function (Store $store): void {
             // Always generate slug from name if name is provided
-            $name = $store->attributes['name'] ?? null;
+            $name = $store->getAttribute('name') ?? $store->attributes['name'] ?? null;
             if (!empty($name)) {
                 $store->generateSlug();
             }
@@ -319,8 +319,8 @@ class Store extends ValidatableModel
      */
     private function generateSlug(): void
     {
-        // Get name directly from attributes array (most reliable during events)
-        $name = $this->attributes['name'] ?? null;
+        // Get name using getAttribute() which works reliably during events
+        $name = $this->getAttribute('name') ?? $this->attributes['name'] ?? null;
         
         // Always generate slug from name if name is provided
         if (!empty($name) && is_string($name)) {
@@ -334,7 +334,7 @@ class Store extends ValidatableModel
             // 1. Slug is null or empty
             // 2. Name is dirty (being changed)
             // 3. Slug doesn't match expected slug from name
-            $currentSlug = $this->attributes['slug'] ?? null;
+            $currentSlug = $this->getAttribute('slug') ?? $this->attributes['slug'] ?? null;
             
             if (empty($currentSlug) || $currentSlug === '' || 
                 $this->isDirty('name') || 
@@ -343,6 +343,8 @@ class Store extends ValidatableModel
                 $this->attributes['slug'] = $expectedSlug;
                 // Also set the property for immediate access
                 $this->slug = $expectedSlug;
+                // Use setAttribute to ensure it's properly set
+                $this->setAttribute('slug', $expectedSlug);
             }
         }
     }
