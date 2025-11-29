@@ -31,6 +31,7 @@ final class RecommendationServiceAITest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Cache::flush();
         $repository = new RecommendationRepository();
         $this->service = new RecommendationService($repository);
     }
@@ -54,6 +55,9 @@ final class RecommendationServiceAITest extends TestCase
         // Create similar purchase patterns for user1 and user2
         $this->createOrderWithProducts($user1, [$product1, $product2]);
         $this->createOrderWithProducts($user2, [$product1, $product2, $product3]);
+
+        // Clear cache to ensure fresh recommendations
+        Cache::flush();
 
         // Act
         $recommendations = $this->service->getRecommendations($user1, 5);
