@@ -203,8 +203,9 @@ class Product extends Model
      */
     public function priceHistory(): HasMany
     {
-        // Order by recorded_at to ensure oldest() reflects chronological price history
-        return $this->hasMany(PriceHistory::class)->orderBy('recorded_at');
+        // Don't add orderBy here as it can cause issues with queries
+        // Ordering should be done in the specific queries that need it
+        return $this->hasMany(PriceHistory::class, 'product_id');
     }
 
     // --- Scopes ---
@@ -416,8 +417,8 @@ class Product extends Model
         static::created(static function (self $product): void {
             try {
                 // Only create if price exists and is valid
-                if (isset($product->price) && $product->price !== null) {
-                    $product->priceHistory()->create([
+                if (isset($product->price) && $product->price !== null && $product->price > 0) {
+                    PriceHistory::create([
                         'product_id' => $product->id,
                         'price' => (float) $product->price,
                         'old_price' => null,
@@ -431,6 +432,7 @@ class Product extends Model
                     \Log::warning('Failed to create initial price history', [
                         'product_id' => $product->id ?? null,
                         'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
                     ]);
                 }
             }
@@ -439,12 +441,12 @@ class Product extends Model
         // Record price change on update when price actually changes
         static::updated(static function (self $product): void {
             try {
-                if ($product->wasChanged('price') && isset($product->price) && $product->price !== null) {
+                if ($product->wasChanged('price') && isset($product->price) && $product->price !== null && $product->price > 0) {
                     $oldPrice = $product->getOriginal('price');
-                    $product->priceHistory()->create([
+                    PriceHistory::create([
                         'product_id' => $product->id,
                         'price' => (float) $product->price,
-                        'old_price' => $oldPrice ? (float) $oldPrice : null,
+                        'old_price' => ($oldPrice !== null && $oldPrice !== '') ? (float) $oldPrice : null,
                         'currency' => 'USD',
                         'recorded_at' => now(),
                     ]);
@@ -455,6 +457,7 @@ class Product extends Model
                     \Log::warning('Failed to create price history on update', [
                         'product_id' => $product->id ?? null,
                         'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
                     ]);
                 }
             }

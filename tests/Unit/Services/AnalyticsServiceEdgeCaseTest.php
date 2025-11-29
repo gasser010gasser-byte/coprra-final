@@ -411,7 +411,15 @@ final class AnalyticsServiceEdgeCaseTest extends TestCase
         );
 
         self::assertInstanceOf(AnalyticsEvent::class, $result);
-        self::assertSame($unicodeMetadata, $result->metadata);
+        // Metadata with null bytes will be sanitized (null bytes removed) for JSON compatibility
+        $expectedMetadata = [
+            'emoji' => '🚀🎉💻',
+            'chinese' => '你好世界',
+            'arabic' => 'مرحبا بالعالم',
+            'special_chars' => '!@#$%^&*()_+-=[]{}|;:,.<>?',
+            'null_bytes' => 'testnullbytes', // Null bytes removed for JSON compatibility
+        ];
+        self::assertSame($expectedMetadata, $result->metadata);
     }
 
     public function testCleanOldDataWithConcurrentDeletion(): void

@@ -789,7 +789,16 @@ trait EnhancedTestIsolation
             try {
                 $path = $fileinfo->getRealPath();
                 if ($path !== false) {
-                    $todo($path);
+                    // Check if file/directory exists before trying to remove it
+                    if ($fileinfo->isDir()) {
+                        if (is_dir($path)) {
+                            @rmdir($path);
+                        }
+                    } else {
+                        if (file_exists($path)) {
+                            @unlink($path);
+                        }
+                    }
                 }
             } catch (\Exception $e) {
                 // Ignore cleanup errors

@@ -83,15 +83,15 @@ final class RecommendationService
     {
         $recommendations = collect();
 
+        // Content-Based Filtering (prioritize this as it's most personalized)
+        $contentRecs = $this->getContentBasedRecommendations($user, $limit);
+        $recommendations = $recommendations->merge($contentRecs);
+
         // Collaborative Filtering
         $collaborativeRecs = $this->getCollaborativeRecommendations($user, $limit);
         $recommendations = $recommendations->merge($collaborativeRecs);
 
-        // Content-Based Filtering
-        $contentRecs = $this->getContentBasedRecommendations($user, $limit);
-        $recommendations = $recommendations->merge($contentRecs);
-
-        // Trending Products
+        // Trending Products (fallback)
         $trendingRecs = $this->getTrendingRecommendations($limit);
 
         return $recommendations->merge($trendingRecs);
@@ -106,7 +106,7 @@ final class RecommendationService
     {
         $purchasedProductIds = $this->getPurchasedProductIds($user);
 
-        return $recommendations
+        $filtered = $recommendations
             ->unique('id')
             ->reject(static function (mixed $product) use ($purchasedProductIds): bool {
                 if (! \is_object($product) || ! property_exists($product, 'id')) {
@@ -115,6 +115,28 @@ final class RecommendationService
 
                 return \in_array($product->id, $purchasedProductIds, true);
             })
+            ->values()
+        ;
+
+        // If we don't have enough recommendations, get more from trending
+        if ($filtered->count() < $limit) {
+            $trendingRecs = $this->getTrendingRecommendations($limit * 2);
+            $existingIds = $filtered->pluck('id')->toArray();
+            $additional = collect($trendingRecs)
+                ->reject(static function (mixed $product) use ($purchasedProductIds, $existingIds): bool {
+                    if (! \is_object($product) || ! property_exists($product, 'id')) {
+                        return true;
+                    }
+                    $productId = $product->id;
+                    return \in_array($productId, $purchasedProductIds, true) 
+                        || \in_array($productId, $existingIds, true);
+                })
+                ->unique('id');
+            
+            $filtered = $filtered->merge($additional);
+        }
+
+        return $filtered
             ->take($limit)
             ->values()
             ->toArray()
@@ -273,13 +295,30 @@ final class RecommendationService
         $this->applyPriceRangeFilter($query, $userPreferences);
         $this->applyBrandFilter($query, $userPreferences);
 
-        return $query
+        $results = $query
             ->where('is_active', true)
             ->orderBy('rating', 'desc')
-            ->limit($limit)
+            ->limit($limit * 2) // Get more to account for filtering
             ->get()
             ->all()
         ;
+
+        // If no results with filters, try without price range filter (most restrictive)
+        if (empty($results) && isset($userPreferences['price_range'])) {
+            $query2 = Product::query();
+            $this->applyCategoryFilter($query2, $userPreferences);
+            $this->applyBrandFilter($query2, $userPreferences);
+            
+            $results = $query2
+                ->where('is_active', true)
+                ->orderBy('rating', 'desc')
+                ->limit($limit * 2)
+                ->get()
+                ->all()
+            ;
+        }
+
+        return array_slice($results, 0, $limit);
     }
 
     /**
@@ -307,7 +346,11 @@ final class RecommendationService
             $maxPrice = $userPreferences['price_range']['max'] ?? null;
 
             if (null !== $minPrice && null !== $maxPrice) {
-                $query->whereBetween('price', [$minPrice, $maxPrice]);
+                // Expand range by 20% to allow some flexibility
+                $range = $maxPrice - $minPrice;
+                $expandedMin = max(0, $minPrice - ($range * 0.1));
+                $expandedMax = $maxPrice + ($range * 0.1);
+                $query->whereBetween('price', [$expandedMin, $expandedMax]);
             }
         }
     }
@@ -341,6 +384,11 @@ final class RecommendationService
             ->get()
             ->all()
         ;
+
+        // If no products, return empty
+        if (empty($products)) {
+            return [];
+        }
 
         // Sort by recent purchases first, then total purchases, then rating
         usort($products, static function ($a, $b) {

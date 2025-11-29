@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Validation;
 
+use App\Models\Category;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -15,6 +17,8 @@ use Tests\TestCase;
  */
 final class BasicValidationTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -195,6 +199,11 @@ final class BasicValidationTest extends TestCase
     #[Test]
     public function testArrayAndFileValidation(): void
     {
+        // Create categories that will be referenced in validation
+        $category1 = Category::factory()->create();
+        $category2 = Category::factory()->create();
+        $category3 = Category::factory()->create();
+
         $rules = [
             'tags' => 'required|array|min:1|max:5',
             'tags.*' => 'string|max:50',
@@ -206,7 +215,7 @@ final class BasicValidationTest extends TestCase
         // Test valid array data
         $validData = [
             'tags' => ['electronics', 'gadgets', 'tech'],
-            'categories' => [1, 2, 3],
+            'categories' => [$category1->id, $category2->id, $category3->id],
             'image' => '/uploads/products/image.jpg',
         ];
 
@@ -217,7 +226,7 @@ final class BasicValidationTest extends TestCase
         // Test invalid array data - empty tags array
         $invalidData1 = [
             'tags' => [], // Empty array (min:1)
-            'categories' => [1, 2],
+            'categories' => [$category1->id, $category2->id],
             'image' => '/uploads/products/image.jpg',
         ];
 
@@ -228,7 +237,7 @@ final class BasicValidationTest extends TestCase
         // Test invalid array data - too many tags
         $invalidData2 = [
             'tags' => ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6'], // Exceeds max:5
-            'categories' => [1, 2],
+            'categories' => [$category1->id, $category2->id],
             'image' => '/uploads/products/image.jpg',
         ];
 
@@ -239,7 +248,7 @@ final class BasicValidationTest extends TestCase
         // Test invalid tag content - too long
         $invalidData3 = [
             'tags' => ['valid-tag', str_repeat('a', 51)], // One tag too long (max:50)
-            'categories' => [1, 2],
+            'categories' => [$category1->id, $category2->id],
             'image' => '/uploads/products/image.jpg',
         ];
 

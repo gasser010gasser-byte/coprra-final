@@ -12,7 +12,13 @@ final class AnalyticsService
     /**
      * Track an analytics event.
      *
-     * @param  array<string, string|int|float|bool|* @method static \App\Models\Brand create(array<string, string|bool|null>|null  $metadata
+     * @param  string|null  $eventType
+     * @param  string  $eventName
+     * @param  int|null  $userId
+     * @param  int|null  $productId
+     * @param  int|null  $categoryId
+     * @param  int|null  $storeId
+     * @param  array<string, mixed>|null  $metadata
      */
     public function track(
         ?string $eventType,
@@ -57,6 +63,9 @@ final class AnalyticsService
         }
 
         try {
+            // Sanitize metadata to remove null bytes and other problematic characters for JSON encoding
+            $sanitizedMetadata = $this->sanitizeMetadata($metadata);
+
             return AnalyticsEvent::create([
                 'event_type' => $eventType,
                 'event_name' => $eventName,
@@ -64,7 +73,7 @@ final class AnalyticsService
                 'product_id' => $productId,
                 'category_id' => $categoryId,
                 'store_id' => $storeId,
-                'metadata' => $metadata,
+                'metadata' => $sanitizedMetadata,
             ]);
         } catch (\Throwable $e) {
             Log::warning('Failed to track analytics event', [
@@ -261,6 +270,35 @@ final class AnalyticsService
             'most_searched_queries' => $this->getMostSearchedQueries(10, $days),
             'most_popular_stores' => $this->getMostPopularStores(10, $days),
         ];
+    }
+
+    /**
+     * Sanitize metadata array to remove null bytes and ensure JSON compatibility.
+     *
+     * @param  array<string, mixed>|null  $metadata
+     *
+     * @return array<string, mixed>|null
+     */
+    private function sanitizeMetadata(?array $metadata): ?array
+    {
+        if ($metadata === null) {
+            return null;
+        }
+
+        $sanitized = [];
+        foreach ($metadata as $key => $value) {
+            $sanitizedKey = \is_string($key) ? str_replace("\0", '', $key) : $key;
+
+            if (\is_string($value)) {
+                $sanitized[$sanitizedKey] = str_replace("\0", '', $value);
+            } elseif (\is_array($value)) {
+                $sanitized[$sanitizedKey] = $this->sanitizeMetadata($value);
+            } else {
+                $sanitized[$sanitizedKey] = $value;
+            }
+        }
+
+        return $sanitized;
     }
 
     /**

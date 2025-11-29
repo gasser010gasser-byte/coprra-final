@@ -429,6 +429,10 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
         $offer = $this->service->createPriceOffer($offerData);
 
         // Assert
+        // Verify offer was created
+        self::assertNotNull($offer, 'Offer should be created');
+        self::assertInstanceOf(PriceOffer::class, $offer);
+        
         // Log::info may be called multiple times (once for offer creation, potentially once for price update)
         // So we check that at least the offer creation log was called
         Log::shouldHaveReceived('info')
