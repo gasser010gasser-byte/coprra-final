@@ -61,7 +61,7 @@ class PriceSearchController extends BaseApiController
                         'message' => 'Invalid parameter format',
                         'error_code' => 'INVALID_PARAMETER_TYPE',
                         'validation_errors' => [
-                            'parameter' => $parameterName,
+                            'parameter' => $paramName,
                             'expected_type' => 'string',
                             'received_type' => $receivedType,
                             'security_issues' => $securityIssues,
@@ -98,7 +98,7 @@ class PriceSearchController extends BaseApiController
                             'message' => 'Invalid characters detected',
                             'error_code' => 'INVALID_CHARACTERS',
                             'validation_errors' => [
-                                'parameter' => $parameterName,
+                                'parameter' => $paramName,
                                 'reason' => 'Control characters not allowed',
                             ],
                         ];
