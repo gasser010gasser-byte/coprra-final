@@ -1591,6 +1591,7 @@ final class APIIntegrationTest extends TestCase
                 self::assertIsString($response->json('message'));
             }
         }
+    }
 
     #[Test]
     public function testProductValidationErrorsReturnProperFormat(): void
