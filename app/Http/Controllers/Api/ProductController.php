@@ -6,13 +6,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
+use App\Services\AuditService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 final class ProductController extends BaseApiController
 {
+    public function __construct(
+        private readonly AuditService $auditService
+    ) {
+    }
+
     /**
      * @OA\Get(
      *     path="/products",
@@ -228,19 +235,59 @@ final class ProductController extends BaseApiController
         try {
             $product = Product::findOrFail($id);
 
+            // Capture old values for audit trail
+            $oldValues = $product->getAttributes();
+            $oldValues = array_intersect_key($oldValues, array_flip([
+                'name', 'description', 'price', 'sku', 'slug', 'is_active',
+                'category_id', 'brand_id', 'meta_title', 'meta_description'
+            ]));
+
             $validated = $request->validated();
 
             $validated['slug'] = $this->updateProductSlug($validated, $id);
 
             $product->update($validated);
             
+            // Create audit trail
+            $newValues = array_intersect_key($product->getAttributes(), array_flip([
+                'name', 'description', 'price', 'sku', 'slug', 'is_active',
+                'category_id', 'brand_id', 'meta_title', 'meta_description'
+            ]));
+            
+            $this->auditService->log('product_updated', $product, $oldValues, $newValues);
+            
             // Reload product with relationships for response
             $product->load(['category:id,name', 'brand:id,name']);
 
-            return $this->success(
-                $this->formatProductResponse($product),
-                'Product updated successfully'
-            );
+            $responseData = $this->formatProductResponse($product);
+            
+            // Add updated_by information
+            $user = Auth::user();
+            if ($user) {
+                $responseData['updated_by'] = [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ];
+            }
+            
+            // Build response with audit trail
+            $response = response()->json([
+                'success' => true,
+                'message' => 'Product updated successfully',
+                'data' => $responseData,
+                'audit' => [
+                    'action' => 'product_updated',
+                    'user_id' => $user?->id,
+                    'changes' => [
+                        'old_values' => $oldValues,
+                        'new_values' => $newValues,
+                    ],
+                    'timestamp' => now()->toIso8601String(),
+                ],
+            ], 200);
+
+            return $response;
         } catch (ModelNotFoundException $e) {
             return $this->notFound('Product not found', [
                 'error_code' => 'PRODUCT_NOT_FOUND',
