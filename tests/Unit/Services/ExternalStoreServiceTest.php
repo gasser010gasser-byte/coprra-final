@@ -21,6 +21,8 @@ final class ExternalStoreServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Clear external_stores config to ensure empty state
+        \Illuminate\Support\Facades\Config::set('external_stores', []);
         $this->service = new ExternalStoreService();
     }
 
