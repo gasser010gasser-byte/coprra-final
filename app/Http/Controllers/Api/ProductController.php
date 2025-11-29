@@ -267,7 +267,15 @@ final class ProductController extends BaseApiController
             }
             
             // Reload product with relationships for response
-            $product->load(['category:id,name', 'brand:id,name']);
+            try {
+                $product->load(['category:id,name', 'brand:id,name']);
+            } catch (\Exception $e) {
+                // If loading relationships fails, continue without them
+                \Illuminate\Support\Facades\Log::warning('Failed to load product relationships', [
+                    'product_id' => $product->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             $responseData = $this->formatProductResponse($product);
             
