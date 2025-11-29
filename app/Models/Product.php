@@ -417,7 +417,8 @@ class Product extends Model
         static::created(static function (self $product): void {
             try {
                 // Only create if price exists and is valid
-                $price = $product->getAttribute('price') ?? $product->price;
+                // Use attributes array directly for reliable access during created event
+                $price = $product->attributes['price'] ?? $product->getAttribute('price') ?? null;
                 $priceFloat = $price !== null && $price !== '' ? (float) $price : null;
                 
                 if ($priceFloat !== null && $priceFloat > 0) {
@@ -451,7 +452,8 @@ class Product extends Model
                 
                 // Get old and new prices
                 $oldPrice = $product->getOriginal('price');
-                $newPrice = $product->getAttribute('price') ?? $product->price;
+                // Use attributes array directly for reliable access during updated event
+                $newPrice = $product->attributes['price'] ?? $product->getAttribute('price') ?? null;
                 
                 // Convert to float for comparison
                 $oldPriceFloat = $oldPrice !== null && $oldPrice !== '' ? (float) $oldPrice : null;
