@@ -27,9 +27,23 @@ class ProductUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $product = $this->route('product');
+        $user = $this->user();
+        if (!$user) {
+            return false;
+        }
 
-        return $this->user()->can('update', $product) ?? false;
+        $productId = $this->route('id');
+        if (!$productId) {
+            return false;
+        }
+
+        $product = Product::find($productId);
+        if (!$product) {
+            // Product not found - let the controller handle 404
+            return true;
+        }
+
+        return $user->can('update', $product) ?? false;
     }
 
     /**
@@ -163,9 +177,9 @@ class ProductUpdateRequest extends FormRequest
 
     private function getProductIdForRules(): ?int
     {
-        $product = $this->route('product');
+        $productOrId = $this->route('id');
 
-        return $product instanceof Product ? $product->id : (is_numeric($product) ? (int) $product : null);
+        return $productOrId instanceof Product ? $productOrId->id : (is_numeric($productOrId) ? (int) $productOrId : null);
     }
 
     /**
