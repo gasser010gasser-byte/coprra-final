@@ -255,7 +255,16 @@ final class ProductController extends BaseApiController
                 'category_id', 'brand_id', 'meta_title', 'meta_description'
             ]));
             
-            $this->auditService->log('product_updated', $product, $oldValues, $newValues);
+            // Log audit trail, but don't fail the request if audit logging fails
+            try {
+                $this->auditService->log('product_updated', $product, $oldValues, $newValues);
+            } catch (\Exception $auditException) {
+                // Log the audit failure but don't break the request
+                \Illuminate\Support\Facades\Log::warning('Failed to log product update audit', [
+                    'product_id' => $product->id,
+                    'error' => $auditException->getMessage(),
+                ]);
+            }
             
             // Reload product with relationships for response
             $product->load(['category:id,name', 'brand:id,name']);
