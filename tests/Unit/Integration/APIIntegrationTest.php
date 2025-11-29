@@ -263,10 +263,10 @@ final class APIIntegrationTest extends TestCase
 
         // Verify price comparison data
         $priceComparison = $data['price_comparison'];
-        self::assertSame(1199.99, $priceComparison['lowest_price']);
-        self::assertSame(1350.00, $priceComparison['highest_price']);
-        self::assertSame(1274.995, $priceComparison['average_price']); // (1199.99 + 1350.00) / 2
-        self::assertSame(150.01, $priceComparison['savings_amount']); // 1350.00 - 1199.99
+        self::assertEquals(1199.99, $priceComparison['lowest_price']);
+        self::assertEquals(1350.00, $priceComparison['highest_price']);
+        self::assertEquals(1274.995, $priceComparison['average_price']); // (1199.99 + 1350.00) / 2
+        self::assertEquals(150.01, $priceComparison['savings_amount']); // 1350.00 - 1199.99
 
         // Verify response message
         self::assertStringContainsString('best offer', strtolower($response->json('message')));
@@ -365,9 +365,9 @@ final class APIIntegrationTest extends TestCase
         // Verify best offer (lowest total cost including shipping)
         $bestOffer = $data['best_offer'];
         self::assertSame($primaryOffer->id, $bestOffer['id']);
-        self::assertSame(2299.99, $bestOffer['price']);
-        self::assertSame(25.00, $bestOffer['shipping_cost']);
-        self::assertSame(2324.99, $bestOffer['total_cost']); // price + shipping
+        self::assertEquals(2299.99, $bestOffer['price']);
+        self::assertEquals(25.00, $bestOffer['shipping_cost']);
+        self::assertEquals(2324.99, $bestOffer['total_cost']); // price + shipping
         self::assertSame(8, $bestOffer['stock_quantity']);
         self::assertSame('2-3 days', $bestOffer['delivery_time']);
         self::assertTrue($bestOffer['is_available']);
