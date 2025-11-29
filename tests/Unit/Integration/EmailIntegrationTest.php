@@ -273,16 +273,20 @@ final class EmailIntegrationTest extends TestCase
         $reviewer = User::factory()->create();
         $store = Store::factory()->create(['contact_email' => 'store@example.com']);
         $product = Product::factory()->create(['store_id' => $store->id]);
+        
+        // Reload product with store relationship
+        $product->load('store');
 
         $this->notificationService->sendReviewNotification($product, $reviewer, 5);
 
-        // Should send to admins
+        // Should send to admins via Notification facade
         Notification::assertSentTo($admin, ReviewNotification::class);
 
         // ReviewNotification is a Mailable, so it should be sent via Mail
         // The service uses Mail::to()->send(new ReviewNotification(...))
-        Mail::assertSent(ReviewNotification::class, static function ($mail) {
-            return $mail->hasTo('store@example.com');
+        // Note: ReviewNotification implements ShouldQueue, so it may be queued
+        Mail::assertSent(ReviewNotification::class, static function ($mail) use ($store) {
+            return $mail->hasTo($store->contact_email);
         });
     }
 
@@ -458,6 +462,9 @@ final class EmailIntegrationTest extends TestCase
         $reviewer = User::factory()->create();
         $store = Store::factory()->create(['contact_email' => null]);
         $product = Product::factory()->create(['store_id' => $store->id]);
+        
+        // Reload product with store relationship
+        $product->load('store');
 
         $this->notificationService->sendReviewNotification($product, $reviewer, 5);
 
@@ -500,6 +507,8 @@ final class EmailIntegrationTest extends TestCase
         Notification::assertSentTo($user, PriceDropNotification::class);
 
         // Step 5: User leaves review (triggers notification to store and admin)
+        // Reload product with store relationship
+        $product->load('store');
         $this->notificationService->sendReviewNotification($product, $user, 5);
         Notification::assertSentTo($admin, ReviewNotification::class);
         Mail::assertSent(ReviewNotification::class);
