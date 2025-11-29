@@ -164,10 +164,11 @@ class Category extends ValidatableModel
 
     private function handleCreatingEvent(): bool
     {
-        // Always generate slug from name if name is provided
+        // Always generate slug from name if name is provided and slug is not set
         // Try multiple ways to access name attribute
         $name = $this->name ?? $this->attributes['name'] ?? null;
-        if (!empty($name)) {
+        $slug = $this->slug ?? $this->attributes['slug'] ?? null;
+        if (!empty($name) && empty($slug)) {
             $this->generateSlug();
         }
         // Calculate level based on parent or set default
@@ -182,7 +183,9 @@ class Category extends ValidatableModel
 
     private function handleUpdatingEvent(): bool
     {
-        if ($this->isDirty('name')) {
+        // Generate slug if name changed or if slug is being set to null/empty
+        if ($this->isDirty('name') || 
+            ($this->isDirty('slug') && (empty($this->slug) || $this->slug === null))) {
             $this->generateSlug();
         }
 

@@ -259,10 +259,11 @@ class Store extends ValidatableModel
         parent::boot();
 
         static::creating(static function (Store $store): void {
-            // Always generate slug from name if name is provided
+            // Always generate slug from name if name is provided and slug is not set
             // Try multiple ways to access name attribute
             $name = $store->name ?? $store->attributes['name'] ?? null;
-            if (!empty($name)) {
+            $slug = $store->slug ?? $store->attributes['slug'] ?? null;
+            if (!empty($name) && empty($slug)) {
                 $store->generateSlug();
             }
             // Ensure supported_countries is properly encoded before saving
@@ -270,7 +271,9 @@ class Store extends ValidatableModel
         });
 
         static::updating(static function (Store $store): void {
-            if ($store->isDirty('name')) {
+            // Generate slug if name changed or if slug is being set to null/empty
+            if ($store->isDirty('name') || 
+                ($store->isDirty('slug') && (empty($store->slug) || $store->slug === null))) {
                 $store->generateSlug();
             }
             // Ensure supported_countries is properly encoded before saving

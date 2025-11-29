@@ -131,16 +131,19 @@ class Brand extends ValidatableModel
         parent::boot();
 
         static::creating(static function (Brand $brand): void {
-            // Always generate slug from name if name is provided
+            // Always generate slug from name if name is provided and slug is not set
             // Try multiple ways to access name attribute
             $name = $brand->name ?? $brand->attributes['name'] ?? null;
-            if (!empty($name)) {
+            $slug = $brand->slug ?? $brand->attributes['slug'] ?? null;
+            if (!empty($name) && empty($slug)) {
                 $brand->generateSlug();
             }
         });
 
         static::updating(static function (Brand $brand): void {
-            if ($brand->isDirty('name')) {
+            // Generate slug if name changed or if slug is being set to null/empty
+            if ($brand->isDirty('name') || 
+                ($brand->isDirty('slug') && (empty($brand->slug) || $brand->slug === null))) {
                 $brand->generateSlug();
             }
         });
