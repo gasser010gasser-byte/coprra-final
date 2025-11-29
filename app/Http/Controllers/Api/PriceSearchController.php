@@ -16,27 +16,55 @@ class PriceSearchController extends BaseApiController
     public function bestOffer(Request $request): JsonResponse
     {
         try {
-            // Reject invalid types provided via query string or request body
-            foreach (
-                [
-                    $request->input('q'),
-                    $request->query('q'),
-                    $request->input('query'),
-                    $request->query('query'),
-                    $request->input('name'),
-                    $request->query('name'),
-                ] as $value
-            ) {
+            // Reject invalid types and detect security threats
+            $securityIssues = [];
+            $parameterName = null;
+            $receivedType = null;
+            
+            $parametersToCheck = [
+                'q' => $request->input('q') ?? $request->query('q'),
+                'query' => $request->input('query') ?? $request->query('query'),
+                'name' => $request->input('name') ?? $request->query('name'),
+            ];
+            
+            foreach ($parametersToCheck as $paramName => $value) {
+                if ($value === null) {
+                    continue;
+                }
+                
+                $parameterName = $paramName;
+                $receivedType = \gettype($value);
+                
+                // Check for invalid types
                 if (\is_array($value) || \is_object($value) || \is_bool($value)) {
+                    $securityIssues[] = 'Invalid parameter type';
+                    
+                    // Check array/object values for security threats
+                    if (\is_array($value)) {
+                        $valueString = implode(' ', array_map('strval', $value));
+                    } else {
+                        $valueString = (string) $value;
+                    }
+                    
+                    // Detect XSS attempts
+                    if (preg_match('/<script|javascript:|onerror=|onclick=|onload=|alert\(|eval\(/i', $valueString)) {
+                        $securityIssues[] = 'potential_xss_attempt';
+                    }
+                    
+                    // Detect SQL injection attempts
+                    if (preg_match('/(\bunion\b.*\bselect|\bdrop\s+table|\bdelete\s+from|\binsert\s+into|\bupdate\s+.*\bset|\'?\s*or\s*\'?\d+\s*=\s*\d+|;\s*drop|--\s|#|\/\*|\*\/)/i', $valueString)) {
+                        $securityIssues[] = 'potential_sql_injection';
+                    }
+                    
                     $response = [
                         'success' => false,
                         'message' => 'Invalid parameter format',
                         'error_code' => 'INVALID_PARAMETER_TYPE',
                         'validation_errors' => [
-                            'parameter' => 'q',
+                            'parameter' => $parameterName,
                             'expected_type' => 'string',
-                            'received_type' => \gettype($value),
-                            'security_issues' => ['Invalid parameter type'],
+                            'received_type' => $receivedType,
+                            'security_issues' => $securityIssues,
                         ],
                         'suggestions' => [
                             'correct_format' => 'Use string parameter: ?q=product_name',
@@ -44,6 +72,38 @@ class PriceSearchController extends BaseApiController
                         ],
                     ];
                     return response()->json($response, 400);
+                }
+                
+                // Check string parameters for security threats and length
+                if (\is_string($value)) {
+                    // Check for extremely long parameters (DoS)
+                    if (strlen($value) > 1000) {
+                        $response = [
+                            'success' => false,
+                            'message' => 'Parameter too long',
+                            'error_code' => 'PARAMETER_TOO_LONG',
+                            'validation_errors' => [
+                                'parameter' => $parameterName,
+                                'max_length' => 1000,
+                                'received_length' => strlen($value),
+                            ],
+                        ];
+                        return response()->json($response, 400);
+                    }
+                    
+                    // Check for null bytes and control characters
+                    if (preg_match('/[\x00-\x08\x0B-\x0C\x0E-\x1F]/', $value)) {
+                        $response = [
+                            'success' => false,
+                            'message' => 'Invalid characters detected',
+                            'error_code' => 'INVALID_CHARACTERS',
+                            'validation_errors' => [
+                                'parameter' => $parameterName,
+                                'reason' => 'Control characters not allowed',
+                            ],
+                        ];
+                        return response()->json($response, 400);
+                    }
                 }
             }
             // Support parameters from query string, request body, or headers
@@ -72,6 +132,10 @@ class PriceSearchController extends BaseApiController
                 $products = $queryBuilder->where('is_active', true)->limit(10)->get();
 
                 if ($products->isEmpty()) {
+                    $totalProducts = Product::count();
+                    $activeProducts = Product::where('is_active', true)->count();
+                    $lastProduct = Product::latest('created_at')->first();
+                    
                     return $this->notFound('No products available for price comparison', [
                         'error_code' => 'NO_PRODUCTS_AVAILABLE',
                         'empty_state' => [
@@ -80,21 +144,31 @@ class PriceSearchController extends BaseApiController
                             'icon' => 'package-search',
                             'suggestions' => [
                                 [
-                                    'action' => 'Check back later',
+                                    'action' => 'browse_categories',
+                                    'description' => 'Browse available product categories',
+                                    'url' => url('/api/categories'),
+                                ],
+                                [
+                                    'action' => 'try_different_search',
+                                    'description' => 'Try different search terms to find products',
+                                    'url' => url('/api/products'),
+                                ],
+                                [
+                                    'action' => 'check_back_later',
                                     'description' => 'Products may be added soon',
-                                    'url' => route('products.index'),
+                                    'url' => url('/api/products'),
                                 ],
                             ],
                         ],
                         'system_info' => [
-                            'total_products' => 0,
-                            'active_products' => 0,
-                            'last_product_added' => null,
-                            'cache_status' => 'empty',
+                            'total_products' => Product::count(),
+                            'active_products' => Product::where('is_active', true)->count(),
+                            'last_product_added' => Product::latest('created_at')->first()?->created_at?->toIso8601String(),
+                            'cache_status' => \Illuminate\Support\Facades\Cache::has('products_count') ? 'cached' : 'empty',
                         ],
                         'admin_actions' => [
                             [
-                                'action' => 'Add Product',
+                                'action' => 'add_product',
                                 'endpoint' => '/api/products',
                                 'method' => 'POST',
                             ],
@@ -175,8 +249,19 @@ class PriceSearchController extends BaseApiController
                         ];
                     })->toArray();
 
-                return $this->notFound('Product not found', [
+                $message = $productId 
+                    ? "Product with ID {$productId} not found"
+                    : ($productName 
+                        ? "Product matching '{$productName}' not found"
+                        : 'Product not found');
+                        
+                return $this->notFound($message, [
                     'error_code' => 'PRODUCT_NOT_FOUND',
+                    'description' => $productId 
+                        ? "Product with ID {$productId} was not found or is not available."
+                        : ($productName 
+                            ? "No product matching '{$productName}' was found."
+                            : 'The requested product was not found.'),
                     'resource_info' => [
                         'type' => 'product',
                         'id' => $productId ?? 'N/A',
@@ -184,18 +269,33 @@ class PriceSearchController extends BaseApiController
                     ],
                     'suggestions' => [
                         'similar_products' => $similarProducts,
-                        'actions' => [
+                        'actions' => array_map(static function (array $action): array {
+                            return [
+                                'action' => $action['action'] ?? '',
+                                'description' => $action['description'] ?? '',
+                                'url' => url($action['endpoint'] ?? ''),
+                            ];
+                        }, [
                             [
                                 'action' => 'Browse all products',
                                 'endpoint' => '/api/products',
-                                'method' => 'GET',
+                                'description' => 'View all available products',
                             ],
                             [
                                 'action' => 'Search products',
                                 'endpoint' => '/api/products/autocomplete',
-                                'method' => 'GET',
+                                'description' => 'Search for products using autocomplete',
                             ],
+                        ]),
+                    ],
+                    'debug_info' => [
+                        'request_id' => request()->header('X-Request-ID') ?? uniqid('req_', true),
+                        'timestamp' => now()->toIso8601String(),
+                        'search_parameters' => [
+                            'product_id' => $productId,
+                            'product_name' => $productName,
                         ],
+                        'available_products_count' => Product::where('is_active', true)->count(),
                     ],
                 ]);
             }
