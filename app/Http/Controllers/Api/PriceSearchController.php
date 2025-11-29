@@ -180,6 +180,7 @@ class PriceSearchController extends BaseApiController
                     
                     return $this->notFound('No products available for price comparison', [
                         'error_code' => 'NO_PRODUCTS_AVAILABLE',
+                        'results_count' => 0,
                         'empty_state' => [
                             'title' => 'No Products Found',
                             'description' => 'There are currently no products in the system.',
@@ -356,10 +357,10 @@ class PriceSearchController extends BaseApiController
                     ->map(static function (Product $p): array {
                         return [
                             'id' => $p->id,
-                            'name' => $p->name,
+                            'name' => $p->name ?? '',
                             'category' => $p->category->name ?? 'Uncategorized',
                             'brand' => $p->brand->name ?? 'Unknown',
-                            'price' => (float) $p->price,
+                            'price' => (float) ($p->price ?? 0),
                             'url' => url("/api/price-search/best-offer?product_id={$p->id}"),
                         ];
                     })->toArray();
@@ -383,7 +384,7 @@ class PriceSearchController extends BaseApiController
                         'action_attempted' => 'price_search',
                     ],
                     'suggestions' => [
-                        'similar_products' => $similarProducts,
+                        'similar_products' => !empty($similarProducts) ? $similarProducts : [],
                         'actions' => array_map(static function (array $action): array {
                             return [
                                 'action' => $action['action'] ?? '',
@@ -392,12 +393,12 @@ class PriceSearchController extends BaseApiController
                             ];
                         }, [
                             [
-                                'action' => 'Browse all products',
+                                'action' => 'browse_all_products',
                                 'endpoint' => '/api/products',
                                 'description' => 'View all available products',
                             ],
                             [
-                                'action' => 'Search products',
+                                'action' => 'search_by_name',
                                 'endpoint' => '/api/products/autocomplete',
                                 'description' => 'Search for products using autocomplete',
                             ],
