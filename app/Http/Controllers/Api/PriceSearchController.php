@@ -350,6 +350,11 @@ class PriceSearchController extends BaseApiController
                 ]);
             }
 
+            // Ensure priceOffers is loaded
+            if (!$product->relationLoaded('priceOffers')) {
+                $product->load('priceOffers');
+            }
+
             if ($product->priceOffers->isEmpty()) {
                 try {
                     $productUrl = $product->slug 
@@ -365,9 +370,9 @@ class PriceSearchController extends BaseApiController
                     'error_code' => 'NO_OFFERS_AVAILABLE',
                     'product_info' => [
                         'id' => $product->id,
-                        'name' => $product->name,
+                        'name' => $product->name ?? '',
                         'description' => $product->description ?? null,
-                        'price' => (float) $product->price,
+                        'price' => (float) ($product->price ?? 0),
                         'url' => $productUrl,
                     ],
                     'empty_state' => [
