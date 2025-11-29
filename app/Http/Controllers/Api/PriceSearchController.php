@@ -388,6 +388,11 @@ class PriceSearchController extends BaseApiController
                 ], 404);
             }
 
+            // Ensure priceOffers is loaded
+            if (!$product->relationLoaded('priceOffers')) {
+                $product->load('priceOffers');
+            }
+
             /** @var PriceOffer $bestOffer */
             $bestOffer = $product->priceOffers->first();
 
