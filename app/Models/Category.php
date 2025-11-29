@@ -165,13 +165,13 @@ class Category extends ValidatableModel
     private function handleCreatingEvent(): bool
     {
         // Always generate slug from name if name is provided
-        $name = $this->getAttribute('name') ?? $this->attributes['name'] ?? $this->name ?? null;
+        $name = $this->attributes['name'] ?? null;
         if (!empty($name)) {
             $this->generateSlug();
         }
         // Calculate level based on parent or set default
-        $parentId = $this->getAttribute('parent_id') ?? $this->attributes['parent_id'] ?? $this->parent_id ?? null;
-        $level = $this->getAttribute('level') ?? $this->attributes['level'] ?? $this->level ?? null;
+        $parentId = $this->attributes['parent_id'] ?? null;
+        $level = $this->attributes['level'] ?? null;
         if (null !== $parentId || null === $level) {
             $this->calculateLevel();
         }
@@ -194,8 +194,8 @@ class Category extends ValidatableModel
 
     private function generateSlug(): void
     {
-        // Get name from attributes or property
-        $name = $this->getAttribute('name') ?? $this->attributes['name'] ?? $this->name ?? null;
+        // Get name directly from attributes array (most reliable during events)
+        $name = $this->attributes['name'] ?? null;
         
         // Always generate slug from name if name is provided
         if (!empty($name) && is_string($name)) {
@@ -209,25 +209,23 @@ class Category extends ValidatableModel
             // 1. Slug is null or empty
             // 2. Name is dirty (being changed)
             // 3. Slug doesn't match expected slug from name
-            $currentSlug = $this->getAttribute('slug') ?? $this->attributes['slug'] ?? $this->slug ?? null;
+            $currentSlug = $this->attributes['slug'] ?? null;
             
             if (empty($currentSlug) || $currentSlug === '' || 
                 $this->isDirty('name') || 
                 ($currentSlug !== $expectedSlug)) {
-                // Set in attributes array first (this is what gets saved to DB)
+                // Set in attributes array (this is what gets saved to DB)
                 $this->attributes['slug'] = $expectedSlug;
                 // Also set the property for immediate access
                 $this->slug = $expectedSlug;
-                // Use setAttribute to ensure it's properly set
-                $this->setAttribute('slug', $expectedSlug);
             }
         }
     }
 
     private function calculateLevel(): void
     {
-        // Get parent_id from attributes or property
-        $parentId = $this->attributes['parent_id'] ?? $this->parent_id ?? null;
+        // Get parent_id directly from attributes array
+        $parentId = $this->attributes['parent_id'] ?? null;
         
         // Recalculate level based on parent when applicable
         if (null !== $parentId) {
@@ -250,7 +248,7 @@ class Category extends ValidatableModel
         }
 
         // No parent: set default only if not explicitly provided
-        $currentLevel = $this->attributes['level'] ?? $this->level ?? null;
+        $currentLevel = $this->attributes['level'] ?? null;
         if (null === $currentLevel) {
             $this->attributes['level'] = 0;
             $this->level = 0;
