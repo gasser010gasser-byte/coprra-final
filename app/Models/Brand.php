@@ -132,8 +132,8 @@ class Brand extends ValidatableModel
 
         static::creating(static function (Brand $brand): void {
             // Always generate slug from name if name is provided
-            // Use attributes array directly (most reliable during creating event)
-            $name = $brand->attributes['name'] ?? null;
+            // Try multiple ways to access name attribute
+            $name = $brand->name ?? $brand->attributes['name'] ?? null;
             if (!empty($name)) {
                 $brand->generateSlug();
             }
@@ -151,8 +151,8 @@ class Brand extends ValidatableModel
      */
     private function generateSlug(): void
     {
-        // Get name directly from attributes array (most reliable during events)
-        $name = $this->attributes['name'] ?? null;
+        // Try multiple ways to access name attribute
+        $name = $this->name ?? $this->attributes['name'] ?? null;
 
         // Always generate slug from name if name is provided
         if (!empty($name) && is_string($name)) {
@@ -166,7 +166,7 @@ class Brand extends ValidatableModel
             // 1. Slug is null or empty
             // 2. Name is dirty (being changed)
             // 3. Slug doesn't match expected slug from name
-            $currentSlug = $this->attributes['slug'] ?? null;
+            $currentSlug = $this->slug ?? $this->attributes['slug'] ?? null;
 
             if (empty($currentSlug) || $currentSlug === '' ||
                 $this->isDirty('name') ||
