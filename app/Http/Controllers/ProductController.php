@@ -84,19 +84,42 @@ class ProductController extends Controller
                 abort(404);
             }
 
-            $relatedProducts = $this->productService->getRelatedProducts($product);
+            try {
+                $relatedProducts = $this->productService->getRelatedProducts($product);
+            } catch (\Exception $e) {
+                Log::warning('Failed to load related products', ['error' => $e->getMessage()]);
+                $relatedProducts = collect();
+            }
 
-            $isWishlisted = auth()->check()
-                ? auth()->user()->wishlist()->where('products.id', $product->id)->exists()
-                : false;
+            $isWishlisted = false;
+            try {
+                $isWishlisted = auth()->check()
+                    ? auth()->user()->wishlist()->where('products.id', $product->id)->exists()
+                    : false;
+            } catch (\Exception $e) {
+                Log::warning('Failed to check wishlist status', ['error' => $e->getMessage()]);
+            }
 
             // Load reviews with user relationship for display
-            $reviews = $product->reviews()->with('user')->where('is_approved', true)->latest()->take(10)->get();
-            $averageRating = $product->getAverageRating();
-            $reviewsCount = $product->reviews()->where('is_approved', true)->count();
+            try {
+                $reviews = $product->reviews()->with('user')->where('is_approved', true)->latest()->take(10)->get();
+                $averageRating = $product->getAverageRating();
+                $reviewsCount = $product->reviews()->where('is_approved', true)->count();
+            } catch (\Exception $e) {
+                Log::warning('Failed to load reviews', ['error' => $e->getMessage()]);
+                $reviews = collect();
+                $averageRating = 0;
+                $reviewsCount = 0;
+            }
 
-            $seoMeta = $this->seoService->generateMetaData($product, 'Product');
-            $productSchema = $this->seoService->generateProductSchema($product);
+            try {
+                $seoMeta = $this->seoService->generateMetaData($product, 'Product');
+                $productSchema = $this->seoService->generateProductSchema($product);
+            } catch (\Exception $e) {
+                Log::warning('Failed to generate SEO metadata', ['error' => $e->getMessage()]);
+                $seoMeta = [];
+                $productSchema = [];
+            }
 
             return view('products.show', [
                 'product' => $product,
@@ -115,7 +138,7 @@ class ProductController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return back()->with('error', 'An unexpected error occurred. Please try again later.');
+            abort(500, 'An unexpected error occurred. Please try again later.');
         }
     }
 

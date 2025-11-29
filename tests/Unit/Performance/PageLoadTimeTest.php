@@ -173,7 +173,7 @@ final class PageLoadTimeTest extends TestCase
         }
 
         $startTime = microtime(true);
-        $response = $this->get("/products/{$product->id}");
+        $response = $this->get("/products/{$product->slug}");
         $endTime = microtime(true);
 
         $loadTime = ($endTime - $startTime) * 1000;
