@@ -6,6 +6,8 @@ namespace Tests\Unit\Services;
 
 use App\Models\Product;
 use App\Services\PriceComparisonService;
+use App\Services\StoreAdapterManager;
+use Mockery;
 use Tests\TestCase;
 
 /**
@@ -20,10 +22,16 @@ use Tests\TestCase;
 final class PriceComparisonServiceTest extends TestCase
 {
     private PriceComparisonService $service;
+    private StoreAdapterManager $mockStoreAdapterManager;
 
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // Mock StoreAdapterManager
+        $this->mockStoreAdapterManager = Mockery::mock(StoreAdapterManager::class);
+        $this->app->instance(StoreAdapterManager::class, $this->mockStoreAdapterManager);
+        
         $this->service = $this->app->make(PriceComparisonService::class);
     }
 
@@ -42,10 +50,40 @@ final class PriceComparisonServiceTest extends TestCase
             ],
         ]);
 
+        // Mock fetchProduct to return product data
+        $this->mockStoreAdapterManager
+            ->shouldReceive('fetchProduct')
+            ->with('store_a', 'product_123')
+            ->once()
+            ->andReturn([
+                'name' => 'Test Product',
+                'price' => 99.99,
+                'currency' => 'USD',
+                'url' => 'https://example.com/product',
+                'availability' => 'in_stock',
+                'rating' => 4.5,
+                'reviews_count' => 100,
+            ]);
+            
+        $this->mockStoreAdapterManager
+            ->shouldReceive('fetchProduct')
+            ->with('store_b', 'product_456')
+            ->once()
+            ->andReturn([
+                'name' => 'Test Product',
+                'price' => 89.99,
+                'currency' => 'USD',
+                'url' => 'https://example.com/product2',
+                'availability' => 'in_stock',
+                'rating' => 4.0,
+                'reviews_count' => 50,
+            ]);
+
         $prices = $this->service->fetchPricesFromStores($product);
 
         self::assertIsArray($prices);
         self::assertNotEmpty($prices);
+        self::assertCount(2, $prices);
     }
 
     public function testItReturnsEmptyArrayWhenNoStoreMappings(): void
