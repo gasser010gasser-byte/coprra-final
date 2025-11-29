@@ -21,24 +21,22 @@ class PriceSearchController extends BaseApiController
             $parameterName = null;
             $receivedType = null;
             
-            $parametersToCheck = [
-                'q' => $request->input('q') ?? $request->query('q'),
-                'query' => $request->input('query') ?? $request->query('query'),
-                'name' => $request->input('name') ?? $request->query('name'),
-            ];
-            
-            foreach ($parametersToCheck as $paramName => $value) {
+            // Check all query parameters for invalid types
+            $allQueryParams = $request->query();
+            foreach (['q', 'query', 'name'] as $paramName) {
+                if (!$request->has($paramName)) {
+                    continue;
+                }
+                
+                $value = $request->query($paramName);
                 if ($value === null) {
                     continue;
                 }
                 
-                $parameterName = $paramName;
                 $receivedType = \gettype($value);
                 
                 // Check for invalid types (arrays, objects, booleans)
-                // Also check if query parameter was sent as array (e.g., ?q[]=value or ?query[key]=value)
-                if (\is_array($value) || \is_object($value) || \is_bool($value) || 
-                    ($request->has($paramName) && $request->query($paramName) !== $value && \is_array($request->query($paramName)))) {
+                if (\is_array($value) || \is_object($value) || \is_bool($value)) {
                     $securityIssues[] = 'Invalid parameter type';
                     
                     // Check array/object values for security threats
