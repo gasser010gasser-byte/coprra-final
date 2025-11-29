@@ -233,6 +233,9 @@ final class ProductController extends BaseApiController
             $validated['slug'] = $this->updateProductSlug($validated, $id);
 
             $product->update($validated);
+            
+            // Reload product with relationships for response
+            $product->load(['category:id,name', 'brand:id,name']);
 
             return $this->success(
                 $this->formatProductResponse($product),
@@ -279,12 +282,30 @@ final class ProductController extends BaseApiController
     private function updateProductSlug(array $validated, int $id): string
     {
         if (! isset($validated['name'])) {
-            return $validated['slug'] ?? '';
+            // If name is not being updated, keep existing slug or generate from current product
+            if (isset($validated['slug']) && $validated['slug'] !== '') {
+                return $validated['slug'];
+            }
+            
+            // Fallback to existing product slug
+            $product = Product::find($id);
+            if ($product && $product->slug) {
+                return $product->slug;
+            }
+            
+            return 'product-'.$id;
         }
 
         $nameValue = $validated['name'];
         $nameString = \is_string($nameValue) ? $nameValue : '';
         $baseSlug = Str::slug($nameString);
+        
+        // Ensure slug is not empty
+        if ($baseSlug === '') {
+            $product = Product::find($id);
+            $baseSlug = $product && $product->slug ? $product->slug : 'product-'.$id;
+        }
+        
         $slug = $baseSlug;
         $counter = 1;
 
