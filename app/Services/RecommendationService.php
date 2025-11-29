@@ -303,19 +303,33 @@ final class RecommendationService
             ->all()
         ;
 
-        // If no results with filters, try without price range filter (most restrictive)
-        if (empty($results) && isset($userPreferences['price_range'])) {
-            $query2 = Product::query();
-            $this->applyCategoryFilter($query2, $userPreferences);
-            $this->applyBrandFilter($query2, $userPreferences);
+        // If we have category or brand preferences but price filter is too restrictive,
+        // try without price range filter to ensure we get recommendations
+        if (count($results) < $limit && isset($userPreferences['price_range'])) {
+            $hasCategoryFilter = !empty($userPreferences['categories'] ?? []);
+            $hasBrandFilter = !empty($userPreferences['brands'] ?? []);
             
-            $results = $query2
-                ->where('is_active', true)
-                ->orderBy('rating', 'desc')
-                ->limit($limit * 2)
-                ->get()
-                ->all()
-            ;
+            if ($hasCategoryFilter || $hasBrandFilter) {
+                $query2 = Product::query();
+                $this->applyCategoryFilter($query2, $userPreferences);
+                $this->applyBrandFilter($query2, $userPreferences);
+                
+                $results2 = $query2
+                    ->where('is_active', true)
+                    ->orderBy('rating', 'desc')
+                    ->limit($limit * 2)
+                    ->get()
+                    ->all()
+                ;
+                
+                // Merge results, prioritizing price-filtered ones
+                $existingIds = array_column($results, 'id');
+                foreach ($results2 as $product) {
+                    if (!in_array($product->id, $existingIds, true)) {
+                        $results[] = $product;
+                    }
+                }
+            }
         }
 
         return array_slice($results, 0, $limit);

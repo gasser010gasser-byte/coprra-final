@@ -157,8 +157,11 @@ final class RecommendationServiceAITest extends TestCase
             'rating' => 4.8,
         ]);
 
+        // Clear cache to ensure fresh recommendations
+        Cache::flush();
+
         // Act
-        $recommendations = $this->service->getRecommendations($user, 5);
+        $recommendations = $this->service->getRecommendations($user, 10);
 
         // Assert
         self::assertIsArray($recommendations);
