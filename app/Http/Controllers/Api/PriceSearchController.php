@@ -390,7 +390,8 @@ class PriceSearchController extends BaseApiController
             $prices = $product->priceOffers->pluck('price')->map(fn ($price) => (float) $price)->toArray();
             $lowestPrice = min($prices);
             $highestPrice = max($prices);
-            $averagePrice = array_sum($prices) / count($prices);
+            $averagePriceSum = array_sum($prices);
+            $averagePrice = $averagePriceSum / count($prices);
             $savingsAmount = $highestPrice - $lowestPrice;
 
             return $this->success(

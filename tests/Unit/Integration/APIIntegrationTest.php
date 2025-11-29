@@ -384,7 +384,7 @@ final class APIIntegrationTest extends TestCase
         self::assertSame(2299.99, $priceStats['lowest_price']);
         self::assertSame(2399.99, $priceStats['highest_price']);
         self::assertSame(2349.99, $priceStats['average_price']); // (2299.99 + 2399.99) / 2
-        self::assertSame(100.00, $priceStats['price_range']); // 2399.99 - 2299.99
+        self::assertEquals(100.00, $priceStats['price_range']); // 2399.99 - 2299.99
 
         // Verify response message
         self::assertStringContainsString('price search', strtolower($response->json('message')));
