@@ -83,7 +83,7 @@ class PriceSearchController extends BaseApiController
                             'message' => 'Parameter too long',
                             'error_code' => 'PARAMETER_TOO_LONG',
                             'validation_errors' => [
-                                'parameter' => $parameterName,
+                                'parameter' => $paramName,
                                 'max_length' => 1000,
                                 'received_length' => strlen($value),
                             ],
