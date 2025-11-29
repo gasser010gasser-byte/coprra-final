@@ -45,6 +45,14 @@ trait DatabaseSetup
         $this->createCategoriesTable($conn);
         $this->createBrandsTable($conn);
         $this->createStoresTable($conn);
+        $this->createAddressesTable($conn);
+        $this->createOrdersTable($conn);
+        $this->createOrderItemsTable($conn);
+        $this->createPaymentsTable($conn);
+        $this->createPriceOffersTable($conn);
+        $this->createPriceHistoriesTable($conn);
+        $this->createReviewsTable($conn);
+        $this->createWishlistsTable($conn);
         $this->createLanguagesTable($conn);
         $this->createCurrenciesTable($conn);
         $this->createExchangeRatesTable($conn);
@@ -74,11 +82,15 @@ trait DatabaseSetup
                     is_admin BOOLEAN DEFAULT 0,
                     phone VARCHAR(20),
                     role VARCHAR(255) DEFAULT "user",
+                    permissions TEXT,
                     is_blocked BOOLEAN DEFAULT 0,
                     ban_reason VARCHAR(255),
                     ban_description TEXT,
                     banned_at DATETIME,
+                    banned_by INTEGER,
                     ban_expires_at DATETIME,
+                    unbanned_at DATETIME,
+                    unbanned_by INTEGER,
                     is_active BOOLEAN DEFAULT 1,
                     session_id VARCHAR(255),
                     remember_token VARCHAR(100),
@@ -100,15 +112,22 @@ trait DatabaseSetup
                 CREATE TABLE products (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255) NOT NULL,
+                    slug VARCHAR(255) NOT NULL UNIQUE,
                     description TEXT,
                     price DECIMAL(10,2) NOT NULL,
+                    image VARCHAR(255),
+                    sku VARCHAR(255),
+                    stock_quantity INTEGER DEFAULT 0,
                     category_id INTEGER,
                     brand_id INTEGER,
                     store_id INTEGER,
                     currency_id INTEGER,
                     is_active BOOLEAN DEFAULT 1,
+                    is_featured BOOLEAN DEFAULT 0,
+                    store_mappings TEXT,
                     created_at DATETIME,
-                    updated_at DATETIME
+                    updated_at DATETIME,
+                    deleted_at DATETIME
                 )
             ');
         }
@@ -125,11 +144,15 @@ trait DatabaseSetup
                 CREATE TABLE categories (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255) NOT NULL,
+                    slug VARCHAR(255) UNIQUE,
                     description TEXT,
                     parent_id INTEGER,
+                    level INTEGER DEFAULT 0,
+                    image_url VARCHAR(255),
                     is_active BOOLEAN DEFAULT 1,
                     created_at DATETIME,
-                    updated_at DATETIME
+                    updated_at DATETIME,
+                    deleted_at DATETIME
                 )
             ');
         }
@@ -146,12 +169,14 @@ trait DatabaseSetup
                 CREATE TABLE brands (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255) NOT NULL,
+                    slug VARCHAR(255) UNIQUE,
                     description TEXT,
                     logo_url VARCHAR(255),
                     website_url VARCHAR(255),
                     is_active BOOLEAN DEFAULT 1,
                     created_at DATETIME,
-                    updated_at DATETIME
+                    updated_at DATETIME,
+                    deleted_at DATETIME
                 )
             ');
         }
@@ -168,12 +193,22 @@ trait DatabaseSetup
                 CREATE TABLE stores (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255) NOT NULL,
+                    slug VARCHAR(255) UNIQUE,
                     description TEXT,
-                    url VARCHAR(255),
                     logo_url VARCHAR(255),
+                    website_url VARCHAR(255),
+                    country_code VARCHAR(2),
+                    supported_countries TEXT,
                     is_active BOOLEAN DEFAULT 1,
+                    priority INTEGER DEFAULT 0,
+                    affiliate_base_url TEXT,
+                    affiliate_code VARCHAR(255),
+                    api_config TEXT,
+                    currency_id INTEGER,
+                    contact_email VARCHAR(255),
                     created_at DATETIME,
-                    updated_at DATETIME
+                    updated_at DATETIME,
+                    deleted_at DATETIME
                 )
             ');
         }
@@ -282,6 +317,181 @@ trait DatabaseSetup
     }
 
     /**
+     * Create orders table.
+     */
+    protected function createOrdersTable(string $connection): void
+    {
+        $exists = DB::connection($connection)->select("SELECT name FROM sqlite_master WHERE type='table' AND name='orders'");
+        if (empty($exists)) {
+            DB::connection($connection)->statement('
+                CREATE TABLE orders (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    order_number VARCHAR(255) NOT NULL UNIQUE,
+                    subtotal DECIMAL(10,2) NOT NULL,
+                    tax_amount DECIMAL(10,2) DEFAULT 0,
+                    shipping_amount DECIMAL(10,2) DEFAULT 0,
+                    discount_amount DECIMAL(10,2) DEFAULT 0,
+                    total_amount DECIMAL(10,2) NOT NULL,
+                    status VARCHAR(255) DEFAULT "pending",
+                    currency VARCHAR(3) DEFAULT "USD",
+                    shipping_address TEXT,
+                    billing_address TEXT,
+                    notes TEXT,
+                    order_date DATETIME,
+                    shipped_at DATETIME,
+                    delivered_at DATETIME,
+                    weight DECIMAL(10,2) NULL,
+                    dimensions TEXT NULL,
+                    tracking_number VARCHAR(255) NULL,
+                    created_at DATETIME,
+                    updated_at DATETIME
+                )
+            ');
+        }
+    }
+
+    /**
+     * Create price_offers table.
+     */
+    protected function createPriceOffersTable(string $connection): void
+    {
+        $exists = DB::connection($connection)->select("SELECT name FROM sqlite_master WHERE type='table' AND name='price_offers'");
+        if (empty($exists)) {
+            DB::connection($connection)->statement('
+                CREATE TABLE price_offers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    product_id INTEGER NOT NULL,
+                    product_sku VARCHAR(255),
+                    store_id INTEGER NOT NULL,
+                    price DECIMAL(10,2) NOT NULL,
+                    currency VARCHAR(3) DEFAULT "USD",
+                    product_url TEXT,
+                    affiliate_url TEXT,
+                    in_stock BOOLEAN DEFAULT 1,
+                    stock_quantity INTEGER DEFAULT 0,
+                    condition VARCHAR(255),
+                    rating DECIMAL(2,1),
+                    reviews_count INTEGER DEFAULT 0,
+                    image_url TEXT,
+                    specifications TEXT,
+                    description TEXT,
+                    status VARCHAR(50) DEFAULT "active",
+                    is_available BOOLEAN DEFAULT 1,
+                    original_price DECIMAL(10,2),
+                    expires_at DATETIME,
+                    created_at DATETIME,
+                    updated_at DATETIME,
+                    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+                    FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
+                )
+            ');
+        }
+    }
+
+    /**
+     * Create price_histories table.
+     */
+    protected function createPriceHistoriesTable(string $connection): void
+    {
+        $exists = DB::connection($connection)->select("SELECT name FROM sqlite_master WHERE type='table' AND name='price_histories'");
+        if (empty($exists)) {
+            DB::connection($connection)->statement('
+                CREATE TABLE price_histories (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    product_id INTEGER NOT NULL,
+                    price DECIMAL(10,2) NOT NULL,
+                    recorded_at DATETIME,
+                    currency VARCHAR(3) DEFAULT "USD",
+                    old_price DECIMAL(10,2),
+                    created_at DATETIME,
+                    updated_at DATETIME,
+                    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+                )
+            ');
+        }
+    }
+
+    /**
+     * Create order_items table.
+     */
+    protected function createOrderItemsTable(string $connection): void
+    {
+        $exists = DB::connection($connection)->select("SELECT name FROM sqlite_master WHERE type='table' AND name='order_items'");
+        if (empty($exists)) {
+            DB::connection($connection)->statement('
+                CREATE TABLE order_items (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    order_id INTEGER NOT NULL,
+                    product_id INTEGER NOT NULL,
+                    quantity INTEGER NOT NULL DEFAULT 1,
+                    unit_price DECIMAL(10,2) NOT NULL,
+                    total DECIMAL(10,2) NOT NULL,
+                    subtotal DECIMAL(10,2),
+                    price DECIMAL(10,2),
+                    product_details TEXT,
+                    created_at DATETIME,
+                    updated_at DATETIME,
+                    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+                    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+                )
+            ');
+        }
+    }
+
+    /**
+     * Create reviews table.
+     */
+    protected function createReviewsTable(string $connection): void
+    {
+        $exists = DB::connection($connection)->select("SELECT name FROM sqlite_master WHERE type='table' AND name='reviews'");
+        if (empty($exists)) {
+            DB::connection($connection)->statement('
+                CREATE TABLE reviews (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    product_id INTEGER NOT NULL,
+                    title VARCHAR(255),
+                    content TEXT,
+                    rating INTEGER NOT NULL DEFAULT 5,
+                    is_verified_purchase BOOLEAN DEFAULT 0,
+                    is_approved BOOLEAN DEFAULT 0,
+                    helpful_votes TEXT,
+                    helpful_count INTEGER DEFAULT 0,
+                    created_at DATETIME,
+                    updated_at DATETIME,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+                )
+            ');
+        }
+    }
+
+    /**
+     * Create wishlists table.
+     */
+    protected function createWishlistsTable(string $connection): void
+    {
+        $exists = DB::connection($connection)->select("SELECT name FROM sqlite_master WHERE type='table' AND name='wishlists'");
+        if (empty($exists)) {
+            DB::connection($connection)->statement('
+                CREATE TABLE wishlists (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    product_id INTEGER NOT NULL,
+                    notes TEXT,
+                    created_at DATETIME,
+                    updated_at DATETIME,
+                    deleted_at DATETIME,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+                    UNIQUE(user_id, product_id)
+                )
+            ');
+        }
+    }
+
+    /**
      * Create exchange_rates table.
      */
     protected function createExchangeRatesTable(string $connection): void
@@ -299,6 +509,60 @@ trait DatabaseSetup
                     created_at DATETIME,
                     updated_at DATETIME,
                     UNIQUE(from_currency, to_currency)
+                )
+            ');
+        }
+    }
+
+    /**
+     * Create addresses table.
+     */
+    protected function createAddressesTable(string $connection): void
+    {
+        $exists = DB::connection($connection)->select("SELECT name FROM sqlite_master WHERE type='table' AND name='addresses'");
+        if (empty($exists)) {
+            DB::connection($connection)->statement('
+                CREATE TABLE addresses (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    street VARCHAR(255) NOT NULL,
+                    line1 VARCHAR(255),
+                    city VARCHAR(255) NOT NULL,
+                    state VARCHAR(255),
+                    zip_code VARCHAR(20) NOT NULL,
+                    country VARCHAR(2) NOT NULL,
+                    is_default BOOLEAN DEFAULT 0,
+                    created_at DATETIME,
+                    updated_at DATETIME,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            ');
+        }
+    }
+
+    /**
+     * Create payments table.
+     */
+    protected function createPaymentsTable(string $connection): void
+    {
+        $exists = DB::connection($connection)->select("SELECT name FROM sqlite_master WHERE type='table' AND name='payments'");
+        if (empty($exists)) {
+            DB::connection($connection)->statement('
+                CREATE TABLE payments (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    order_id INTEGER NOT NULL,
+                    payment_method_id INTEGER,
+                    amount DECIMAL(10,2) NOT NULL,
+                    currency VARCHAR(3) DEFAULT "USD",
+                    status VARCHAR(50) DEFAULT "pending",
+                    method VARCHAR(50),
+                    gateway VARCHAR(50),
+                    transaction_id VARCHAR(255) UNIQUE,
+                    gateway_response TEXT,
+                    metadata TEXT,
+                    created_at DATETIME,
+                    updated_at DATETIME,
+                    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
                 )
             ');
         }

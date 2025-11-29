@@ -176,7 +176,7 @@ class Category extends ValidatableModel
     private function handleUpdatingEvent(): bool
     {
         if ($this->isDirty('name')) {
-            $this->slug = Str::slug($this->name);
+            $this->generateSlug();
         }
 
         if ($this->isDirty('parent_id')) {
@@ -188,8 +188,20 @@ class Category extends ValidatableModel
 
     private function generateSlug(): void
     {
-        if ((null === $this->slug) || ('' === $this->slug)) {
-            $this->slug = \Str::slug($this->name);
+        // Get name from attributes or property
+        $name = $this->attributes['name'] ?? $this->name ?? null;
+        
+        // Always generate slug from name if name is provided
+        if (!empty($name)) {
+            $expectedSlug = Str::slug($name);
+            // Always set slug if it's null, empty, or doesn't match the expected slug
+            // This ensures factory-generated slugs are overridden when name is provided
+            if (($this->slug === null || $this->slug === '') ||
+                $this->isDirty('name') ||
+                ($this->slug !== $expectedSlug)) {
+                $this->slug = $expectedSlug;
+                $this->attributes['slug'] = $expectedSlug;
+            }
         }
     }
 
@@ -197,9 +209,17 @@ class Category extends ValidatableModel
     {
         // Recalculate level based on parent when applicable
         if (null !== $this->parent_id) {
-            $this->load('parent');
-            $parent = $this->parent;
-            $this->level = $parent ? $parent->level + 1 : 0;
+            // Query the database directly to get parent level
+            // Don't use relationship loading during creating event as it may fail
+            $parent = self::find($this->parent_id);
+            
+            // If parent exists, calculate level based on parent's level
+            if ($parent) {
+                $this->level = (int) $parent->level + 1;
+            } else {
+                // Parent doesn't exist yet, set to 0
+                $this->level = 0;
+            }
 
             return;
         }

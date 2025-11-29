@@ -77,9 +77,13 @@ final class UserRegistrationTest extends TestCase
             'ban_reason',
             'ban_description',
             'banned_at',
+            'banned_by',
             'ban_expires_at',
+            'unbanned_at',
+            'unbanned_by',
             'session_id',
             'role',
+            'permissions',
             'password_confirmed_at',
         ];
 

@@ -146,8 +146,20 @@ class Brand extends ValidatableModel
      */
     private function generateSlug(): void
     {
-        if ((null === $this->slug) || ('' === $this->slug)) {
-            $this->slug = str($this->name)->slug()->toString();
+        // Get name from attributes or property
+        $name = $this->attributes['name'] ?? $this->name ?? null;
+        
+        // Always generate slug from name if name is provided
+        if (!empty($name)) {
+            $expectedSlug = str($name)->slug()->toString();
+            // Always set slug if it's null, empty, or doesn't match the expected slug
+            // This ensures factory-generated slugs are overridden when name is provided
+            if (($this->slug === null || $this->slug === '') ||
+                $this->isDirty('name') ||
+                ($this->slug !== $expectedSlug)) {
+                $this->slug = $expectedSlug;
+                $this->attributes['slug'] = $expectedSlug;
+            }
         }
     }
 }

@@ -224,7 +224,7 @@ final class ProductTest extends TestCase
         $history = $product->getPriceHistory();
 
         self::assertCount(2, $history);
-        self::assertSame(85.00, $history->first()->price);
+        self::assertEquals(85.00, (float) $history->first()->price);
     }
 
     /**

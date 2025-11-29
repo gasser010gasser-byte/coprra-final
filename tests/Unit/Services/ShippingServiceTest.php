@@ -52,7 +52,9 @@ final class ShippingServiceTest extends TestCase
             'subtotal' => 150.00, // Above free shipping threshold
         ]);
 
-        $address = Address::factory()->create();
+        $address = Address::factory()->create([
+            'country' => 'US', // Domestic address for free shipping
+        ]);
 
         $cost = $this->service->calculateShippingCost($order, $address);
 
@@ -94,11 +96,14 @@ final class ShippingServiceTest extends TestCase
 
     public function testItRejectsInvalidShippingAddress(): void
     {
-        $invalidAddress = Address::factory()->create([
-            'line1' => null,
-            'city' => null,
-            'country' => null,
-        ]);
+        // Create a valid address first (database constraints require non-null values)
+        $invalidAddress = Address::factory()->create();
+        
+        // Then set invalid values for testing validation (without saving to DB)
+        $invalidAddress->street = '';
+        $invalidAddress->city = '';
+        $invalidAddress->country = '';
+        $invalidAddress->zip_code = '';
 
         $isValid = $this->service->validateShippingAddress($invalidAddress);
 
