@@ -74,7 +74,7 @@ Route::get('/import-apple-now/{secret}', static function ($secret) {
             $title = 'Unknown';
             if ($titleNodes && $titleNodes->length > 0) {
                 $node = $titleNodes->item(0);
-                if ($node && $node->textContent !== null) {
+                if ($node && property_exists($node, 'textContent') && $node->textContent !== null) {
                     $title = trim($node->textContent);
                 }
             }
@@ -83,7 +83,7 @@ Route::get('/import-apple-now/{secret}', static function ($secret) {
             $price = 0;
             if ($priceNodes && $priceNodes->length > 0) {
                 $node = $priceNodes->item(0);
-                if ($node && $node->textContent !== null) {
+                if ($node && property_exists($node, 'textContent') && $node->textContent !== null) {
                     $price = (float) str_replace(',', '', $node->textContent);
                 }
             }

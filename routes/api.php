@@ -295,7 +295,7 @@ Route::middleware(['throttle:ai'])->prefix('ai')->group(static function (): void
             ]);
 
             $validTypes = ['general', 'product_analysis', 'product_classification', 'recommendations', 'sentiment'];
-            if (! in_array($validated['type'], $validTypes, true)) {
+            if (!in_array($validated['type'], $validTypes, true)) {
                 return response()->json([
                     'success' => false,
                     'error' => 'Validation failed',
@@ -305,7 +305,7 @@ Route::middleware(['throttle:ai'])->prefix('ai')->group(static function (): void
             }
 
             $aiService = app(AIService::class);
-            $result = $aiService->analyzeText($validated['text'], $validated['type']);
+            $result = $aiService->analyzeText($validated['text'], ['type' => $validated['type']]);
 
             return response()->json([
                 'success' => true,
