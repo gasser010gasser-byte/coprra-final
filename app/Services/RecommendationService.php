@@ -259,9 +259,12 @@ final class RecommendationService
      */
     private function getProductsBySimilarUsers(array $similarUserIds, array $purchasedProductIds, int $limit): array
     {
-        return Product::whereHas('orderItems.order', static function ($query) use ($similarUserIds): void {
-            $query->whereIn('user_id', $similarUserIds);
+        return Product::whereHas('orderItems', static function ($query) use ($similarUserIds): void {
+            $query->whereHas('order', static function ($q) use ($similarUserIds): void {
+                $q->whereIn('user_id', $similarUserIds);
+            });
         })
+            ->where('is_active', true)
             ->whereNotIn('id', $purchasedProductIds)
             ->withCount([
                 'orderItems as purchase_count' => static function ($q) use ($similarUserIds): void {
@@ -284,6 +287,7 @@ final class RecommendationService
     {
         $userPreferences = $this->getUserPreferences($user);
 
+        // If no preferences, return trending products as fallback
         if (0 === \count($userPreferences)) {
             return [];
         }
@@ -291,9 +295,27 @@ final class RecommendationService
         $query = Product::query();
 
         // Apply filters based on user preferences
-        $this->applyCategoryFilter($query, $userPreferences);
-        $this->applyPriceRangeFilter($query, $userPreferences);
-        $this->applyBrandFilter($query, $userPreferences);
+        $hasAnyFilter = false;
+        
+        if (!empty($userPreferences['categories'] ?? [])) {
+            $this->applyCategoryFilter($query, $userPreferences);
+            $hasAnyFilter = true;
+        }
+        
+        if (!empty($userPreferences['brands'] ?? [])) {
+            $this->applyBrandFilter($query, $userPreferences);
+            $hasAnyFilter = true;
+        }
+        
+        // Only apply price range if we have other filters
+        if ($hasAnyFilter && isset($userPreferences['price_range'])) {
+            $this->applyPriceRangeFilter($query, $userPreferences);
+        }
+        
+        // If no filters were applied, return empty
+        if (!$hasAnyFilter) {
+            return [];
+        }
 
         $results = $query
             ->where('is_active', true)

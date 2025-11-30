@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->json('metadata')->nullable();
             $table->timestamps();
-            
+
             $table->index(['query', 'search_type']);
             $table->index('created_at');
         });

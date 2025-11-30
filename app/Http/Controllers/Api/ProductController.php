@@ -272,7 +272,9 @@ final class ProductController extends BaseApiController
             
             // Log audit trail, but don't fail the request if audit logging fails
             try {
-                $this->auditService->log('product_updated', $product, $oldValues, $newValues);
+                if ($this->auditService && method_exists($this->auditService, 'log')) {
+                    $this->auditService->log('product_updated', $product, $oldValues, $newValues);
+                }
             } catch (\Exception $auditException) {
                 // Log the audit failure but don't break the request
                 \Illuminate\Support\Facades\Log::warning('Failed to log product update audit', [
@@ -485,6 +487,9 @@ final class ProductController extends BaseApiController
             'slug' => $product->slug ?? '',
             'description' => $product->description ? htmlspecialchars((string) $product->description, \ENT_QUOTES, 'UTF-8') : '',
             'price' => $product->price ?? 0,
+            'sku' => $product->sku ?? '',
+            'meta_title' => $product->meta_title ?? '',
+            'meta_description' => $product->meta_description ?? '',
             'created_at' => $product->created_at ? $product->created_at->toIso8601String() : null,
             'updated_at' => $product->updated_at ? $product->updated_at->toIso8601String() : null,
             'image_url' => $product->image ? asset('storage/'.$product->image) : null,

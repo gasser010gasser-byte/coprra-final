@@ -236,7 +236,8 @@ abstract class TestCase extends BaseTestCase
 
         // Log memory usage if it exceeds threshold
         if ($memoryUsage > 50 * 1024 * 1024) { // 50MB threshold
-            error_log("High memory usage test: {$this->getName()} used "
+            $testName = method_exists($this, 'name') ? $this->name() : (method_exists($this, 'getName') ? $this->getName() : 'unknown');
+            error_log("High memory usage test: {$testName} used "
                      .number_format($memoryUsage / 1024 / 1024, 2).'MB');
         }
     }

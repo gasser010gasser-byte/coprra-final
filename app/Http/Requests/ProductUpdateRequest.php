@@ -14,12 +14,18 @@ use Illuminate\Validation\Rules\Unique;
 
 class ProductUpdateRequest extends FormRequest
 {
-    private readonly PriceChangeValidator $priceChangeValidator;
+    private ?PriceChangeValidator $priceChangeValidator = null;
 
-    public function __construct(PriceChangeValidator $priceChangeValidator)
+    /**
+     * Get the price change validator instance.
+     */
+    private function getPriceChangeValidator(): PriceChangeValidator
     {
-        parent::__construct();
-        $this->priceChangeValidator = $priceChangeValidator;
+        if ($this->priceChangeValidator === null) {
+            $this->priceChangeValidator = app(PriceChangeValidator::class);
+        }
+        
+        return $this->priceChangeValidator;
     }
 
     /**
@@ -191,17 +197,17 @@ class ProductUpdateRequest extends FormRequest
      */
     public function withValidator(Validator $validator): void
     {
-        $validator->after(function (): void {
+        $validator->after(function (Validator $validator): void {
             if ($this->has('price')) {
                 try {
                     $productId = $this->route('id');
                     $product = $productId ? Product::find($productId) : null;
                     if ($product) {
-                        $this->priceChangeValidator->validate($product, $this->input('price'));
+                        $this->getPriceChangeValidator()->validate($product, $this->input('price'));
                     }
                 } catch (\Exception $e) {
-                    // If validation fails, let the validator handle it
-                    // Don't throw here as it may cause 500 errors
+                    // If validation fails, add error to validator
+                    $validator->errors()->add('price', $e->getMessage() ?? 'Price validation failed');
                 }
             }
         });

@@ -27,9 +27,10 @@ yarn-error.log
 docker-compose.override.yml
 .docker/
 
-# AI/ML Models
+# AI/ML Models (حسب الحجم)
 /storage/models/*.h5
 /storage/models/*.pkl
+# لكن احتفظ بـ
 !/storage/models/.gitkeep
 
 # Logs

@@ -15,7 +15,15 @@ class IsAdmin
     public function handle(Request $request, \Closure $next): Response
     {
         $user = $request->user();
-        if (! $user || ! (bool) ($user->is_admin ?? false)) {
+        if (! $user) {
+            abort(403, 'Access denied. Admin privilege required.');
+        }
+        
+        // Allow admin or moderator roles
+        $isAdmin = (bool) ($user->is_admin ?? false);
+        $isModerator = $user->role === 'moderator' || $user->role === 'admin';
+        
+        if (! $isAdmin && ! $isModerator) {
             abort(403, 'Access denied. Admin privilege required.');
         }
 

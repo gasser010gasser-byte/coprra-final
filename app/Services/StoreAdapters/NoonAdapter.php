@@ -51,6 +51,67 @@ final class NoonAdapter extends StoreAdapter
         return true;
     }
 
+    /**
+     * Fetch product from Noon Web (Scraping fallback).
+     *
+     * @return array<string, mixed>|null
+     */
+    private function fetchFromNoonWeb(string $sku): ?array
+    {
+        try {
+            $domain = $this->getNoonDomain();
+            $url = "https://www.{$domain}/product/{$sku}";
+
+            // Mimic a real browser
+            $response = $this->http->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            ])->get($url);
+
+            if (!$response->successful()) {
+                return null;
+            }
+
+            $html = $response->body();
+
+            // Noon uses Next.js, so data is often in __NEXT_DATA__ script
+            preg_match('/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s', $html, $matches);
+
+            if (isset($matches[1])) {
+                $jsonData = json_decode($matches[1], true);
+                $productData = data_get($jsonData, 'props.pageProps.catalog.product.product');
+
+                if ($productData) {
+                    return [
+                        'name' => $productData['title'] ?? '',
+                        'price' => $productData['price_now'] ?? 0,
+                        'sale_price' => $productData['price_now'] ?? 0,
+                        'sku' => $sku,
+                        'url' => $url,
+                        'image_url' => data_get($productData, 'images.image_key.0') ? "https://f.nooncdn.com/products/tr:n-t_400/" . data_get($productData, 'images.image_key.0') . ".jpg" : null,
+                        'in_stock' => ($productData['stock_gross'] ?? 0) > 0,
+                        'rating' => $productData['product_rating']['value'] ?? 0,
+                        'reviews_count' => $productData['product_rating']['count'] ?? 0,
+                        'description' => strip_tags($productData['feature_bullets'] ?? ''),
+                        'brand' => $productData['brand']['name'] ?? 'Unknown',
+                        'category' => data_get($productData, 'breadcrumbs.0.name', 'General'),
+                        'seller' => 'Noon',
+                        'discount_percentage' => 0,
+                    ];
+                }
+            }
+
+            return null;
+
+        } catch (\Exception $e) {
+            $this->logger->error('Noon web scrape failed', [
+                'sku' => $sku,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
     #[\Override]
     public function fetchProduct(string $productIdentifier): ?array
     {
@@ -61,16 +122,52 @@ final class NoonAdapter extends StoreAdapter
             return $cached;
         }
 
-        // Return dummy data for demonstration
+        // Try Web Scraping first
+        $scrapedData = $this->fetchFromNoonWeb($productIdentifier);
+        if ($scrapedData) {
+            $normalized = $this->normalizeNoonData($scrapedData);
+            $this->cacheProduct($productIdentifier, $normalized, 3600);
+            return $normalized;
+        }
+
+        // Fallback to dummy data
         $dummyData = $this->generateDummyData($productIdentifier);
         if ($dummyData) {
             $normalized = $this->normalizeNoonData($dummyData);
-            $this->cacheProduct($productIdentifier, $normalized, 3600);
-
+            $this->cacheProduct($productIdentifier, $normalized, 300); // Short cache
             return $normalized;
         }
 
         return null;
+    }
+
+    /**
+     * Generate dummy product data for demonstration.
+     *
+     * @return array<string, mixed>
+     */
+    private function generateDummyData(string $productIdentifier): array
+    {
+        $basePrice = 149.99 + (crc32($productIdentifier) % 600);
+        $salePrice = $basePrice * 0.85; // 15% discount
+        $price = round($salePrice, 2);
+
+        return [
+            'name' => "(Mock) Noon Product {$productIdentifier} - Scrape Failed",
+            'price' => $basePrice,
+            'sale_price' => $price,
+            'sku' => $productIdentifier,
+            'url' => $this->getProductUrl($productIdentifier),
+            'image_url' => 'https://via.placeholder.com/500x500?text=Scrape+Failed',
+            'in_stock' => true,
+            'rating' => 4.0,
+            'reviews_count' => 50,
+            'description' => 'This is a placeholder because live scraping failed.',
+            'brand' => 'Demo Brand',
+            'category' => 'Electronics',
+            'seller' => 'Noon Official Store',
+            'discount_percentage' => 15,
+        ];
     }
 
     /**
@@ -80,7 +177,7 @@ final class NoonAdapter extends StoreAdapter
      */
     public function searchProducts(string $query, array $options = []): array
     {
-        if (! $this->isAvailable()) {
+        if (!$this->isAvailable()) {
             return [];
         }
 
@@ -101,7 +198,7 @@ final class NoonAdapter extends StoreAdapter
             $products = $response['products'];
 
             return array_values(array_map(
-                fn (array $product): array => $this->normalizeNoonData($product),
+                fn(array $product): array => $this->normalizeNoonData($product),
                 $products
             ));
         }
@@ -204,32 +301,5 @@ final class NoonAdapter extends StoreAdapter
         };
     }
 
-    /**
-     * Generate dummy product data for demonstration.
-     *
-     * @return array<string, mixed>
-     */
-    private function generateDummyData(string $productIdentifier): array
-    {
-        $basePrice = 149.99 + (crc32($productIdentifier) % 600);
-        $salePrice = $basePrice * 0.85; // 15% discount
-        $price = round($salePrice, 2);
 
-        return [
-            'name' => "Noon Product {$productIdentifier} - Premium Quality",
-            'price' => $basePrice,
-            'sale_price' => $price,
-            'sku' => $productIdentifier,
-            'url' => $this->getProductUrl($productIdentifier),
-            'image_url' => 'https://via.placeholder.com/500x500?text=Noon+Product',
-            'in_stock' => true,
-            'rating' => 4.0 + (crc32($productIdentifier) % 20) / 10,
-            'reviews_count' => 500 + (crc32($productIdentifier) % 2000),
-            'description' => 'Premium quality product available on Noon with fast delivery and excellent customer service.',
-            'brand' => 'Premium Brand',
-            'category' => 'Electronics',
-            'seller' => 'Noon Official Store',
-            'discount_percentage' => 15,
-        ];
-    }
 }

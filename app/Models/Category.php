@@ -148,115 +148,61 @@ class Category extends ValidatableModel
     protected static function boot(): void
     {
         parent::boot();
-
-        static::creating(/**
-         * @return true
-         */
-            static fn (Category $category): bool => $category->handleCreatingEvent()
-        );
-
-        static::updating(/**
-         * @return true
-         */
-            static fn (Category $category): bool => $category->handleUpdatingEvent()
-        );
-    }
-
-    private function handleCreatingEvent(): bool
-    {
-        // Always generate slug from name if name is provided and slug is not set
-        // Try multiple ways to access name attribute
-        $name = $this->name ?? $this->attributes['name'] ?? null;
-        $slug = $this->slug ?? $this->attributes['slug'] ?? null;
-        if (!empty($name) && empty($slug)) {
-            $this->generateSlug();
-        }
-        // Calculate level based on parent or set default
-        $parentId = $this->parent_id ?? $this->attributes['parent_id'] ?? null;
-        $level = $this->level ?? $this->attributes['level'] ?? null;
-        if (null !== $parentId || null === $level) {
-            $this->calculateLevel();
-        }
-
-        return true;
-    }
-
-    private function handleUpdatingEvent(): bool
-    {
-        // Generate slug if name changed or if slug is being set to null/empty
-        if ($this->isDirty('name') || 
-            ($this->isDirty('slug') && (empty($this->slug) || $this->slug === null))) {
-            $this->generateSlug();
-        }
-
-        if ($this->isDirty('parent_id')) {
-            $this->calculateLevel();
-        }
-
-        return true;
-    }
-
-    private function generateSlug(): void
-    {
-        // Try multiple ways to access name attribute
-        $name = $this->name ?? $this->attributes['name'] ?? null;
         
-        // Always generate slug from name if name is provided
-        if (!empty($name) && is_string($name)) {
-            $expectedSlug = Str::slug($name);
-            
-            if (empty($expectedSlug)) {
-                return;
-            }
-            
-            // Always generate slug if:
-            // 1. Slug is null or empty
-            // 2. Name is dirty (being changed)
-            // 3. Slug doesn't match expected slug from name
-            $currentSlug = $this->slug ?? $this->attributes['slug'] ?? null;
-            
-            if (empty($currentSlug) || $currentSlug === '' || 
-                $this->isDirty('name') || 
-                ($currentSlug !== $expectedSlug)) {
-                // Set in attributes array (this is what gets saved to DB)
-                $this->attributes['slug'] = $expectedSlug;
-                // Also set the property for immediate access
-                $this->slug = $expectedSlug;
-            }
-        }
-    }
-
-    private function calculateLevel(): void
-    {
-        // Try multiple ways to access parent_id attribute
-        $parentId = $this->parent_id ?? $this->attributes['parent_id'] ?? null;
-        
-        // Recalculate level based on parent when applicable
-        if (null !== $parentId) {
-            // Query the database directly to get parent level
-            // Don't use relationship loading during creating event as it may fail
-            $parent = self::find($parentId);
-            
-            // If parent exists, calculate level based on parent's level
-            if ($parent) {
-                $calculatedLevel = (int) $parent->level + 1;
-                $this->attributes['level'] = $calculatedLevel;
-                $this->level = $calculatedLevel;
-            } else {
-                // Parent doesn't exist yet, set to 0
-                $this->attributes['level'] = 0;
-                $this->level = 0;
+        // Register events directly in boot for testing compatibility
+        static::creating(function (Category $category) {
+            // Generate slug if not set
+            if (empty($category->slug) && !empty($category->name)) {
+                $baseSlug = \Illuminate\Support\Str::slug($category->name);
+                $slug = $baseSlug;
+                $count = 1;
+                
+                // Ensure slug is unique
+                while (static::where('slug', $slug)->where('id', '!=', $category->id ?? 0)->exists()) {
+                    $slug = "{$baseSlug}-{$count}";
+                    ++$count;
+                }
+                
+                $category->slug = $slug;
             }
 
-            return;
-        }
+            // Set level if not set
+            if (is_null($category->level)) {
+                if ($category->parent_id) {
+                    $parent = static::find($category->parent_id);
+                    $category->level = $parent ? ($parent->level + 1) : 0;
+                } else {
+                    $category->level = 0;
+                }
+            }
+        });
 
-        // No parent: set default only if not explicitly provided
-        $currentLevel = $this->level ?? $this->attributes['level'] ?? null;
-        if (null === $currentLevel) {
-            $this->attributes['level'] = 0;
-            $this->level = 0;
-        }
+        static::updating(function (Category $category) {
+            // Update slug if name changed
+            if ($category->isDirty('name') && !empty($category->name)) {
+                $baseSlug = \Illuminate\Support\Str::slug($category->name);
+                $slug = $baseSlug;
+                $count = 1;
+                
+                // Ensure slug is unique
+                while (static::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+                    $slug = "{$baseSlug}-{$count}";
+                    ++$count;
+                }
+                
+                $category->slug = $slug;
+            }
+
+            // Update level if parent changed
+            if ($category->isDirty('parent_id')) {
+                if ($category->parent_id) {
+                    $parent = static::find($category->parent_id);
+                    $category->level = $parent ? ($parent->level + 1) : 0;
+                } else {
+                    $category->level = 0;
+                }
+            }
+        });
     }
 
     /**

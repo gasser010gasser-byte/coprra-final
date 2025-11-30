@@ -46,6 +46,82 @@ final class EbayAdapter extends StoreAdapter
         return true;
     }
 
+    /**
+     * Fetch product from eBay Web (Scraping fallback).
+     *
+     * @return array<string, mixed>|null
+     */
+    private function fetchFromEbayWeb(string $itemId): ?array
+    {
+        try {
+            $url = "https://www.ebay.com/itm/{$itemId}";
+
+            // Mimic a real browser
+            $response = $this->http->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            ])->get($url);
+
+            if (!$response->successful()) {
+                return null;
+            }
+
+            $html = $response->body();
+
+            // Basic Regex Extraction
+            // Title
+            preg_match('/<h1[^>]*class="x-item-title__mainTitle"[^>]*>.*?<span[^>]*>(.*?)<\/span>.*?<\/h1>/s', $html, $titleMatches);
+            $title = isset($titleMatches[1]) ? trim(strip_tags($titleMatches[1])) : null;
+
+            // Price
+            preg_match('/<div[^>]*class="x-price-primary"[^>]*>.*?<span[^>]*>.*?([\d,.]+).*?<\/span>/s', $html, $priceMatches);
+            $price = isset($priceMatches[1]) ? (float) str_replace(',', '', $priceMatches[1]) : 0.0;
+
+            // Image
+            preg_match('/<img[^>]*id="icImg"[^>]*src="([^"]+)"/', $html, $imgMatches);
+            $image = $imgMatches[1] ?? null;
+
+            if (!$title) {
+                // Try alternative title pattern
+                preg_match('/<title>(.*?)<\/title>/', $html, $titleMatchesAlt);
+                $title = isset($titleMatchesAlt[1]) ? trim(str_replace('| eBay', '', $titleMatchesAlt[1])) : null;
+            }
+
+            if (!$title) {
+                return null;
+            }
+
+            return [
+                'Title' => $title,
+                'ConvertedCurrentPrice' => [
+                    'Value' => $price,
+                    'CurrencyID' => 'USD',
+                ],
+                'ViewItemURLForNaturalSearch' => $url,
+                'GalleryURL' => $image,
+                'SellingStatus' => [
+                    'SellingState' => 'Active',
+                ],
+                'Description' => 'Scraped from eBay',
+                'PrimaryCategoryName' => 'General',
+                'ItemID' => $itemId,
+                'ListingType' => 'FixedPrice',
+                'ConditionDisplayName' => 'Used',
+                'EndTime' => date('Y-m-d\TH:i:s.000\Z', strtotime('+30 days')),
+                'Seller' => [
+                    'UserID' => 'unknown',
+                ],
+            ];
+
+        } catch (\Exception $e) {
+            $this->logger->error('eBay web scrape failed', [
+                'item_id' => $itemId,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
     #[\Override]
     public function fetchProduct(string $productIdentifier): ?array
     {
@@ -56,16 +132,56 @@ final class EbayAdapter extends StoreAdapter
             return $cached;
         }
 
-        // Return dummy data for demonstration
+        // Try Web Scraping first
+        $scrapedData = $this->fetchFromEbayWeb($productIdentifier);
+        if ($scrapedData) {
+            $normalized = $this->normalizeEbayData($scrapedData);
+            $this->cacheProduct($productIdentifier, $normalized, 3600);
+            return $normalized;
+        }
+
+        // Fallback to dummy data
         $dummyData = $this->generateDummyData($productIdentifier);
         if ($dummyData) {
             $normalized = $this->normalizeEbayData($dummyData);
-            $this->cacheProduct($productIdentifier, $normalized, 3600);
-
+            $this->cacheProduct($productIdentifier, $normalized, 300); // Short cache for dummy
             return $normalized;
         }
 
         return null;
+    }
+
+    /**
+     * Generate dummy product data for demonstration.
+     *
+     * @return array<string, mixed>
+     */
+    private function generateDummyData(string $productIdentifier): array
+    {
+        $basePrice = 79.99 + (crc32($productIdentifier) % 400);
+        $price = round($basePrice, 2);
+
+        return [
+            'Title' => "(Mock) eBay Product {$productIdentifier} - Scrape Failed",
+            'ConvertedCurrentPrice' => [
+                'Value' => $price,
+                'CurrencyID' => 'USD',
+            ],
+            'ViewItemURLForNaturalSearch' => "https://www.ebay.com/itm/{$productIdentifier}",
+            'GalleryURL' => 'https://via.placeholder.com/500x500?text=Scrape+Failed',
+            'SellingStatus' => [
+                'SellingState' => 'Active',
+            ],
+            'Description' => 'This is a placeholder because live scraping failed.',
+            'PrimaryCategoryName' => 'Electronics',
+            'ItemID' => $productIdentifier,
+            'ListingType' => 'FixedPrice',
+            'ConditionDisplayName' => 'New',
+            'EndTime' => date('Y-m-d\TH:i:s.000\Z', strtotime('+30 days')),
+            'Seller' => [
+                'UserID' => 'trusted_seller',
+            ],
+        ];
     }
 
     /**
@@ -75,7 +191,7 @@ final class EbayAdapter extends StoreAdapter
      */
     public function searchProducts(string $query, array $options = []): array
     {
-        if (! $this->isAvailable()) {
+        if (!$this->isAvailable()) {
             return [];
         }
 
@@ -96,13 +212,13 @@ final class EbayAdapter extends StoreAdapter
         if (\is_array($searchResult) && isset($searchResult['item'])) {
             $items = $searchResult['item'];
 
-            if (! \is_array($items)) {
+            if (!\is_array($items)) {
                 return [];
             }
 
             return array_values(array_filter(array_map(
                 function ($item): ?array {
-                    if (! \is_array($item)) {
+                    if (!\is_array($item)) {
                         return null;
                     }
 
@@ -144,7 +260,7 @@ final class EbayAdapter extends StoreAdapter
      */
     private function buildApiUrl(string $itemId): string
     {
-        return 'https://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&ItemID='.$itemId.'&siteid=0&version=967';
+        return 'https://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=JSON&ItemID=' . $itemId . '&siteid=0&version=967';
     }
 
     /**
@@ -239,36 +355,5 @@ final class EbayAdapter extends StoreAdapter
         ]);
     }
 
-    /**
-     * Generate dummy product data for demonstration.
-     *
-     * @return array<string, mixed>
-     */
-    private function generateDummyData(string $productIdentifier): array
-    {
-        $basePrice = 79.99 + (crc32($productIdentifier) % 400);
-        $price = round($basePrice, 2);
 
-        return [
-            'Title' => "eBay Product {$productIdentifier} - Great Deal",
-            'ConvertedCurrentPrice' => [
-                'Value' => $price,
-                'CurrencyID' => 'USD',
-            ],
-            'ViewItemURLForNaturalSearch' => "https://www.ebay.com/itm/{$productIdentifier}",
-            'GalleryURL' => 'https://via.placeholder.com/500x500?text=eBay+Product',
-            'SellingStatus' => [
-                'SellingState' => 'Active',
-            ],
-            'Description' => 'High-quality product available on eBay with excellent customer reviews.',
-            'PrimaryCategoryName' => 'Electronics',
-            'ItemID' => $productIdentifier,
-            'ListingType' => 'FixedPrice',
-            'ConditionDisplayName' => 'New',
-            'EndTime' => date('Y-m-d\TH:i:s.000\Z', strtotime('+30 days')),
-            'Seller' => [
-                'UserID' => 'trusted_seller',
-            ],
-        ];
-    }
 }

@@ -65,12 +65,15 @@ class AIRequestService
         if (config('app.debug')) {
             $this->logger->debug('AI request configuration', [
                 'external_calls_disabled' => $disableExternal,
-                'has_api_key' => ! empty($this->apiKey),
+                'has_api_key' => !empty($this->apiKey),
                 'environment' => config('app.env'),
             ]);
         }
 
-        if ($disableExternal || (('' === $this->apiKey || '0' === $this->apiKey) && ('testing' === config('app.env')))) {
+        if ($disableExternal || empty($this->apiKey) || '0' === $this->apiKey) {
+            if (!$disableExternal && !app()->runningUnitTests()) {
+                $this->logger->warning('⚠️ AI API Key missing. Using mock response.');
+            }
             return $this->getMockResponse($data);
         }
 
@@ -92,9 +95,9 @@ class AIRequestService
      */
     private function makeRequestWithRetry(string $endpoint, array $data, array $headers, string $operation = 'ai_request'): array
     {
-        $url = $this->baseUrl.$endpoint;
+        $url = $this->baseUrl . $endpoint;
         $defaultHeaders = [
-            'Authorization' => 'Bearer '.$this->apiKey,
+            'Authorization' => 'Bearer ' . $this->apiKey,
             'Content-Type' => 'application/json',
         ];
 
@@ -120,7 +123,7 @@ class AIRequestService
                     ->retry($this->maxRetries, $this->retryDelay, static function ($exception, $request) {
                         // Retry on connection timeouts and 5xx errors
                         return $exception instanceof ConnectionException
-                               || ($exception instanceof RequestException
+                            || ($exception instanceof RequestException
                                 && $exception->response
                                 && $exception->response->status() >= 500);
                     })
@@ -193,7 +196,7 @@ class AIRequestService
 
                 // Check if error is recoverable using error handler
                 $errorType = $this->classifyErrorType($e);
-                if (! $this->errorHandler->isRecoverable($errorType)) {
+                if (!$this->errorHandler->isRecoverable($errorType)) {
                     $this->logger->warning('⚠️ Non-recoverable error detected, stopping retries', [
                         'error_type' => $errorType,
                         'operation' => $operation,
@@ -246,25 +249,33 @@ class AIRequestService
     {
         $message = strtolower($exception->getMessage());
 
-        if (str_contains($message, 'connection')
+        if (
+            str_contains($message, 'connection')
             || str_contains($message, 'timeout')
-            || str_contains($message, 'network')) {
+            || str_contains($message, 'network')
+        ) {
             return 'network_error';
         }
 
-        if (str_contains($message, 'unauthorized')
-            || str_contains($message, 'authentication')) {
+        if (
+            str_contains($message, 'unauthorized')
+            || str_contains($message, 'authentication')
+        ) {
             return 'authentication_error';
         }
 
-        if (str_contains($message, 'rate limit')
-            || str_contains($message, 'too many requests')) {
+        if (
+            str_contains($message, 'rate limit')
+            || str_contains($message, 'too many requests')
+        ) {
             return 'rate_limit_error';
         }
 
-        if (method_exists($exception, 'getResponse')
+        if (
+            method_exists($exception, 'getResponse')
             && $exception->getResponse()
-            && $exception->getResponse()->status() >= 500) {
+            && $exception->getResponse()->status() >= 500
+        ) {
             return 'service_unavailable';
         }
 
@@ -378,7 +389,7 @@ class AIRequestService
             $lines[] = $r;
         }
         $lines[] = "sentiment: {$sentiment}";
-        $lines[] = 'confidence: '.number_format($confidence, 2);
+        $lines[] = 'confidence: ' . number_format($confidence, 2);
         foreach ($keywords as $k) {
             $lines[] = "keyword: {$k}";
         }
@@ -386,7 +397,7 @@ class AIRequestService
             $lines[] = "original_text: {$text}"; // include feedback context in result
         }
 
-        $mockContent = implode("\n", $lines)."\n";
+        $mockContent = implode("\n", $lines) . "\n";
 
         return [
             'choices' => [
@@ -410,14 +421,14 @@ class AIRequestService
         $autoStop = config('ai.auto_stop_on_budget_exceed', true);
 
         // Get today's cost from cache
-        $todayCost = \Cache::get('ai_cost_today_'.now()->format('Y-m-d'), 0.0);
+        $todayCost = \Cache::get('ai_cost_today_' . now()->format('Y-m-d'), 0.0);
 
         if ($todayCost >= $dailyBudget) {
             $message = "Daily AI budget exceeded: \${$todayCost} >= \${$dailyBudget}";
-            $this->logger->error('🚫 '.$message);
+            $this->logger->error('🚫 ' . $message);
 
             if ($autoStop) {
-                throw new \Exception($message.' - Auto-stop enabled. Requests blocked.');
+                throw new \Exception($message . ' - Auto-stop enabled. Requests blocked.');
             }
 
             $this->logger->warning('⚠️ Budget exceeded but auto-stop disabled. Request continuing...');

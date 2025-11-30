@@ -288,7 +288,10 @@ trait EnhancedTestIsolation
         // Create isolated temporary directory
         $tempDir = sys_get_temp_dir() . '/test_isolation_' . uniqid();
         if (! is_dir($tempDir)) {
-            mkdir($tempDir, 0755, true);
+            if (!@mkdir($tempDir, 0755, true) && !is_dir($tempDir)) {
+                // Directory creation failed, skip isolation setup
+                return;
+            }
             $this->temporaryPaths[] = $tempDir;
         }
 

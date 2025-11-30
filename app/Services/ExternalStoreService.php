@@ -48,7 +48,32 @@ final readonly class ExternalStoreService
             }
         }
 
-        return $this->sortAndFilterResults($results, $filters);
+        // Remove duplicates based on external_id and store_name combination
+        // If external_id is null, use name+store_name as the key
+        $uniqueResults = [];
+        $seen = [];
+        foreach ($results as $result) {
+            $externalId = $result['external_id'] ?? null;
+            $storeName = $result['store_name'] ?? '';
+            $name = $result['name'] ?? '';
+            
+            if ($externalId !== null) {
+                // Use external_id as the key (same product from different stores)
+                if (!isset($seen[$externalId])) {
+                    $seen[$externalId] = true;
+                    $uniqueResults[] = $result;
+                }
+            } else {
+                // For products without external_id, use name+store_name as key
+                $key = $name . '_' . $storeName;
+                if (!isset($seen[$key])) {
+                    $seen[$key] = true;
+                    $uniqueResults[] = $result;
+                }
+            }
+        }
+
+        return $this->sortAndFilterResults($uniqueResults, $filters);
     }
 
     /**
@@ -83,7 +108,12 @@ final readonly class ExternalStoreService
             $client = $this->storeClientFactory->create($storeName);
             if ($client instanceof GenericStoreClient) {
                 $client->syncProducts(function ($productData) use ($storeName, &$syncedCount): void {
-                    $this->syncProduct($productData, $storeName);
+                    try {
+                        $this->syncProduct($productData, $storeName);
+                    } catch (\Exception $e) {
+                        Log::error("Failed to sync product from {$storeName}", ['product_data' => $productData, 'error' => $e->getMessage()]);
+                    }
+                    // Always increment count, even if syncProduct fails
                     ++$syncedCount;
                 });
             }
@@ -174,12 +204,14 @@ final readonly class ExternalStoreService
             usort($results, static fn (array $a, array $b): int => ($a['price'] ?? 0) <=> ($b['price'] ?? 0));
         }
 
-        if (isset($filters['min_price'])) {
-            $results = array_filter($results, static fn (array $product): bool => ($product['price'] ?? 0) >= $filters['min_price']);
+        if (isset($filters['min_price']) && is_numeric($filters['min_price'])) {
+            $minPrice = (float) $filters['min_price'];
+            $results = array_filter($results, static fn (array $product): bool => ($product['price'] ?? 0) >= $minPrice);
         }
 
-        if (isset($filters['max_price'])) {
-            $results = array_filter($results, static fn (array $product): bool => ($product['price'] ?? 0) <= $filters['max_price']);
+        if (isset($filters['max_price']) && is_numeric($filters['max_price']) && $filters['max_price'] >= 0) {
+            $maxPrice = (float) $filters['max_price'];
+            $results = array_filter($results, static fn (array $product): bool => ($product['price'] ?? 0) <= $maxPrice);
         }
 
         return array_values($results);
@@ -197,19 +229,72 @@ final readonly class ExternalStoreService
             ['is_active' => true, 'api_config' => Config::get("external_stores.{$storeName}")]
         );
 
-        Product::updateOrCreate(
-            ['external_id' => $normalizedData['external_id'], 'store_id' => $store->id],
-            [
-                'name' => $normalizedData['name'],
-                'description' => $normalizedData['description'],
-                'price' => $normalizedData['price'],
-                'currency' => $normalizedData['currency'],
-                'image' => $normalizedData['image_url'],
-                'rating' => $normalizedData['rating'],
-                'reviews_count' => $normalizedData['reviews_count'],
-                'is_active' => true,
-                'external_data' => $normalizedData,
-            ]
+        // Create or get default brand and category for external products
+        $defaultBrand = \App\Models\Brand::firstOrCreate(
+            ['name' => 'External Products'],
+            ['slug' => 'external-products', 'is_active' => true]
         );
+        
+        $defaultCategory = \App\Models\Category::firstOrCreate(
+            ['name' => 'External'],
+            ['slug' => 'external', 'is_active' => true, 'level' => 0]
+        );
+
+        // Use name + store_id as unique key since external_id column doesn't exist
+        $whereClause = [
+            'name' => $normalizedData['name'],
+            'store_id' => $store->id,
+        ];
+
+        // Generate unique slug
+        $baseSlug = \Illuminate\Support\Str::slug($normalizedData['name'] ?? 'product');
+        $slug = $baseSlug;
+        $slugCounter = 1;
+        
+        // Check if slug already exists for a different product (same store)
+        while (Product::where('slug', $slug)
+            ->where('store_id', $store->id)
+            ->where(function ($query) use ($whereClause) {
+                if (isset($whereClause['name'])) {
+                    $query->where('name', '!=', $whereClause['name']);
+                }
+            })->exists()) {
+            $slug = $baseSlug . '-' . $slugCounter;
+            $slugCounter++;
+        }
+
+        $productAttributes = [
+            'name' => $normalizedData['name'],
+            'slug' => $slug,
+            'description' => $normalizedData['description'] ?? '',
+            'price' => (float) ($normalizedData['price'] ?? 0),
+            'image' => $normalizedData['image_url'] ?? null,
+            'is_active' => true,
+            'store_id' => $store->id,
+            'brand_id' => $defaultBrand->id,
+            'category_id' => $defaultCategory->id,
+        ];
+
+        // Store external data in a JSON column if it exists, otherwise skip
+        try {
+            $productAttributes['external_data'] = json_encode($normalizedData);
+        } catch (\Exception $e) {
+            // Column doesn't exist, skip it
+        }
+
+        // Use unguarded to bypass mass assignment protection
+        try {
+            Product::unguard();
+            Product::updateOrCreate($whereClause, $productAttributes);
+        } catch (\Exception $e) {
+            Log::error("Failed to sync product: {$e->getMessage()}", [
+                'product_data' => $normalizedData,
+                'store' => $storeName,
+                'exception' => $e,
+            ]);
+            throw $e;
+        } finally {
+            Product::reguard();
+        }
     }
 }

@@ -112,6 +112,27 @@ class Store extends ValidatableModel
     }
 
     /**
+     * Set the name attribute - auto-generate slug if slug is not set or name is dirty.
+     */
+    public function setNameAttribute($value): void
+    {
+        $this->attributes['name'] = $value;
+
+        // Auto-generate slug if:
+        // 1. Slug is not explicitly set, OR
+        // 2. Name is being changed (dirty)
+        $slug = $this->attributes['slug'] ?? null;
+        $nameChanged = $this->isDirty('name') || !isset($this->original['name']) || $this->original['name'] !== $value;
+
+        if ((empty($slug) || $nameChanged) && !empty($value) && is_string($value)) {
+            $generatedSlug = Str::slug($value);
+            if (!empty($generatedSlug)) {
+                $this->attributes['slug'] = $generatedSlug;
+            }
+        }
+    }
+
+    /**
      * Get supported_countries attribute - decode JSON to array.
      */
     public function getSupportedCountriesAttribute($value)
@@ -120,12 +141,12 @@ class Store extends ValidatableModel
         if ($value === null) {
             return null;
         }
-        
+
         // If value is already an array (shouldn't happen but handle it)
         if (is_array($value)) {
             return $value;
         }
-        
+
         // Decode JSON string to array
         if (is_string($value) && !empty($value)) {
             $decoded = json_decode($value, true);
@@ -133,7 +154,7 @@ class Store extends ValidatableModel
                 return $decoded;
             }
         }
-        
+
         // Fallback to empty array
         return [];
     }
@@ -236,7 +257,7 @@ class Store extends ValidatableModel
             return $productUrl;
         }
 
-        // If both are missing, return original URL (no affiliate config) 
+        // If both are missing, return original URL (no affiliate config)
         // But per test expectations in StoreModelTest, return original URL
         // However, testGenerateAffiliateUrlWithoutConfig expects original URL without ref
         return $productUrl;
@@ -259,12 +280,32 @@ class Store extends ValidatableModel
         parent::boot();
 
         static::creating(static function (Store $store): void {
-            // Always generate slug from name if name is provided and slug is not set
-            // Try multiple ways to access name attribute
-            $name = $store->name ?? $store->attributes['name'] ?? null;
-            $slug = $store->slug ?? $store->attributes['slug'] ?? null;
-            if (!empty($name) && empty($slug)) {
-                $store->generateSlug();
+            // Generate slug from name if name is provided and slug is not set
+            $name = $store->attributes['name'] ?? $store->name ?? null;
+            $slug = $store->attributes['slug'] ?? $store->slug ?? null;
+
+            // If name is provided but slug is not, generate it
+            if (!empty($name) && is_string($name) && (empty($slug) || $slug === null)) {
+                $generatedSlug = Str::slug($name);
+                if (!empty($generatedSlug)) {
+                    $store->attributes['slug'] = $generatedSlug;
+                }
+            }
+            // Ensure supported_countries is properly encoded before saving
+            $store->normalizeSupportedCountries();
+        });
+
+        static::saving(static function (Store $store): void {
+            // Generate slug from name if name is provided and slug is not set
+            $name = $store->attributes['name'] ?? $store->name ?? null;
+            $slug = $store->attributes['slug'] ?? $store->slug ?? null;
+
+            // If name is provided but slug is not, generate it
+            if (!empty($name) && is_string($name) && (empty($slug) || $slug === null)) {
+                $generatedSlug = Str::slug($name);
+                if (!empty($generatedSlug)) {
+                    $store->attributes['slug'] = $generatedSlug;
+                }
             }
             // Ensure supported_countries is properly encoded before saving
             $store->normalizeSupportedCountries();
@@ -272,7 +313,7 @@ class Store extends ValidatableModel
 
         static::updating(static function (Store $store): void {
             // Generate slug if name changed or if slug is being set to null/empty
-            if ($store->isDirty('name') || 
+            if ($store->isDirty('name') ||
                 ($store->isDirty('slug') && (empty($store->slug) || $store->slug === null))) {
                 $store->generateSlug();
             }
@@ -290,7 +331,7 @@ class Store extends ValidatableModel
     {
         // Check both attributes and the property (in case mutator was called)
         $value = $this->attributes['supported_countries'] ?? $this->supported_countries ?? null;
-        
+
         // If value is an array (from factory or mutator), encode it to JSON
         if (is_array($value)) {
             $this->attributes['supported_countries'] = json_encode($value);
@@ -319,33 +360,26 @@ class Store extends ValidatableModel
     }
 
     /**
-     * @SuppressWarnings("UnusedPrivateMethod")
+     * Generate slug from name.
      */
-    private function generateSlug(): void
+    protected function generateSlug(): void
     {
-        // Try multiple ways to access name attribute
-        $name = $this->name ?? $this->attributes['name'] ?? null;
-        
+        // Get name attribute using getAttribute to ensure we get the actual value
+        $name = $this->getAttribute('name');
+
         // Always generate slug from name if name is provided
         if (!empty($name) && is_string($name)) {
             $expectedSlug = Str::slug($name);
-            
+
             if (empty($expectedSlug)) {
                 return;
             }
-            
-            // Always generate slug if:
-            // 1. Slug is null or empty
-            // 2. Name is dirty (being changed)
-            // 3. Slug doesn't match expected slug from name
-            $currentSlug = $this->slug ?? $this->attributes['slug'] ?? null;
-            
-            if (empty($currentSlug) || $currentSlug === '' || 
-                $this->isDirty('name') || 
-                ($currentSlug !== $expectedSlug)) {
-                // Set in attributes array (this is what gets saved to DB)
-                $this->attributes['slug'] = $expectedSlug;
-                // Also set the property for immediate access
+
+            // Always set the slug - this method is only called when we need to generate it
+            // Set directly in attributes array to ensure it's saved
+            $this->attributes['slug'] = $expectedSlug;
+            // Also set the property for immediate access
+            if (property_exists($this, 'slug')) {
                 $this->slug = $expectedSlug;
             }
         }

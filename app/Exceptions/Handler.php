@@ -78,6 +78,19 @@ class Handler extends ExceptionHandler
      */
     private function handleApiExceptions(\Throwable $e): JsonResponse
     {
+        // In testing environment, include exception details for debugging
+        if (app()->environment('testing')) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'error_code' => 'INTERNAL_SERVER_ERROR',
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => collect($e->getTrace())->take(5)->toArray(),
+            ], 500);
+        }
+        
         return match (true) {
             $e instanceof ValidationException => response()->json([
                 'success' => false,

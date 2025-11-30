@@ -103,10 +103,12 @@ class NotificationService
                 Mail::to($store->contact_email)->send(new ReviewNotification($product, $reviewer, $rating));
             }
 
-            // Notify admins
+            // Notify admins - ReviewNotification is a Mailable, so use Mail::to() instead of notify()
             $admins = User::where('is_admin', true)->get();
             foreach ($admins as $admin) {
-                $admin->notify(new ReviewNotification($product, $reviewer, $rating));
+                if ($admin->email) {
+                    Mail::to($admin->email)->send(new ReviewNotification($product, $reviewer, $rating));
+                }
             }
 
             Log::info('Review notifications sent', [

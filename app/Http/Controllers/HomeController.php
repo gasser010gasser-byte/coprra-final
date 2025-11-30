@@ -21,23 +21,13 @@ class HomeController extends Controller
         try {
             // Cache featured products for 60 minutes
             $featuredProducts = Cache::remember('home_featured_products', 3600, function () {
-                // Get featured products (is_featured = true) or latest products
+                // Get latest active products (is_featured column may not exist)
                 $products = Product::query()
                     ->where('is_active', true)
-                    ->where('is_featured', true)
                     ->with(['category:id,name,slug', 'brand:id,name,slug'])
+                    ->latest()
                     ->limit(8)
                     ->get();
-
-                // If no featured products, get latest products instead
-                if ($products->isEmpty()) {
-                    $products = Product::query()
-                        ->where('is_active', true)
-                        ->with(['category:id,name,slug', 'brand:id,name,slug'])
-                        ->latest()
-                        ->limit(8)
-                        ->get();
-                }
 
                 return $products;
             });

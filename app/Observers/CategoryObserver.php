@@ -5,43 +5,69 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Models\Category;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class CategoryObserver
 {
-    public function created(Category $category): void
+    /**
+     * Handle the Category "creating" event.
+     */
+    public function creating(Category $category): void
     {
-        $this->invalidateCategoriesIndexCache();
-    }
-
-    public function updated(Category $category): void
-    {
-        $this->invalidateCategoriesIndexCache();
-    }
-
-    public function deleted(Category $category): void
-    {
-        $this->invalidateCategoriesIndexCache();
-    }
-
-    public function restored(Category $category): void
-    {
-        $this->invalidateCategoriesIndexCache();
-    }
-
-    private function invalidateCategoriesIndexCache(): void
-    {
-        $driver = config('cache.default');
-
-        try {
-            if (in_array($driver, ['redis', 'memcached', 'database'], true)) {
-                Cache::tags(['categories'])->flush();
-            } else {
-                // Fallback when tags are unsupported: flush entire cache
-                Cache::flush();
+        // Generate slug if not set
+        if (empty($category->slug) && !empty($category->name)) {
+            $baseSlug = Str::slug($category->name);
+            $slug = $baseSlug;
+            $count = 1;
+            
+            // Ensure slug is unique
+            while (Category::where('slug', $slug)->where('id', '!=', $category->id ?? 0)->exists()) {
+                $slug = "{$baseSlug}-{$count}";
+                ++$count;
             }
-        } catch (\Throwable) {
-            // Silently ignore cache driver errors
+            
+            $category->slug = $slug;
+        }
+
+        // Set level if not set
+        if (is_null($category->level)) {
+            if ($category->parent_id) {
+                $parent = Category::find($category->parent_id);
+                $category->level = $parent ? ($parent->level + 1) : 0;
+            } else {
+                $category->level = 0;
+            }
+        }
+    }
+
+    /**
+     * Handle the Category "updating" event.
+     */
+    public function updating(Category $category): void
+    {
+        // Update slug if name changed
+        if ($category->isDirty('name') && !empty($category->name)) {
+            $baseSlug = Str::slug($category->name);
+            $slug = $baseSlug;
+            $count = 1;
+            
+            // Ensure slug is unique
+            while (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+                $slug = "{$baseSlug}-{$count}";
+                ++$count;
+            }
+            
+            $category->slug = $slug;
+        }
+
+        // Update level if parent changed
+        if ($category->isDirty('parent_id')) {
+            if ($category->parent_id) {
+                $parent = Category::find($category->parent_id);
+                $category->level = $parent ? ($parent->level + 1) : 0;
+            } else {
+                $category->level = 0;
+            }
         }
     }
 }

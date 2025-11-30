@@ -117,14 +117,19 @@ final class EmailServiceTest extends TestCase
         $this->auditService->expects(self::any())
             ->method('logSensitiveOperation');
 
-        $admin = User::factory()->create(['is_admin' => true]);
+        $admin = User::factory()->create(['is_admin' => true, 'email' => 'admin@example.com']);
         $reviewer = User::factory()->create();
         $product = Product::factory()->create();
+        
+        // Ensure product has store relationship available (even if null)
+        $product->load('store');
 
         $this->notificationService->sendReviewNotification($product, $reviewer, 5);
 
-        // With Notification::fake(), notifications should be captured
-        Notification::assertSentTo($admin, ReviewNotification::class);
+        // ReviewNotification is a Mailable with ShouldQueue, so use assertQueued() instead of assertSent()
+        Mail::assertQueued(ReviewNotification::class, static function ($mail) use ($admin) {
+            return $mail->hasTo($admin->email);
+        });
     }
 
     public function testSendReviewNotificationHandlesExceptions(): void

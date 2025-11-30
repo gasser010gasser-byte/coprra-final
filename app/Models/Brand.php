@@ -123,6 +123,52 @@ class Brand extends ValidatableModel
     }
 
     /**
+     * Set the name attribute - auto-generate slug if slug is not set or name is dirty.
+     */
+    public function setNameAttribute($value): void
+    {
+        $this->attributes['name'] = $value;
+        
+        // Auto-generate slug if:
+        // 1. Slug is not explicitly set, OR
+        // 2. Name is being changed (dirty)
+        $slug = $this->attributes['slug'] ?? null;
+        $nameChanged = $this->isDirty('name') || !isset($this->original['name']) || ($this->original['name'] ?? null) !== $value;
+        
+        if ((empty($slug) || $nameChanged) && !empty($value) && is_string($value)) {
+            $generatedSlug = str($value)->slug()->toString();
+            if (!empty($generatedSlug)) {
+                $this->attributes['slug'] = $generatedSlug;
+            }
+        }
+    }
+
+    /**
+     * Set the slug attribute - auto-generate from name if slug is set to null/empty.
+     */
+    public function setSlugAttribute($value): void
+    {
+        // If slug is explicitly provided (and not null/empty), use it
+        if (!empty($value) && $value !== null && $value !== '') {
+            $this->attributes['slug'] = $value;
+            return;
+        }
+        
+        // Otherwise, generate from name if name is available
+        $name = $this->attributes['name'] ?? $this->name ?? null;
+        if (!empty($name) && is_string($name)) {
+            $generatedSlug = str($name)->slug()->toString();
+            if (!empty($generatedSlug)) {
+                $this->attributes['slug'] = $generatedSlug;
+                return;
+            }
+        }
+        
+        // If no name or slug generation failed, set to null (for nullable column)
+        $this->attributes['slug'] = null;
+    }
+
+    /**
      * Boot the model.
      */
     #[\Override]
@@ -131,54 +177,13 @@ class Brand extends ValidatableModel
         parent::boot();
 
         static::creating(static function (Brand $brand): void {
-            // Always generate slug from name if name is provided and slug is not set
-            // Try multiple ways to access name attribute
-            $name = $brand->name ?? $brand->attributes['name'] ?? null;
-            $slug = $brand->slug ?? $brand->attributes['slug'] ?? null;
-            if (!empty($name) && empty($slug)) {
-                $brand->generateSlug();
-            }
+            // Slug generation is handled by setNameAttribute mutator
+            // This event is kept for any future logic
         });
 
         static::updating(static function (Brand $brand): void {
-            // Generate slug if name changed or if slug is being set to null/empty
-            if ($brand->isDirty('name') || 
-                ($brand->isDirty('slug') && (empty($brand->slug) || $brand->slug === null))) {
-                $brand->generateSlug();
-            }
+            // Slug generation is handled by setNameAttribute mutator
+            // This event is kept for any future logic
         });
-    }
-
-    /**
-     * @SuppressWarnings("UnusedPrivateMethod")
-     */
-    private function generateSlug(): void
-    {
-        // Try multiple ways to access name attribute
-        $name = $this->name ?? $this->attributes['name'] ?? null;
-
-        // Always generate slug from name if name is provided
-        if (!empty($name) && is_string($name)) {
-            $expectedSlug = str($name)->slug()->toString();
-
-            if (empty($expectedSlug)) {
-                return;
-            }
-
-            // Always generate slug if:
-            // 1. Slug is null or empty
-            // 2. Name is dirty (being changed)
-            // 3. Slug doesn't match expected slug from name
-            $currentSlug = $this->slug ?? $this->attributes['slug'] ?? null;
-
-            if (empty($currentSlug) || $currentSlug === '' ||
-                $this->isDirty('name') ||
-                ($currentSlug !== $expectedSlug)) {
-                // Set in attributes array (this is what gets saved to DB)
-                $this->attributes['slug'] = $expectedSlug;
-                // Also set the property for immediate access
-                $this->slug = $expectedSlug;
-            }
-        }
     }
 }

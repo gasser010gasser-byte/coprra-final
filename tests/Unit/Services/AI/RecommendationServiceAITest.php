@@ -48,9 +48,9 @@ final class RecommendationServiceAITest extends TestCase
         $category = Category::factory()->create();
         $brand = Brand::factory()->create();
 
-        $product1 = Product::factory()->create(['category_id' => $category->id, 'brand_id' => $brand->id]);
-        $product2 = Product::factory()->create(['category_id' => $category->id, 'brand_id' => $brand->id]);
-        $product3 = Product::factory()->create(['category_id' => $category->id, 'brand_id' => $brand->id]);
+        $product1 = Product::factory()->create(['category_id' => $category->id, 'brand_id' => $brand->id, 'is_active' => true]);
+        $product2 = Product::factory()->create(['category_id' => $category->id, 'brand_id' => $brand->id, 'is_active' => true]);
+        $product3 = Product::factory()->create(['category_id' => $category->id, 'brand_id' => $brand->id, 'is_active' => true]);
 
         // Create similar purchase patterns for user1 and user2
         $this->createOrderWithProducts($user1, [$product1, $product2]);
@@ -100,6 +100,7 @@ final class RecommendationServiceAITest extends TestCase
         $products = Product::factory()->count(20)->create([
             'category_id' => $category->id,
             'brand_id' => $brand->id,
+            'is_active' => true,
         ]);
 
         $commonProduct = $products->first();
@@ -139,6 +140,7 @@ final class RecommendationServiceAITest extends TestCase
         $purchasedProducts = Product::factory()->count(5)->create([
             'category_id' => $preferredCategory->id,
             'brand_id' => $brand->id,
+            'is_active' => true,
         ]);
 
         $this->createOrderWithProducts($user, $purchasedProducts->toArray());
@@ -148,6 +150,7 @@ final class RecommendationServiceAITest extends TestCase
             'category_id' => $preferredCategory->id,
             'brand_id' => $brand->id,
             'rating' => 4.5,
+            'is_active' => true,
         ]);
 
         // Create products in other category (should not be recommended)
@@ -155,6 +158,7 @@ final class RecommendationServiceAITest extends TestCase
             'category_id' => $otherCategory->id,
             'brand_id' => $brand->id,
             'rating' => 4.8,
+            'is_active' => true,
         ]);
 
         // Clear cache to ensure fresh recommendations
@@ -185,6 +189,7 @@ final class RecommendationServiceAITest extends TestCase
         $purchasedProducts = Product::factory()->count(3)->create([
             'category_id' => $category->id,
             'brand_id' => $preferredBrand->id,
+            'is_active' => true,
         ]);
 
         $this->createOrderWithProducts($user, $purchasedProducts->toArray());
@@ -194,6 +199,7 @@ final class RecommendationServiceAITest extends TestCase
             'category_id' => $category->id,
             'brand_id' => $preferredBrand->id,
             'rating' => 4.0,
+            'is_active' => true,
         ]);
 
         // Create products from other brand
@@ -201,6 +207,7 @@ final class RecommendationServiceAITest extends TestCase
             'category_id' => $category->id,
             'brand_id' => $otherBrand->id,
             'rating' => 4.9,
+            'is_active' => true,
         ]);
 
         // Clear cache to ensure fresh recommendations
@@ -231,6 +238,7 @@ final class RecommendationServiceAITest extends TestCase
             'category_id' => $category->id,
             'brand_id' => $brand->id,
             'price' => rand(50, 100),
+            'is_active' => true,
         ]);
 
         $this->createOrderWithProducts($user, $purchasedProducts->toArray());
@@ -240,6 +248,7 @@ final class RecommendationServiceAITest extends TestCase
             'category_id' => $category->id,
             'brand_id' => $brand->id,
             'price' => rand(60, 90),
+            'is_active' => true,
         ]);
 
         // Create expensive products outside range
@@ -247,6 +256,7 @@ final class RecommendationServiceAITest extends TestCase
             'category_id' => $category->id,
             'brand_id' => $brand->id,
             'price' => rand(200, 300),
+            'is_active' => true,
         ]);
 
         // Clear cache to ensure fresh recommendations
@@ -279,6 +289,7 @@ final class RecommendationServiceAITest extends TestCase
             'category_id' => $category->id,
             'brand_id' => $brand->id,
             'rating' => 4.5,
+            'is_active' => true,
         ]);
 
         // Simulate recent purchases for trending
@@ -315,6 +326,7 @@ final class RecommendationServiceAITest extends TestCase
         $singleProduct = Product::factory()->create([
             'category_id' => $category->id,
             'brand_id' => $brand->id,
+            'is_active' => true,
         ]);
 
         $this->createOrderWithProducts($user, [$singleProduct]);
@@ -326,6 +338,7 @@ final class RecommendationServiceAITest extends TestCase
         $similarProducts = Product::factory()->count(3)->create([
             'category_id' => $category->id,
             'brand_id' => $brand->id,
+            'is_active' => true,
         ]);
 
         // Act
@@ -350,13 +363,15 @@ final class RecommendationServiceAITest extends TestCase
         $popularProduct = Product::factory()->create([
             'category_id' => $category->id,
             'brand_id' => $brand->id,
-            'rating' => 3.0, // Lower rating but very popular
+            'rating' => 3.0,
+            'is_active' => true,
         ]);
 
         $qualityProduct = Product::factory()->create([
             'category_id' => $category->id,
             'brand_id' => $brand->id,
-            'rating' => 4.8, // High rating but less popular
+            'rating' => 4.8,
+            'is_active' => true,
         ]);
 
         // Create bias: 90% of users bought the popular product
@@ -399,6 +414,7 @@ final class RecommendationServiceAITest extends TestCase
             $product = Product::factory()->create([
                 'category_id' => $category->id,
                 'brand_id' => $brand->id,
+                'is_active' => true,
             ]);
             $this->createOrderWithProducts($user, [$product]);
         }
@@ -408,6 +424,7 @@ final class RecommendationServiceAITest extends TestCase
             Product::factory()->count(2)->create([
                 'category_id' => $category->id,
                 'brand_id' => $brand->id,
+                'is_active' => true,
             ]);
         }
 
@@ -507,6 +524,7 @@ final class RecommendationServiceAITest extends TestCase
                 $products = array_merge($products, Product::factory()->count(20)->create([
                     'category_id' => $category->id,
                     'brand_id' => $brand->id,
+                    'is_active' => true,
                 ])->toArray());
             }
         }

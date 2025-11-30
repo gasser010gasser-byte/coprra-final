@@ -95,8 +95,22 @@ Route::middleware(['throttle:public'])->group(static function (): void {
         return response()->json(['data' => [], 'message' => 'Reviews endpoint']);
     });
 
-    Route::get('/search', static function () {
-        return response()->json(['data' => [], 'message' => 'Search endpoint']);
+    Route::get('/search', static function (Request $request) {
+        $query = $request->input('q', '');
+        $products = \App\Models\Product::where('is_active', true)
+            ->where('name', 'LIKE', "%{$query}%")
+            ->limit(20)
+            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $products,
+            'meta' => [
+                'total' => $products->count(),
+                'query' => $query,
+            ],
+            'message' => 'Search results retrieved successfully'
+        ]);
     });
 
     Route::get('/ai', static function () {

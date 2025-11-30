@@ -191,6 +191,18 @@ class Product extends Model
     }
 
     /**
+     * Get the stores that have price offers for this product.
+     *
+     * @return BelongsToMany<Store, Product>
+     */
+    public function stores(): BelongsToMany
+    {
+        return $this->belongsToMany(Store::class, 'price_offers')
+            ->withTimestamps()
+            ->withPivot(['price', 'is_available', 'expires_at']);
+    }
+
+    /**
      * @return BelongsTo<Store, Product>
      */
     public function store(): BelongsTo
