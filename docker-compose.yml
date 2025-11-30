@@ -1,5 +1,7 @@
+version: '3.8'
 
 services:
+  # PHP-FPM Application
   app:
     build:
       context: .
@@ -15,7 +17,11 @@ services:
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
     networks:
       - coprra-network
+    depends_on:
+      - db
+      - redis
 
+  # Nginx Web Server
   nginx:
     image: nginx:alpine
     container_name: coprra-nginx
@@ -27,7 +33,10 @@ services:
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - coprra-network
+    depends_on:
+      - app
 
+  # MySQL Database
   db:
     image: mysql:8.0
     container_name: coprra-db
@@ -41,9 +50,11 @@ services:
       - "3307:3306"
     volumes:
       - coprra-db-data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
     networks:
       - coprra-network
 
+  # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: coprra-redis
@@ -55,6 +66,7 @@ services:
     networks:
       - coprra-network
 
+  # Queue Worker (اختياري)
   queue:
     build:
       context: .
@@ -68,6 +80,8 @@ services:
     networks:
       - coprra-network
     depends_on:
+      - app
+      - db
       - redis
 
 networks:

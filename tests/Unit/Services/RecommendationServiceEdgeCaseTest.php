@@ -249,7 +249,7 @@ final class RecommendationServiceEdgeCaseTest extends TestCase
 
         self::assertIsArray($recommendations);
         // Should handle zero-priced products appropriately
-        if (!empty($recommendations)) {
+        if (! empty($recommendations)) {
             foreach ($recommendations as $recommendation) {
                 self::assertIsArray($recommendation);
             }
@@ -264,10 +264,11 @@ final class RecommendationServiceEdgeCaseTest extends TestCase
         // Note: ini_set('memory_limit') may not work if current memory usage exceeds the limit
         $currentMemory = memory_get_usage(true);
         $oneMB = 1024 * 1024;
-        
+
         if ($currentMemory > $oneMB) {
             // Current memory usage is already above 1M, skip this test
             $this->markTestSkipped('Current memory usage is already above 1M');
+
             return;
         }
 
@@ -300,7 +301,7 @@ final class RecommendationServiceEdgeCaseTest extends TestCase
 
         self::assertIsArray($recommendations);
         // Should handle products with null/invalid categories
-        if (!empty($recommendations)) {
+        if (! empty($recommendations)) {
             foreach ($recommendations as $recommendation) {
                 self::assertIsArray($recommendation);
             }

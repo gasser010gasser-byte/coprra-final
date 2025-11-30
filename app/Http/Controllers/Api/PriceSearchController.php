@@ -18,41 +18,41 @@ class PriceSearchController extends BaseApiController
         try {
             // Reject invalid types and detect security threats
             $securityIssues = [];
-            
+
             // Check all query parameters for invalid types
             foreach (['q', 'query', 'name'] as $paramName) {
-                if (!$request->has($paramName)) {
+                if (! $request->has($paramName)) {
                     continue;
                 }
-                
+
                 $value = $request->query($paramName);
                 if ($value === null) {
                     continue;
                 }
-                
+
                 $receivedType = \gettype($value);
-                
+
                 // Check for invalid types (arrays, objects, booleans)
                 if (\is_array($value) || \is_object($value) || \is_bool($value)) {
                     $securityIssues[] = 'Invalid parameter type';
-                    
+
                     // Check array/object values for security threats
                     if (\is_array($value)) {
                         $valueString = implode(' ', array_map('strval', $value));
                     } else {
                         $valueString = (string) $value;
                     }
-                    
+
                     // Detect XSS attempts
                     if (preg_match('/<script|javascript:|onerror=|onclick=|onload=|alert\(|eval\(/i', $valueString)) {
                         $securityIssues[] = 'potential_xss_attempt';
                     }
-                    
+
                     // Detect SQL injection attempts
                     if (preg_match('/(\bunion\b.*\bselect|\bdrop\s+table|\bdelete\s+from|\binsert\s+into|\bupdate\s+.*\bset|\'?\s*or\s*\'?\d+\s*=\s*\d+|;\s*drop|--\s|#|\/\*|\*\/)/i', $valueString)) {
                         $securityIssues[] = 'potential_sql_injection';
                     }
-                    
+
                     $response = [
                         'success' => false,
                         'message' => 'Invalid parameter format',
@@ -68,9 +68,10 @@ class PriceSearchController extends BaseApiController
                             'examples' => ['?q=laptop', '?query=phone'],
                         ],
                     ];
+
                     return response()->json($response, 400);
                 }
-                
+
                 // Check string parameters for security threats and length
                 if (\is_string($value)) {
                     // Check for extremely long parameters (DoS)
@@ -85,9 +86,10 @@ class PriceSearchController extends BaseApiController
                                 'received_length' => strlen($value),
                             ],
                         ];
+
                         return response()->json($response, 400);
                     }
-                    
+
                     // Check for null bytes and control characters
                     if (preg_match('/[\x00-\x08\x0B-\x0C\x0E-\x1F]/', $value)) {
                         $response = [
@@ -99,6 +101,7 @@ class PriceSearchController extends BaseApiController
                                 'reason' => 'Control characters not allowed',
                             ],
                         ];
+
                         return response()->json($response, 400);
                     }
                 }
@@ -131,7 +134,7 @@ class PriceSearchController extends BaseApiController
                 if ($products->isEmpty()) {
                     // Check if a search query was provided
                     $searchQuery = $request->input('q') ?? $request->input('query') ?? $request->input('name');
-                    
+
                     if ($searchQuery) {
                         // Log search analytics
                         try {
@@ -150,7 +153,7 @@ class PriceSearchController extends BaseApiController
                             // Log error but don't fail the request
                             Log::warning('Failed to log search analytics', ['error' => $e->getMessage()]);
                         }
-                        
+
                         return $this->notFound("No products found matching '{$searchQuery}'", [
                             'error_code' => 'NO_PRODUCTS_MATCHING_SEARCH',
                             'search_query' => $searchQuery,
@@ -173,11 +176,11 @@ class PriceSearchController extends BaseApiController
                             ],
                         ]);
                     }
-                    
+
                     $totalProducts = Product::count();
                     $activeProducts = Product::where('is_active', true)->count();
                     $lastProduct = Product::latest('created_at')->first();
-                    
+
                     return $this->notFound('No products available for price comparison', [
                         'error_code' => 'NO_PRODUCTS_AVAILABLE',
                         'results_count' => 0,
@@ -229,14 +232,14 @@ class PriceSearchController extends BaseApiController
                     try {
                         $product = $products->first();
                         // Ensure priceOffers is loaded
-                        if (!$product->relationLoaded('priceOffers')) {
+                        if (! $product->relationLoaded('priceOffers')) {
                             $product->load('priceOffers');
                         }
-                        
+
                         if ($product->priceOffers->isEmpty()) {
                             try {
-                                $productUrl = $product->slug 
-                                    ? route('products.show', $product->slug) 
+                                $productUrl = $product->slug
+                                    ? route('products.show', $product->slug)
                                     : url("/products/{$product->id}");
                             } catch (\Exception $e) {
                                 $productUrl = url("/products/{$product->id}");
@@ -255,22 +258,22 @@ class PriceSearchController extends BaseApiController
                                 ],
                             ], 404);
                         }
-                        
+
                         $bestOffer = $product->priceOffers->first();
-                        if (!$bestOffer) {
+                        if (! $bestOffer) {
                             return response()->json([
                                 'success' => false,
                                 'message' => 'No offers available for this product',
                                 'error_code' => 'NO_OFFERS_AVAILABLE',
                             ], 404);
                         }
-                        
+
                         $prices = $product->priceOffers->pluck('price')->map(fn ($price) => (float) $price)->toArray();
                         $lowestPrice = min($prices);
                         $highestPrice = max($prices);
                         $averagePrice = array_sum($prices) / count($prices);
                         $savingsAmount = $highestPrice - $lowestPrice;
-                        
+
                         return $this->success(
                             [
                                 'product_id' => $product->id,
@@ -307,7 +310,7 @@ class PriceSearchController extends BaseApiController
                         // Fall through to return products list
                     }
                 }
-                
+
                 return $this->success(
                     $products->map(/**
                      * @return array<scalar>
@@ -381,17 +384,17 @@ class PriceSearchController extends BaseApiController
                         ];
                     })->toArray();
 
-                $message = $productId 
+                $message = $productId
                     ? "Product with ID {$productId} not found"
-                    : ($productName 
+                    : ($productName
                         ? "Product matching '{$productName}' not found"
                         : 'Product not found');
-                        
+
                 return $this->notFound($message, [
                     'error_code' => 'PRODUCT_NOT_FOUND',
-                    'description' => $productId 
+                    'description' => $productId
                         ? "Product with ID {$productId} was not found or is not available."
-                        : ($productName 
+                        : ($productName
                             ? "No product matching '{$productName}' was found."
                             : 'The requested product was not found.'),
                     'resource_info' => [
@@ -400,7 +403,7 @@ class PriceSearchController extends BaseApiController
                         'action_attempted' => 'price_search',
                     ],
                     'suggestions' => [
-                        'similar_products' => !empty($similarProducts) ? $similarProducts : [],
+                        'similar_products' => ! empty($similarProducts) ? $similarProducts : [],
                         'actions' => array_map(static function (array $action): array {
                             return [
                                 'action' => $action['action'] ?? '',
@@ -433,14 +436,14 @@ class PriceSearchController extends BaseApiController
             }
 
             // Ensure priceOffers is loaded
-            if (!$product->relationLoaded('priceOffers')) {
+            if (! $product->relationLoaded('priceOffers')) {
                 $product->load('priceOffers');
             }
 
             if ($product->priceOffers->isEmpty()) {
                 try {
-                    $productUrl = $product->slug 
-                        ? route('products.show', $product->slug) 
+                    $productUrl = $product->slug
+                        ? route('products.show', $product->slug)
                         : url("/products/{$product->id}");
                 } catch (\Exception $e) {
                     $productUrl = url("/products/{$product->id}");
@@ -471,7 +474,7 @@ class PriceSearchController extends BaseApiController
             }
 
             // Ensure priceOffers is loaded
-            if (!$product->relationLoaded('priceOffers')) {
+            if (! $product->relationLoaded('priceOffers')) {
                 $product->load('priceOffers');
             }
 
@@ -527,7 +530,7 @@ class PriceSearchController extends BaseApiController
             $productId = $request->query('product_id') ?? $request->input('product_id');
             $productName = $request->query('product_name') ?? $request->input('product_name');
 
-            if (!$productId && !$productName) {
+            if (! $productId && ! $productName) {
                 return $this->error('Product ID or name is required', [
                     'validation_errors' => [
                         'parameter' => 'product_id or product_name',
@@ -561,7 +564,7 @@ class PriceSearchController extends BaseApiController
                   ->first();
             }
 
-            if (!$product) {
+            if (! $product) {
                 return $this->notFound('Product not found', [
                     'error_code' => 'PRODUCT_NOT_FOUND',
                     'suggestions' => [
@@ -591,7 +594,7 @@ class PriceSearchController extends BaseApiController
             $searchQuery = $productName ?? '';
             $matchType = 'exact';
             $confidenceScore = 100;
-            if ($productName && !$productId) {
+            if ($productName && ! $productId) {
                 $productNameLower = strtolower($productName);
                 $productNameLowerStripped = strtolower($product->name);
                 if ($productNameLower === $productNameLowerStripped) {
@@ -611,33 +614,33 @@ class PriceSearchController extends BaseApiController
                 ->where('id', '!=', $product->id)
                 ->where('category_id', $product->category_id)
                 ->with(['category:id,name', 'brand:id,name']);
-            
+
             // Get candidates and filter by name similarity
             $candidates = $alternativeProductsQuery->limit(10)->get();
-            
+
             $alternativeProducts = $candidates
                 ->map(static function (Product $p) use ($product): array {
                     // Calculate similarity score based on name similarity
                     $similarityScore = 50;
-                    
+
                     // Brand match increases relevance
                     if ($p->brand_id === $product->brand_id) {
                         $similarityScore += 20;
                     }
-                    
+
                     // Name word overlap check
                     $productNameWords = array_filter(explode(' ', strtolower($product->name)));
                     $pNameWords = array_filter(explode(' ', strtolower($p->name)));
                     $commonWords = array_intersect($productNameWords, $pNameWords);
                     $commonCount = count($commonWords);
-                    
+
                     // If no common words at all, it's likely unrelated (e.g., iPhone vs Samsung Galaxy)
                     if ($commonCount === 0 && count($productNameWords) > 1 && count($pNameWords) > 1) {
                         $similarityScore = 0; // Mark as unrelated
                     } else {
                         $similarityScore += min(30, $commonCount * 10);
                     }
-                    
+
                     return [
                         'product' => $p,
                         'similarity_score' => $similarityScore,

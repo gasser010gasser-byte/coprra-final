@@ -273,7 +273,7 @@ final class EmailIntegrationTest extends TestCase
         $reviewer = User::factory()->create();
         $store = Store::factory()->create(['contact_email' => 'store@example.com']);
         $product = Product::factory()->create(['store_id' => $store->id]);
-        
+
         // Reload product with store relationship
         $product->load('store');
 
@@ -283,7 +283,7 @@ final class EmailIntegrationTest extends TestCase
         Mail::assertQueued(ReviewNotification::class, static function ($mail) use ($store) {
             return $mail->hasTo($store->contact_email);
         });
-        
+
         // Also check that admin received the email
         Mail::assertQueued(ReviewNotification::class, static function ($mail) use ($admin) {
             return $mail->hasTo($admin->email);
@@ -370,7 +370,7 @@ final class EmailIntegrationTest extends TestCase
         // Temporarily stop faking notifications to allow real database notifications
         $originalNotification = Notification::getFacadeRoot();
         Notification::swap(new \Illuminate\Notifications\ChannelManager(app()));
-        
+
         $user = User::factory()->create();
         $store = Store::factory()->create();
         $product = Product::factory()->create(['store_id' => $store->id]);
@@ -385,17 +385,17 @@ final class EmailIntegrationTest extends TestCase
         // Get the notification ID - refresh user to get latest notifications
         $user->refresh();
         $userNotification = $user->notifications()->first();
-        
+
         // If not found in standard notifications, check customNotifications
-        if (!$userNotification) {
+        if (! $userNotification) {
             $userNotification = $user->customNotifications()->first();
         }
-        
+
         // If notification wasn't created, skip the test
-        if (!$userNotification) {
+        if (! $userNotification) {
             $this->markTestSkipped('Notification was not persisted to database (may be due to Notification::fake() in setUp)');
         }
-        
+
         self::assertNotNull($userNotification, 'Notification should be created');
         if ($userNotification->read_at !== null) {
             // If already read, mark as unread first
@@ -415,7 +415,7 @@ final class EmailIntegrationTest extends TestCase
         // Try to mark already read notification
         $result = $this->notificationService->markAsRead($userNotification->id, $user);
         self::assertFalse($result, 'Should return false for already read notification');
-        
+
         // Restore fake notifications
         Notification::swap($originalNotification);
     }
@@ -426,7 +426,7 @@ final class EmailIntegrationTest extends TestCase
         // Temporarily stop faking notifications to allow real database notifications
         $originalNotification = Notification::getFacadeRoot();
         Notification::swap(new \Illuminate\Notifications\ChannelManager(app()));
-        
+
         $user = User::factory()->create();
         $store = Store::factory()->create();
         $product = Product::factory()->create(['store_id' => $store->id]);
@@ -439,21 +439,21 @@ final class EmailIntegrationTest extends TestCase
 
         // Refresh user to get latest notifications
         $user->refresh();
-        
+
         // Wait a moment for notifications to be persisted
         usleep(100000); // 100ms
-        
+
         $user->refresh();
         $unreadCount = $user->unreadNotifications()->count();
         // Also check customNotifications
         $customUnreadCount = $user->customNotifications()->whereNull('read_at')->count();
         $totalUnread = $unreadCount + $customUnreadCount;
-        
+
         // If notifications weren't created, skip the test
         if ($totalUnread === 0) {
             $this->markTestSkipped('Notifications were not persisted to database (may be due to Notification::fake() in setUp)');
         }
-        
+
         self::assertSame(3, $totalUnread, 'Should have 3 unread notifications (standard or custom)');
 
         // Mark all as read
@@ -462,7 +462,7 @@ final class EmailIntegrationTest extends TestCase
         self::assertSame(3, $count, 'Should mark 3 notifications as read');
         self::assertSame(0, $user->unreadNotifications()->count(), 'Should have no unread notifications');
         self::assertSame(3, $user->readNotifications()->count(), 'Should have 3 read notifications');
-        
+
         // Restore fake notifications
         Notification::swap($originalNotification);
     }
@@ -494,7 +494,7 @@ final class EmailIntegrationTest extends TestCase
         $reviewer = User::factory()->create();
         $store = Store::factory()->create(['contact_email' => null]);
         $product = Product::factory()->create(['store_id' => $store->id]);
-        
+
         // Reload product with store relationship
         $product->load('store');
 
@@ -588,7 +588,7 @@ final class EmailIntegrationTest extends TestCase
         // Verify all email/notification interactions
         // Password reset uses Mail::send() not Mailable, so we can't assert it easily with Mail::fake()
         // Just verify the workflow completes without errors
-        
+
         // ReviewNotification is a Mailable with ShouldQueue, so use assertQueued
         Mail::assertQueued(ReviewNotification::class); // Review notification to store
 

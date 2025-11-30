@@ -62,7 +62,7 @@ final class EbayAdapter extends StoreAdapter
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
             ])->get($url);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return null;
             }
 
@@ -81,13 +81,13 @@ final class EbayAdapter extends StoreAdapter
             preg_match('/<img[^>]*id="icImg"[^>]*src="([^"]+)"/', $html, $imgMatches);
             $image = $imgMatches[1] ?? null;
 
-            if (!$title) {
+            if (! $title) {
                 // Try alternative title pattern
                 preg_match('/<title>(.*?)<\/title>/', $html, $titleMatchesAlt);
                 $title = isset($titleMatchesAlt[1]) ? trim(str_replace('| eBay', '', $titleMatchesAlt[1])) : null;
             }
 
-            if (!$title) {
+            if (! $title) {
                 return null;
             }
 
@@ -118,6 +118,7 @@ final class EbayAdapter extends StoreAdapter
                 'item_id' => $itemId,
                 'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
@@ -137,6 +138,7 @@ final class EbayAdapter extends StoreAdapter
         if ($scrapedData) {
             $normalized = $this->normalizeEbayData($scrapedData);
             $this->cacheProduct($productIdentifier, $normalized, 3600);
+
             return $normalized;
         }
 
@@ -145,6 +147,7 @@ final class EbayAdapter extends StoreAdapter
         if ($dummyData) {
             $normalized = $this->normalizeEbayData($dummyData);
             $this->cacheProduct($productIdentifier, $normalized, 300); // Short cache for dummy
+
             return $normalized;
         }
 
@@ -191,7 +194,7 @@ final class EbayAdapter extends StoreAdapter
      */
     public function searchProducts(string $query, array $options = []): array
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             return [];
         }
 
@@ -212,13 +215,13 @@ final class EbayAdapter extends StoreAdapter
         if (\is_array($searchResult) && isset($searchResult['item'])) {
             $items = $searchResult['item'];
 
-            if (!\is_array($items)) {
+            if (! \is_array($items)) {
                 return [];
             }
 
             return array_values(array_filter(array_map(
                 function ($item): ?array {
-                    if (!\is_array($item)) {
+                    if (! \is_array($item)) {
                         return null;
                     }
 
@@ -354,6 +357,4 @@ final class EbayAdapter extends StoreAdapter
             ],
         ]);
     }
-
-
 }

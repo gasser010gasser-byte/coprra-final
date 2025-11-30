@@ -239,7 +239,7 @@ final class ProductController extends BaseApiController
             $oldValues = $product->getAttributes();
             $oldValues = array_intersect_key($oldValues, array_flip([
                 'name', 'description', 'price', 'sku', 'slug', 'is_active',
-                'category_id', 'brand_id', 'meta_title', 'meta_description'
+                'category_id', 'brand_id', 'meta_title', 'meta_description',
             ]));
 
             $validated = $request->validated();
@@ -263,13 +263,13 @@ final class ProductController extends BaseApiController
             }
 
             $product->update($validated);
-            
+
             // Create audit trail
             $newValues = array_intersect_key($product->getAttributes(), array_flip([
                 'name', 'description', 'price', 'sku', 'slug', 'is_active',
-                'category_id', 'brand_id', 'meta_title', 'meta_description'
+                'category_id', 'brand_id', 'meta_title', 'meta_description',
             ]));
-            
+
             // Log audit trail, but don't fail the request if audit logging fails
             try {
                 if ($this->auditService && method_exists($this->auditService, 'log')) {
@@ -282,7 +282,7 @@ final class ProductController extends BaseApiController
                     'error' => $auditException->getMessage(),
                 ]);
             }
-            
+
             // Reload product with relationships for response
             try {
                 $product->load(['category:id,name', 'brand:id,name']);
@@ -301,9 +301,10 @@ final class ProductController extends BaseApiController
                     'product_id' => $product->id,
                     'error' => $e->getMessage(),
                 ]);
+
                 return $this->serverError('Failed to format product response', $e);
             }
-            
+
             // Add updated_by information
             $user = Auth::user();
             if ($user) {
@@ -319,7 +320,7 @@ final class ProductController extends BaseApiController
                     ]);
                 }
             }
-            
+
             // Add slug generation info to data
             try {
                 $responseData['slug_generation'] = [
@@ -333,7 +334,7 @@ final class ProductController extends BaseApiController
                     'error' => $e->getMessage(),
                 ]);
             }
-            
+
             // Build response with audit trail
             try {
                 $response = response()->json([
@@ -356,6 +357,7 @@ final class ProductController extends BaseApiController
                 \Illuminate\Support\Facades\Log::error('Failed to build response', [
                     'error' => $e->getMessage(),
                 ]);
+
                 return $this->serverError('Failed to build response', $e);
             }
         } catch (ModelNotFoundException $e) {
@@ -404,7 +406,7 @@ final class ProductController extends BaseApiController
     private function updateProductSlug(array $validated, int $id): array
     {
         $product = Product::find($id);
-        if (!$product) {
+        if (! $product) {
             // Product doesn't exist, return default slug data
             return [
                 'slug' => $validated['slug'] ?? 'product-' . $id,
@@ -414,7 +416,7 @@ final class ProductController extends BaseApiController
             ];
         }
         $originalSlug = $product->slug ?? '';
-        
+
         if (! isset($validated['name'])) {
             // If name is not being updated, keep existing slug or generate from current product
             if (isset($validated['slug']) && $validated['slug'] !== '') {
@@ -425,7 +427,7 @@ final class ProductController extends BaseApiController
                     'final_slug' => $validated['slug'],
                 ];
             }
-            
+
             // Fallback to existing product slug
             if ($product && $product->slug) {
                 return [
@@ -435,8 +437,9 @@ final class ProductController extends BaseApiController
                     'final_slug' => $product->slug,
                 ];
             }
-            
+
             $fallbackSlug = 'product-'.$id;
+
             return [
                 'slug' => $fallbackSlug,
                 'original_slug' => $originalSlug,
@@ -448,12 +451,12 @@ final class ProductController extends BaseApiController
         $nameValue = $validated['name'];
         $nameString = \is_string($nameValue) ? $nameValue : '';
         $baseSlug = Str::slug($nameString);
-        
+
         // Ensure slug is not empty
         if ($baseSlug === '') {
             $baseSlug = $product && $product->slug ? $product->slug : 'product-'.$id;
         }
-        
+
         $slug = $baseSlug;
         $counter = 1;
         $conflictResolved = false;

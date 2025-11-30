@@ -27,11 +27,11 @@ final class PriceComparisonServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Mock StoreAdapterManager
         $this->mockStoreAdapterManager = Mockery::mock(StoreAdapterManager::class);
         $this->app->instance(StoreAdapterManager::class, $this->mockStoreAdapterManager);
-        
+
         $this->service = $this->app->make(PriceComparisonService::class);
     }
 
@@ -64,7 +64,7 @@ final class PriceComparisonServiceTest extends TestCase
                 'rating' => 4.5,
                 'reviews_count' => 100,
             ]);
-            
+
         $this->mockStoreAdapterManager
             ->shouldReceive('fetchProduct')
             ->with('store_b', 'product_456')

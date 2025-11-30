@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('wishlists', static function (Blueprint $table): void {
-            if (!Schema::hasColumn('wishlists', 'deleted_at')) {
+            if (! Schema::hasColumn('wishlists', 'deleted_at')) {
                 $table->softDeletes();
             }
         });
@@ -29,4 +29,3 @@ return new class () extends Migration {
         });
     }
 };
-

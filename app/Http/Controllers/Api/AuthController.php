@@ -21,8 +21,8 @@ class AuthController extends Controller
     {
         try {
             $user = $request->user();
-            
-            if (!$user) {
+
+            if (! $user) {
                 return $this->unauthorized('User not authenticated');
             }
 

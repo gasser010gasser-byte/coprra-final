@@ -54,7 +54,6 @@ class StoreSeeder extends Seeder
                 'affiliate_base_url' => 'https://affiliate.coprra.com',
                 'affiliate_code' => 'COPRRA_MAIN',
                 'currency_id' => 1, // USD
-                'currency_id' => 1, // USD
             ],
 
             // Electronics Stores

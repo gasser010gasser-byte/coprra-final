@@ -35,13 +35,13 @@ final class ShippingService
     {
         // Get subtotal - use subtotal if available, otherwise calculate from order total
         $subtotal = $order->subtotal ?? ($order->total_amount ?? 0);
-        
+
         // Check if international shipping (default to US if country is not set)
         $country = $address->country ?? 'US';
-        $isInternational = !empty($country) && strtoupper($country) !== 'US';
-        
+        $isInternational = ! empty($country) && strtoupper($country) !== 'US';
+
         // Free shipping for domestic orders above threshold (international always has cost)
-        if (!$isInternational && $subtotal >= self::FREE_SHIPPING_THRESHOLD) {
+        if (! $isInternational && $subtotal >= self::FREE_SHIPPING_THRESHOLD) {
             return 0.0;
         }
 
@@ -52,7 +52,7 @@ final class ShippingService
         $weightCost = $weight * self::WEIGHT_RATE;
 
         $totalCost = $baseCost + $weightCost;
-        
+
         // Ensure international shipping always has a cost
         if ($isInternational && $totalCost <= 0) {
             $totalCost = self::INTERNATIONAL_SHIPPING_COST;
@@ -89,10 +89,10 @@ final class ShippingService
      */
     public function validateShippingAddress(Address $address): bool
     {
-        return !empty($address->street) &&
-               !empty($address->city) &&
-               !empty($address->country) &&
-               !empty($address->zip_code);
+        return ! empty($address->street) &&
+               ! empty($address->city) &&
+               ! empty($address->country) &&
+               ! empty($address->zip_code);
     }
 
     /**
@@ -118,7 +118,7 @@ final class ShippingService
     {
         $trackingNumber = $order->tracking_number ?? null;
 
-        if (!$trackingNumber) {
+        if (! $trackingNumber) {
             return [];
         }
 

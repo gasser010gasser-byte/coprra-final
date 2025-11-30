@@ -45,6 +45,7 @@ class PriceHistory extends Model
             // This handles the transition period during migration
             if ($priceHistory->recorded_at) {
                 $tableName = $priceHistory->getTable();
+
                 try {
                     if (Schema::hasColumn($tableName, 'effective_date')) {
                         // Directly set the attribute to be included in the insert

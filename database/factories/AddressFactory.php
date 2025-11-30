@@ -35,4 +35,3 @@ class AddressFactory extends Factory
         ];
     }
 }
-

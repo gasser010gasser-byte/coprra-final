@@ -67,11 +67,11 @@ Route::middleware(['throttle:public'])->group(static function (): void {
         $categories = \App\Models\Category::where('is_active', true)
             ->limit(20)
             ->get(['id', 'name', 'slug']);
-        
+
         return response()->json([
             'success' => true,
             'data' => $categories,
-            'message' => 'Categories retrieved successfully'
+            'message' => 'Categories retrieved successfully',
         ]);
     });
 
@@ -79,11 +79,11 @@ Route::middleware(['throttle:public'])->group(static function (): void {
         $brands = \App\Models\Brand::where('is_active', true)
             ->limit(20)
             ->get(['id', 'name', 'slug']);
-        
+
         return response()->json([
             'success' => true,
             'data' => $brands,
-            'message' => 'Brands retrieved successfully'
+            'message' => 'Brands retrieved successfully',
         ]);
     });
 
@@ -101,7 +101,7 @@ Route::middleware(['throttle:public'])->group(static function (): void {
             ->where('name', 'LIKE', "%{$query}%")
             ->limit(20)
             ->get();
-        
+
         return response()->json([
             'success' => true,
             'data' => $products,
@@ -109,7 +109,7 @@ Route::middleware(['throttle:public'])->group(static function (): void {
                 'total' => $products->count(),
                 'query' => $query,
             ],
-            'message' => 'Search results retrieved successfully'
+            'message' => 'Search results retrieved successfully',
         ]);
     });
 

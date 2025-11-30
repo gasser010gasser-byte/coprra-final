@@ -94,7 +94,7 @@ class Store extends ValidatableModel
         // Always encode arrays to JSON string for database storage
         if (is_array($value)) {
             $this->attributes['supported_countries'] = json_encode($value);
-        } elseif (is_string($value) && !empty($value)) {
+        } elseif (is_string($value) && ! empty($value)) {
             // If it's already a JSON string, validate and store it
             $decoded = json_decode($value, true);
             if (json_last_error() === JSON_ERROR_NONE) {
@@ -122,11 +122,11 @@ class Store extends ValidatableModel
         // 1. Slug is not explicitly set, OR
         // 2. Name is being changed (dirty)
         $slug = $this->attributes['slug'] ?? null;
-        $nameChanged = $this->isDirty('name') || !isset($this->original['name']) || $this->original['name'] !== $value;
+        $nameChanged = $this->isDirty('name') || ! isset($this->original['name']) || $this->original['name'] !== $value;
 
-        if ((empty($slug) || $nameChanged) && !empty($value) && is_string($value)) {
+        if ((empty($slug) || $nameChanged) && ! empty($value) && is_string($value)) {
             $generatedSlug = Str::slug($value);
-            if (!empty($generatedSlug)) {
+            if (! empty($generatedSlug)) {
                 $this->attributes['slug'] = $generatedSlug;
             }
         }
@@ -148,7 +148,7 @@ class Store extends ValidatableModel
         }
 
         // Decode JSON string to array
-        if (is_string($value) && !empty($value)) {
+        if (is_string($value) && ! empty($value)) {
             $decoded = json_decode($value, true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                 return $decoded;
@@ -248,12 +248,12 @@ class Store extends ValidatableModel
         }
 
         // If base_url is missing but code exists, append ?ref=coprra placeholder
-        if (empty($this->affiliate_base_url) && !empty($this->affiliate_code)) {
+        if (empty($this->affiliate_base_url) && ! empty($this->affiliate_code)) {
             return $productUrl . '?ref=coprra';
         }
 
         // If code is missing but base_url exists, return original URL
-        if (!empty($this->affiliate_base_url) && empty($this->affiliate_code)) {
+        if (! empty($this->affiliate_base_url) && empty($this->affiliate_code)) {
             return $productUrl;
         }
 
@@ -285,9 +285,9 @@ class Store extends ValidatableModel
             $slug = $store->attributes['slug'] ?? $store->slug ?? null;
 
             // If name is provided but slug is not, generate it
-            if (!empty($name) && is_string($name) && (empty($slug) || $slug === null)) {
+            if (! empty($name) && is_string($name) && (empty($slug) || $slug === null)) {
                 $generatedSlug = Str::slug($name);
-                if (!empty($generatedSlug)) {
+                if (! empty($generatedSlug)) {
                     $store->attributes['slug'] = $generatedSlug;
                 }
             }
@@ -301,9 +301,9 @@ class Store extends ValidatableModel
             $slug = $store->attributes['slug'] ?? $store->slug ?? null;
 
             // If name is provided but slug is not, generate it
-            if (!empty($name) && is_string($name) && (empty($slug) || $slug === null)) {
+            if (! empty($name) && is_string($name) && (empty($slug) || $slug === null)) {
                 $generatedSlug = Str::slug($name);
-                if (!empty($generatedSlug)) {
+                if (! empty($generatedSlug)) {
                     $store->attributes['slug'] = $generatedSlug;
                 }
             }
@@ -335,7 +335,7 @@ class Store extends ValidatableModel
         // If value is an array (from factory or mutator), encode it to JSON
         if (is_array($value)) {
             $this->attributes['supported_countries'] = json_encode($value);
-        } elseif (is_string($value) && !empty($value)) {
+        } elseif (is_string($value) && ! empty($value)) {
             // Validate JSON string - if it's already valid JSON, keep it
             $decoded = json_decode($value, true);
             if (json_last_error() === JSON_ERROR_NONE) {
@@ -368,7 +368,7 @@ class Store extends ValidatableModel
         $name = $this->getAttribute('name');
 
         // Always generate slug from name if name is provided
-        if (!empty($name) && is_string($name)) {
+        if (! empty($name) && is_string($name)) {
             $expectedSlug = Str::slug($name);
 
             if (empty($expectedSlug)) {

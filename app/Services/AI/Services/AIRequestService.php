@@ -65,15 +65,16 @@ class AIRequestService
         if (config('app.debug')) {
             $this->logger->debug('AI request configuration', [
                 'external_calls_disabled' => $disableExternal,
-                'has_api_key' => !empty($this->apiKey),
+                'has_api_key' => ! empty($this->apiKey),
                 'environment' => config('app.env'),
             ]);
         }
 
         if ($disableExternal || empty($this->apiKey) || '0' === $this->apiKey) {
-            if (!$disableExternal && !app()->runningUnitTests()) {
+            if (! $disableExternal && ! app()->runningUnitTests()) {
                 $this->logger->warning('⚠️ AI API Key missing. Using mock response.');
             }
+
             return $this->getMockResponse($data);
         }
 
@@ -196,7 +197,7 @@ class AIRequestService
 
                 // Check if error is recoverable using error handler
                 $errorType = $this->classifyErrorType($e);
-                if (!$this->errorHandler->isRecoverable($errorType)) {
+                if (! $this->errorHandler->isRecoverable($errorType)) {
                     $this->logger->warning('⚠️ Non-recoverable error detected, stopping retries', [
                         'error_type' => $errorType,
                         'operation' => $operation,

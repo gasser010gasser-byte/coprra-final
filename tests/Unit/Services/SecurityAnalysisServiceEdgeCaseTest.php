@@ -351,6 +351,7 @@ final class SecurityAnalysisServiceEdgeCaseTest extends TestCase
                 if (in_array($key, ['app.debug', 'app.url'], true)) {
                     throw new \Exception('Configuration system failure');
                 }
+
                 // Return defaults for database connection config
                 return match ($key) {
                     'database.default' => 'sqlite',
@@ -540,14 +541,14 @@ final class SecurityAnalysisServiceEdgeCaseTest extends TestCase
 
         // Should have mixed results - at least debug and HTTPS should pass
         $passedChecks = array_filter($result['checks'], static fn ($check) => $check['passed'] ?? false);
-        $failedChecks = array_filter($result['checks'], static fn ($check) => !($check['passed'] ?? false));
+        $failedChecks = array_filter($result['checks'], static fn ($check) => ! ($check['passed'] ?? false));
 
         // Debug mode and HTTPS should pass, others should fail
         // If no checks passed, that's ok - just verify the structure is correct
         if (empty($passedChecks)) {
             self::markTestSkipped('No security checks passed in this environment - may need configuration');
         }
-        
+
         self::assertNotEmpty($passedChecks, 'Expected at least some checks to pass (debug mode and HTTPS)');
         self::assertNotEmpty($failedChecks, 'Expected at least some checks to fail (env file, dependencies, middleware)');
 

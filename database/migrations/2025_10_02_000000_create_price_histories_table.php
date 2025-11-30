@@ -12,7 +12,7 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::hasTable('price_histories')) {
+        if (! Schema::hasTable('price_histories')) {
             Schema::create('price_histories', static function (Blueprint $table): void {
                 $table->id();
                 $table->foreignId('product_id')->constrained()->onDelete('cascade');

@@ -22,11 +22,11 @@ class AIAutomationTest extends TestCase
                 'choices' => [
                     [
                         'message' => [
-                            'content' => "sentiment: positive\nconfidence: 0.85\ncategory: technology\nkeyword: ai\nkeyword: machine learning"
-                        ]
-                    ]
-                ]
-            ], 200)
+                            'content' => "sentiment: positive\nconfidence: 0.85\ncategory: technology\nkeyword: ai\nkeyword: machine learning",
+                        ],
+                    ],
+                ],
+            ], 200),
         ]);
 
         // Get the service from the container
@@ -62,11 +62,11 @@ class AIAutomationTest extends TestCase
                 'choices' => [
                     [
                         'message' => [
-                            'content' => "category: إلكترونيات\nsubcategory: smartphones\nconfidence: 0.95\ntag: mobile\ntag: technology"
-                        ]
-                    ]
-                ]
-            ], 200)
+                            'content' => "category: إلكترونيات\nsubcategory: smartphones\nconfidence: 0.95\ntag: mobile\ntag: technology",
+                        ],
+                    ],
+                ],
+            ], 200),
         ]);
 
         // Get the service from the container

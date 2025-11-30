@@ -47,19 +47,21 @@ final class PerformanceAnalysisService
     private function checkCacheConfiguration(array &$issues): int
     {
         $cacheDriver = config('cache.default', 'file');
-        
+
         // Array driver is not suitable for production
         if ('array' === $cacheDriver) {
             $issues[] = 'Cache is not properly configured (using array driver)';
+
             return 0;
         }
-        
+
         // File cache is acceptable but not optimal
         if ('file' === $cacheDriver) {
             $issues[] = 'Using file cache (consider Redis or Memcached for production)';
+
             return 0;
         }
-        
+
         // Other drivers (redis, database, memcached, etc.) are good
         return 25;
     }
@@ -101,7 +103,7 @@ final class PerformanceAnalysisService
         // Check for mix-manifest.json (Laravel Mix) or build/manifest.json (Vite)
         $mixManifest = public_path('mix-manifest.json');
         $viteManifest = public_path('build/manifest.json');
-        
+
         if (file_exists($mixManifest) || file_exists($viteManifest)) {
             return 25;
         }
@@ -121,13 +123,14 @@ final class PerformanceAnalysisService
     private function checkQueueConfiguration(array &$issues): int
     {
         $queueDriver = config('queue.default', 'sync');
-        
+
         // Sync driver is not suitable for production
         if ('sync' === $queueDriver) {
             $issues[] = 'Queue is using sync driver (not suitable for production)';
+
             return 0;
         }
-        
+
         // Other drivers (database, redis, etc.) are good
         return 25;
     }

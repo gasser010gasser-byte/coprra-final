@@ -18,11 +18,11 @@ class IsAdmin
         if (! $user) {
             abort(403, 'Access denied. Admin privilege required.');
         }
-        
+
         // Allow admin or moderator roles
         $isAdmin = (bool) ($user->is_admin ?? false);
         $isModerator = $user->role === 'moderator' || $user->role === 'admin';
-        
+
         if (! $isAdmin && ! $isModerator) {
             abort(403, 'Access denied. Admin privilege required.');
         }

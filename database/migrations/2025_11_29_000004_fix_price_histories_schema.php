@@ -16,7 +16,7 @@ return new class () extends Migration {
         if (Schema::hasTable('price_histories')) {
             Schema::table('price_histories', static function (Blueprint $table): void {
                 // Add recorded_at if it doesn't exist
-                if (!Schema::hasColumn('price_histories', 'recorded_at')) {
+                if (! Schema::hasColumn('price_histories', 'recorded_at')) {
                     // Check if we have effective_date or captured_at to migrate from
                     if (Schema::hasColumn('price_histories', 'effective_date')) {
                         $table->timestamp('recorded_at')->nullable()->after('price');
@@ -30,19 +30,19 @@ return new class () extends Migration {
                 }
 
                 // Handle effective_date column - migrate to recorded_at if needed
-                if (Schema::hasColumn('price_histories', 'effective_date') && !Schema::hasColumn('price_histories', 'recorded_at')) {
+                if (Schema::hasColumn('price_histories', 'effective_date') && ! Schema::hasColumn('price_histories', 'recorded_at')) {
                     // If we have effective_date but no recorded_at, copy data and then we can ignore effective_date
                     // The column will remain but won't be required for new inserts
                     DB::statement('UPDATE price_histories SET recorded_at = effective_date WHERE recorded_at IS NULL');
                 }
 
                 // Add currency if missing
-                if (!Schema::hasColumn('price_histories', 'currency')) {
+                if (! Schema::hasColumn('price_histories', 'currency')) {
                     $table->string('currency', 3)->default('USD')->after('recorded_at');
                 }
 
                 // Add old_price if missing (used by model)
-                if (!Schema::hasColumn('price_histories', 'old_price')) {
+                if (! Schema::hasColumn('price_histories', 'old_price')) {
                     $table->decimal('old_price', 10, 2)->nullable()->after('price');
                 }
             });
@@ -72,4 +72,3 @@ return new class () extends Migration {
         }
     }
 };
-

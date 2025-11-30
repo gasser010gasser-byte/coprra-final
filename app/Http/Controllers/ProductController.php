@@ -92,6 +92,7 @@ class ProductController extends Controller
             }
 
             $isWishlisted = false;
+
             try {
                 $isWishlisted = auth()->check()
                     ? auth()->user()->wishlist()->where('products.id', $product->id)->exists()

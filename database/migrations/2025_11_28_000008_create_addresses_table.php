@@ -12,7 +12,7 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::hasTable('addresses')) {
+        if (! Schema::hasTable('addresses')) {
             Schema::create('addresses', static function (Blueprint $table): void {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->onDelete('cascade');
@@ -28,7 +28,7 @@ return new class () extends Migration {
         } else {
             // Add missing columns if table exists
             Schema::table('addresses', static function (Blueprint $table): void {
-                if (!Schema::hasColumn('addresses', 'line1')) {
+                if (! Schema::hasColumn('addresses', 'line1')) {
                     $table->string('line1')->nullable()->after('street');
                 }
             });
@@ -43,4 +43,3 @@ return new class () extends Migration {
         Schema::dropIfExists('addresses');
     }
 };
-

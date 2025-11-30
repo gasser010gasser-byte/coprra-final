@@ -148,7 +148,7 @@ final class AdminMiddlewareTest extends TestCase
                 $endpoint = $this->getEndpointForPermission($permission);
                 $response = $this->get($endpoint);
                 $statusCode = $response->getStatusCode();
-                
+
                 // For moderator role accessing users.create, expect 403 (not allowed)
                 if ($role === 'moderator' && $permission === 'users.view') {
                     // Moderator can view users list but not create
@@ -211,6 +211,7 @@ final class AdminMiddlewareTest extends TestCase
     {
         // admin, super_admin, and moderator should all have is_admin = true since they all need admin panel access
         $isAdmin = in_array($role, ['admin', 'super_admin', 'moderator'], true);
+
         return \App\Models\User::factory()->create([
             'name' => "Test {$role}",
             'email' => "{$role}@example.com",

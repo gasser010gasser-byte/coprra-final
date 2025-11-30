@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Services\BehaviorAnalysisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 
 class AnalyticsController extends Controller
 {
@@ -24,7 +23,7 @@ class AnalyticsController extends Controller
     {
         /** @var \App\Models\User|null $user */
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -53,13 +52,13 @@ class AnalyticsController extends Controller
             'data' => 'nullable|array',
         ]);
 
-        if (!is_array($validated)) {
+        if (! is_array($validated)) {
             return response()->json(['error' => 'Invalid validation result'], 400);
         }
 
         /** @var \App\Models\User|null $user */
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 

@@ -68,7 +68,7 @@ final class NoonAdapter extends StoreAdapter
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
             ])->get($url);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return null;
             }
 
@@ -108,6 +108,7 @@ final class NoonAdapter extends StoreAdapter
                 'sku' => $sku,
                 'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
@@ -127,6 +128,7 @@ final class NoonAdapter extends StoreAdapter
         if ($scrapedData) {
             $normalized = $this->normalizeNoonData($scrapedData);
             $this->cacheProduct($productIdentifier, $normalized, 3600);
+
             return $normalized;
         }
 
@@ -135,6 +137,7 @@ final class NoonAdapter extends StoreAdapter
         if ($dummyData) {
             $normalized = $this->normalizeNoonData($dummyData);
             $this->cacheProduct($productIdentifier, $normalized, 300); // Short cache
+
             return $normalized;
         }
 
@@ -177,7 +180,7 @@ final class NoonAdapter extends StoreAdapter
      */
     public function searchProducts(string $query, array $options = []): array
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             return [];
         }
 
@@ -198,7 +201,7 @@ final class NoonAdapter extends StoreAdapter
             $products = $response['products'];
 
             return array_values(array_map(
-                fn(array $product): array => $this->normalizeNoonData($product),
+                fn (array $product): array => $this->normalizeNoonData($product),
                 $products
             ));
         }
@@ -300,6 +303,4 @@ final class NoonAdapter extends StoreAdapter
             default => 'noon.com',
         };
     }
-
-
 }

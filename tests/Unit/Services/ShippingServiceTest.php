@@ -98,7 +98,7 @@ final class ShippingServiceTest extends TestCase
     {
         // Create a valid address first (database constraints require non-null values)
         $invalidAddress = Address::factory()->create();
-        
+
         // Then set invalid values for testing validation (without saving to DB)
         $invalidAddress->street = '';
         $invalidAddress->city = '';

@@ -24,7 +24,7 @@ class ProductUpdateRequest extends FormRequest
         if ($this->priceChangeValidator === null) {
             $this->priceChangeValidator = app(PriceChangeValidator::class);
         }
-        
+
         return $this->priceChangeValidator;
     }
 
@@ -34,17 +34,17 @@ class ProductUpdateRequest extends FormRequest
     public function authorize(): bool
     {
         $user = $this->user();
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
         $productId = $this->route('id');
-        if (!$productId) {
+        if (! $productId) {
             return false;
         }
 
         $product = Product::find($productId);
-        if (!$product) {
+        if (! $product) {
             // Product not found - let the controller handle 404
             return true;
         }
@@ -58,8 +58,8 @@ class ProductUpdateRequest extends FormRequest
     protected function failedAuthorization(): void
     {
         $user = $this->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             // Unauthenticated - return 401
             throw new \Illuminate\Http\Exceptions\HttpResponseException(
                 response()->json([
@@ -71,16 +71,16 @@ class ProductUpdateRequest extends FormRequest
                     'security' => [
                         'attempt_logged' => true,
                         'ip_address' => request()->ip() ?? 'unknown',
-                        'user_agent_logged' => !empty(request()->userAgent()),
+                        'user_agent_logged' => ! empty(request()->userAgent()),
                     ],
                 ], 401)
             );
         }
-        
+
         // Authenticated but not authorized - return 403
         $productId = $this->route('id');
         $product = $productId ? Product::find($productId) : null;
-        
+
         $requiredPermission = 'update';
         $userPermissions = [];
         if (is_object($user->role) && method_exists($user->role, 'permissions')) {
@@ -88,7 +88,7 @@ class ProductUpdateRequest extends FormRequest
         } elseif (is_array($user->permissions ?? null)) {
             $userPermissions = $user->permissions;
         }
-        
+
         throw new \Illuminate\Http\Exceptions\HttpResponseException(
             response()->json([
                 'success' => false,

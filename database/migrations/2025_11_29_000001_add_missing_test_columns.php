@@ -15,10 +15,10 @@ return new class () extends Migration {
         // Add missing columns to price_offers table
         if (Schema::hasTable('price_offers')) {
             Schema::table('price_offers', static function (Blueprint $table): void {
-                if (!Schema::hasColumn('price_offers', 'description')) {
+                if (! Schema::hasColumn('price_offers', 'description')) {
                     $table->text('description')->nullable()->after('specifications');
                 }
-                if (!Schema::hasColumn('price_offers', 'status')) {
+                if (! Schema::hasColumn('price_offers', 'status')) {
                     $table->string('status', 50)->default('active')->after('description');
                 }
             });
@@ -27,16 +27,16 @@ return new class () extends Migration {
         // Add missing columns to price_histories table
         if (Schema::hasTable('price_histories')) {
             Schema::table('price_histories', static function (Blueprint $table): void {
-                if (!Schema::hasColumn('price_histories', 'recorded_at')) {
+                if (! Schema::hasColumn('price_histories', 'recorded_at')) {
                     // Check if we should add it or if captured_at/effective_date exists
-                    if (!Schema::hasColumn('price_histories', 'recorded_at')) {
+                    if (! Schema::hasColumn('price_histories', 'recorded_at')) {
                         $table->timestamp('recorded_at')->nullable()->after('price');
                     }
                 }
-                if (!Schema::hasColumn('price_histories', 'currency')) {
+                if (! Schema::hasColumn('price_histories', 'currency')) {
                     $table->string('currency', 3)->default('USD')->after('recorded_at');
                 }
-                if (!Schema::hasColumn('price_histories', 'old_price')) {
+                if (! Schema::hasColumn('price_histories', 'old_price')) {
                     $table->decimal('old_price', 10, 2)->nullable()->after('currency');
                 }
             });
@@ -45,13 +45,13 @@ return new class () extends Migration {
         // Add missing columns to users table for ban tracking
         if (Schema::hasTable('users')) {
             Schema::table('users', static function (Blueprint $table): void {
-                if (!Schema::hasColumn('users', 'banned_by')) {
+                if (! Schema::hasColumn('users', 'banned_by')) {
                     $table->foreignId('banned_by')->nullable()->after('banned_at')->constrained('users')->nullOnDelete();
                 }
-                if (!Schema::hasColumn('users', 'unbanned_at')) {
+                if (! Schema::hasColumn('users', 'unbanned_at')) {
                     $table->timestamp('unbanned_at')->nullable()->after('banned_by');
                 }
-                if (!Schema::hasColumn('users', 'unbanned_by')) {
+                if (! Schema::hasColumn('users', 'unbanned_by')) {
                     $table->foreignId('unbanned_by')->nullable()->after('unbanned_at')->constrained('users')->nullOnDelete();
                 }
             });
@@ -81,7 +81,7 @@ return new class () extends Migration {
                 if (Schema::hasColumn('price_histories', 'old_price')) {
                     $columnsToDrop[] = 'old_price';
                 }
-                if (!empty($columnsToDrop)) {
+                if (! empty($columnsToDrop)) {
                     $table->dropColumn($columnsToDrop);
                 }
             });
@@ -96,4 +96,3 @@ return new class () extends Migration {
         }
     }
 };
-

@@ -6,7 +6,6 @@ namespace Tests\Unit\Services;
 
 use App\Models\AnalyticsEvent;
 use App\Services\AnalyticsService;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -211,11 +210,11 @@ final class AnalyticsServiceEdgeCaseTest extends TestCase
         // AnalyticsService uses Eloquent (AnalyticsEvent::where(...)->delete()), not DB facade
         // So mocking DB facade won't work. Instead, we need to let it run and handle exceptions naturally
         // Or we can use a database transaction that will fail
-        
+
         // The service will use Eloquent, so if there's a lock timeout, it will be caught in try-catch
         // For this test, we'll just verify the method runs without crashing
         // In a real scenario, lock timeout would be caught and logged
-        
+
         try {
             $result = $this->analyticsService->cleanOldData(365);
             // If it succeeds, result should be 0 or 5 (depending on deletion)
@@ -315,7 +314,7 @@ final class AnalyticsServiceEdgeCaseTest extends TestCase
         // Since we can't easily mock static AnalyticsEvent::create(),
         // we'll test the error handling path by using invalid data that will cause a database error
         // In a real scenario, this would be a read-only database, but for testing we'll use FK constraint
-        
+
         Log::shouldReceive('warning')->zeroOrMoreTimes();
 
         // Try with non-existent foreign keys to trigger database error
@@ -338,7 +337,7 @@ final class AnalyticsServiceEdgeCaseTest extends TestCase
         // Since we can't easily mock static AnalyticsEvent::create(),
         // we'll test the error handling path by using invalid data that will cause a database error
         // In a real scenario, this would be disk space exhaustion, but for testing we'll use FK constraint
-        
+
         Log::shouldReceive('warning')->zeroOrMoreTimes();
 
         // Try with non-existent foreign keys to trigger database error

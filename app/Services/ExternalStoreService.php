@@ -56,17 +56,17 @@ final readonly class ExternalStoreService
             $externalId = $result['external_id'] ?? null;
             $storeName = $result['store_name'] ?? '';
             $name = $result['name'] ?? '';
-            
+
             if ($externalId !== null) {
                 // Use external_id as the key (same product from different stores)
-                if (!isset($seen[$externalId])) {
+                if (! isset($seen[$externalId])) {
                     $seen[$externalId] = true;
                     $uniqueResults[] = $result;
                 }
             } else {
                 // For products without external_id, use name+store_name as key
                 $key = $name . '_' . $storeName;
-                if (!isset($seen[$key])) {
+                if (! isset($seen[$key])) {
                     $seen[$key] = true;
                     $uniqueResults[] = $result;
                 }
@@ -132,12 +132,12 @@ final readonly class ExternalStoreService
     public function getStoreStatus(): array
     {
         $status = [];
-        
+
         // Ensure storeConfigs is an array and not empty
-        if (empty($this->storeConfigs) || !is_array($this->storeConfigs)) {
+        if (empty($this->storeConfigs) || ! is_array($this->storeConfigs)) {
             return [];
         }
-        
+
         foreach (array_keys($this->storeConfigs) as $storeName) {
             try {
                 $client = $this->storeClientFactory->create($storeName);
@@ -234,7 +234,7 @@ final readonly class ExternalStoreService
             ['name' => 'External Products'],
             ['slug' => 'external-products', 'is_active' => true]
         );
-        
+
         $defaultCategory = \App\Models\Category::firstOrCreate(
             ['name' => 'External'],
             ['slug' => 'external', 'is_active' => true, 'level' => 0]
@@ -250,7 +250,7 @@ final readonly class ExternalStoreService
         $baseSlug = \Illuminate\Support\Str::slug($normalizedData['name'] ?? 'product');
         $slug = $baseSlug;
         $slugCounter = 1;
-        
+
         // Check if slug already exists for a different product (same store)
         while (Product::where('slug', $slug)
             ->where('store_id', $store->id)
@@ -292,6 +292,7 @@ final readonly class ExternalStoreService
                 'store' => $storeName,
                 'exception' => $e,
             ]);
+
             throw $e;
         } finally {
             Product::reguard();

@@ -51,13 +51,13 @@ final class OrderItemTest extends TestCase
         // We only check for the explicitly defined casts and don't assert the entire array
         self::assertArrayHasKey('product_details', $actualCasts);
         self::assertSame('array', $actualCasts['product_details']);
-        
+
         self::assertArrayHasKey('price', $actualCasts);
         self::assertSame('decimal:2', $actualCasts['price']);
-        
+
         self::assertArrayHasKey('total', $actualCasts);
         self::assertSame('decimal:2', $actualCasts['total']);
-        
+
         // Verify that id is not explicitly in $casts property (it may be added by Laravel automatically)
         $reflection = new \ReflectionClass($orderItem);
         $castsProperty = $reflection->getProperty('casts');

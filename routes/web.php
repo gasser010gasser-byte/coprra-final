@@ -109,12 +109,12 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // Static Pages
-Route::get('/about', fn () => view('about'))->name('about');
+Route::get('/about', fn() => view('about'))->name('about');
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
-Route::get('/privacy', fn () => view('privacy'))->name('privacy');
-Route::get('/terms', fn () => view('terms'))->name('terms');
-Route::get('/faq', fn () => view('faq'))->name('faq');
+Route::get('/privacy', fn() => view('privacy'))->name('privacy');
+Route::get('/terms', fn() => view('terms'))->name('terms');
+Route::get('/faq', fn() => view('faq'))->name('faq');
 Route::get('/stores', [\App\Http\Controllers\StoresController::class, 'index'])->name('stores.index');
 
 // Dashboard route expected by tests
@@ -223,7 +223,7 @@ Route::middleware('web')->group(static function (): void {
 
 Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin')->name('admin.')->group(static function (): void {
     // Root admin route - redirect to dashboard
-    Route::get('/', fn () => redirect()->route('admin.dashboard'));
+    Route::get('/', fn() => redirect()->route('admin.dashboard'));
 
     // Dashboard and basic management pages
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -319,11 +319,13 @@ if (config('app.env') !== 'production') {
     })->name('public-test-ai');
 
     Route::middleware('auth')->get('/auth-test-ai', static function () {
-        return response()->json(['success' => true, 'message' => 'Auth test OK', 'user' => auth()->user()->email]);
+        $user = auth()->user();
+        return response()->json(['success' => true, 'message' => 'Auth test OK', 'user' => $user?->email ?? 'unknown']);
     })->name('auth-test-ai');
 
     Route::middleware('auth')->get('/ai-status-simple', static function () {
-        return response()->json(['success' => true, 'message' => 'AI status OK', 'user' => auth()->user()->email]);
+        $user = auth()->user();
+        return response()->json(['success' => true, 'message' => 'AI status OK', 'user' => $user?->email ?? 'unknown']);
     });
 
     Route::middleware('auth')->get('/test-ai-status', static function () {

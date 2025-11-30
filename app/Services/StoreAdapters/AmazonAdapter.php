@@ -76,7 +76,7 @@ final class AmazonAdapter extends StoreAdapter
                 'Accept-Language' => 'en-US,en;q=0.5',
             ])->get($url);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return null;
             }
 
@@ -100,7 +100,7 @@ final class AmazonAdapter extends StoreAdapter
             preg_match('/"large":"(https:\/\/[^"]+\.jpg)"/', $html, $imgMatches);
             $image = $imgMatches[1] ?? null;
 
-            if (!$title) {
+            if (! $title) {
                 return null; // Failed to parse essential data
             }
 
@@ -140,6 +140,7 @@ final class AmazonAdapter extends StoreAdapter
                 'asin' => $asin,
                 'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
@@ -162,6 +163,7 @@ final class AmazonAdapter extends StoreAdapter
         if ($scrapedData) {
             $normalized = $this->normalizeAmazonData($scrapedData);
             $this->cacheProduct($productIdentifier, $normalized, 3600);
+
             return $normalized;
         }
 
@@ -171,6 +173,7 @@ final class AmazonAdapter extends StoreAdapter
             $normalized = $this->normalizeAmazonData($dummyData);
             // Cache dummy data for a shorter time to retry scraping sooner
             $this->cacheProduct($productIdentifier, $normalized, 300);
+
             return $normalized;
         }
 
@@ -197,7 +200,7 @@ final class AmazonAdapter extends StoreAdapter
                     'DisplayValues' => [
                         'This is a placeholder because live scraping failed.',
                         'Please check your network or try again later.',
-                    ]
+                    ],
                 ],
             ],
             'Images' => [
@@ -235,7 +238,7 @@ final class AmazonAdapter extends StoreAdapter
 
     public function search(string $query, int $limit = 10): array
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             return [];
         }
 

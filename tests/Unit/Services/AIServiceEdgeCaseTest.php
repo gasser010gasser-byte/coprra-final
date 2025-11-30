@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Services;
 
 use App\Services\AI\Services\AIImageAnalysisService;
-use App\Services\AIService;
 use App\Services\AI\Services\AITextAnalysisService;
+use App\Services\AIService;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;

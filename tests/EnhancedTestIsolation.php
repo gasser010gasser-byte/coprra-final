@@ -288,7 +288,7 @@ trait EnhancedTestIsolation
         // Create isolated temporary directory
         $tempDir = sys_get_temp_dir() . '/test_isolation_' . uniqid();
         if (! is_dir($tempDir)) {
-            if (!@mkdir($tempDir, 0755, true) && !is_dir($tempDir)) {
+            if (! @mkdir($tempDir, 0755, true) && ! is_dir($tempDir)) {
                 // Directory creation failed, skip isolation setup
                 return;
             }
@@ -417,7 +417,7 @@ trait EnhancedTestIsolation
 
                 // Clear all cache stores
                 $stores = (\function_exists('app') && app()->bound('config')) ? config('cache.stores', []) : [];
-                if (is_array($stores) && !empty($stores)) {
+                if (is_array($stores) && ! empty($stores)) {
                     foreach ($stores as $store => $config) {
                         try {
                             Cache::store($store)->flush();

@@ -77,19 +77,19 @@ final class DataAccuracyTest extends TestCase
         // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹ Ø§Ù„ÙƒÙ„ÙŠ
         $expectedTotal = (75.99 * 3) + (149.50 * 2);
         $order = $order->fresh();
-        
+
         // Calculate total from order items
         $calculatedTotal = $order->items->sum(function ($item) {
             return ($item->total ?? $item->price * $item->quantity) ?? 0;
         });
-        
+
         // Update order total_amount if it doesn't match
         if ($order->total_amount === null || abs((float)$order->total_amount - $calculatedTotal) > 0.01) {
             $order->total_amount = $calculatedTotal;
             $order->save();
             $order = $order->fresh();
         }
-        
+
         $actualTotal = (float) ($order->total_amount ?? $calculatedTotal ?? 0);
         // Ensure we have a valid numeric value before rounding
         $actualTotal = $actualTotal !== null && is_numeric($actualTotal) ? $actualTotal : 0.0;

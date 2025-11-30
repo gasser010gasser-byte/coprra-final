@@ -61,7 +61,7 @@ final class AdminController extends Controller
         if (! $user || ! method_exists($user, 'hasRole')) {
             abort(403, 'Access denied. Admin privilege required.');
         }
-        
+
         // Check if user is admin or super_admin (not moderator)
         $isAdmin = $user->hasRole('admin') || $user->hasRole('super_admin');
         if (! $isAdmin) {
@@ -207,7 +207,7 @@ final class AdminController extends Controller
 
         // Check if user has system.settings permission (only super_admin should have this)
         // For now, check if role is super_admin
-        $hasPermission = $user->role === 'super_admin' || 
+        $hasPermission = $user->role === 'super_admin' ||
             (is_object($user->role) && method_exists($user->role, 'hasPermission') && $user->role->hasPermission('system.settings'));
 
         if (! $hasPermission) {

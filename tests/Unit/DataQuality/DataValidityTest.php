@@ -44,7 +44,7 @@ final class DataValidityTest extends TestCase
             $invalidUser = User::factory()->create([
                 'email' => 'invalid-email', // Missing @ symbol
             ]);
-            
+
             // If no exception was thrown, skip this test as database constraints are not enforced
             self::markTestSkipped('Database email format constraints are not enforced');
         } catch (QueryException $e) {
@@ -67,7 +67,7 @@ final class DataValidityTest extends TestCase
             $invalidUser = User::factory()->create([
                 'phone' => 'invalid-phone', // Doesn't match +[0-9]* pattern
             ]);
-            
+
             // If no exception was thrown, skip this test as database constraints are not enforced
             self::markTestSkipped('Database phone format constraints are not enforced');
         } catch (QueryException $e) {

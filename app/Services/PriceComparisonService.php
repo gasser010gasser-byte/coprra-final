@@ -28,7 +28,7 @@ final readonly class PriceComparisonService
 
         // Check if store_mappings is valid array
         // Laravel cast 'array' may convert null to empty array [], so check both
-        if (!\is_array($storeMappings) || empty($storeMappings)) {
+        if (! \is_array($storeMappings) || empty($storeMappings)) {
             // If store_mappings is null, not an array, or empty array, return empty array
             // Do NOT try to fetch from available adapters in this case
             return $prices;

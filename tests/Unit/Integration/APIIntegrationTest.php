@@ -781,7 +781,7 @@ final class APIIntegrationTest extends TestCase
             'message',
             'error_code',
         ]);
-        
+
         // Verify 'error_code' exists in response
         $json = $response->json();
         self::assertArrayHasKey('error_code', $json);
@@ -824,7 +824,7 @@ final class APIIntegrationTest extends TestCase
             'message',
             'error_code',
         ]);
-        
+
         $json = $response->json();
         self::assertFalse($json['success']);
         self::assertSame('FORBIDDEN', $json['error_code']);
@@ -1533,7 +1533,7 @@ final class APIIntegrationTest extends TestCase
             $json = $response->json();
             self::assertArrayHasKey('success', $json);
             self::assertFalse($json['success']);
-            
+
             $errors = $response->json('errors');
             self::assertIsArray($errors);
         } elseif (500 === $response->getStatusCode()) {
@@ -1662,7 +1662,7 @@ final class APIIntegrationTest extends TestCase
 
         $products = $response->json('data');
         // Products may be empty, but if product was created, it should be in the list
-        if (!empty($products)) {
+        if (! empty($products)) {
             $workflowProduct = collect($products)->firstWhere('id', $product->id);
             if ($workflowProduct) {
                 self::assertSame('Comprehensive Workflow Test Product', $workflowProduct['name']);

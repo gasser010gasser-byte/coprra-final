@@ -70,7 +70,7 @@ class ExchangeRate extends Model
      */
     public function isStale(): bool
     {
-        if (!$this->fetched_at) {
+        if (! $this->fetched_at) {
             return true;
         }
 

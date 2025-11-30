@@ -15,17 +15,17 @@ class CategoryObserver
     public function creating(Category $category): void
     {
         // Generate slug if not set
-        if (empty($category->slug) && !empty($category->name)) {
+        if (empty($category->slug) && ! empty($category->name)) {
             $baseSlug = Str::slug($category->name);
             $slug = $baseSlug;
             $count = 1;
-            
+
             // Ensure slug is unique
             while (Category::where('slug', $slug)->where('id', '!=', $category->id ?? 0)->exists()) {
                 $slug = "{$baseSlug}-{$count}";
                 ++$count;
             }
-            
+
             $category->slug = $slug;
         }
 
@@ -46,17 +46,17 @@ class CategoryObserver
     public function updating(Category $category): void
     {
         // Update slug if name changed
-        if ($category->isDirty('name') && !empty($category->name)) {
+        if ($category->isDirty('name') && ! empty($category->name)) {
             $baseSlug = Str::slug($category->name);
             $slug = $baseSlug;
             $count = 1;
-            
+
             // Ensure slug is unique
             while (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
                 $slug = "{$baseSlug}-{$count}";
                 ++$count;
             }
-            
+
             $category->slug = $slug;
         }
 

@@ -1,6 +1,5 @@
 includes:
-    - ./vendor/nunomaduro/larastan/extension.neon
-    - phpstan-baseline.neon
+    - vendor/larastan/larastan/extension.neon
 
 parameters:
     level: 5
@@ -10,12 +9,10 @@ parameters:
         - database
         - routes
     
-    # Exclude paths that often contain code beyond our control
     excludePaths:
         - app/Console/Kernel.php
         - app/Http/Kernel.php
-        - app/Providers/RouteServiceProvider.php
-
-    # Ignore specific, common errors to focus on more critical issues first
+    
     ignoreErrors:
-        - '#PHPDoc tag @var#'
+        # Add known errors to ignore temporarily
+

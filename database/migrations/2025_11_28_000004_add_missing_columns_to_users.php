@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('users', static function (Blueprint $table): void {
-            if (!Schema::hasColumn('users', 'permissions')) {
+            if (! Schema::hasColumn('users', 'permissions')) {
                 $table->json('permissions')->nullable()->after('role');
             }
         });
@@ -29,4 +29,3 @@ return new class () extends Migration {
         });
     }
 };
-

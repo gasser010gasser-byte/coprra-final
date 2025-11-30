@@ -380,7 +380,7 @@ class Product extends Model
 
         // Get the oldest price from price history
         $oldestPriceHistory = $this->priceHistory()->orderBy('recorded_at', 'asc')->first();
-        if (!$oldestPriceHistory) {
+        if (! $oldestPriceHistory) {
             return false;
         }
 
@@ -432,7 +432,7 @@ class Product extends Model
                 // Use attributes array directly for reliable access during created event
                 $price = $product->attributes['price'] ?? $product->getAttribute('price') ?? null;
                 $priceFloat = $price !== null && $price !== '' ? (float) $price : null;
-                
+
                 if ($priceFloat !== null && $priceFloat > 0) {
                     PriceHistory::create([
                         'product_id' => $product->id,
@@ -458,19 +458,19 @@ class Product extends Model
         static::updated(static function (self $product): void {
             try {
                 // Check if price was changed
-                if (!$product->wasChanged('price')) {
+                if (! $product->wasChanged('price')) {
                     return;
                 }
-                
+
                 // Get old and new prices
                 $oldPrice = $product->getOriginal('price');
                 // Use attributes array directly for reliable access during updated event
                 $newPrice = $product->attributes['price'] ?? $product->getAttribute('price') ?? null;
-                
+
                 // Convert to float for comparison
                 $oldPriceFloat = $oldPrice !== null && $oldPrice !== '' ? (float) $oldPrice : null;
                 $newPriceFloat = $newPrice !== null && $newPrice !== '' ? (float) $newPrice : null;
-                
+
                 // Create price history if price actually changed and new price is valid
                 if ($newPriceFloat !== null && $newPriceFloat > 0 && $oldPriceFloat !== $newPriceFloat) {
                     PriceHistory::create([

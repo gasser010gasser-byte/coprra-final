@@ -30,7 +30,7 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
         $this->mockAuditService = \Mockery::mock(AuditService::class);
         $this->service = new FinancialTransactionService($this->mockAuditService);
     }
-    
+
     protected function tearDown(): void
     {
         \Mockery::close();
@@ -156,7 +156,7 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
             ->once()
             ->with(\Mockery::type(PriceOffer::class))
             ->andReturnNull();
-        
+
         // Mock audit service for product price update (called by updateProductPriceFromOffer)
         $this->mockAuditService->shouldReceive('logUpdated')
             ->once()
@@ -222,7 +222,7 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
             ->once()
             ->with(\Mockery::type(PriceOffer::class), \Mockery::type('array'))
             ->andReturnNull();
-        
+
         // Mock audit service for product price update (called by updateProductPriceFromOffer)
         $this->mockAuditService->shouldReceive('logUpdated')
             ->once()
@@ -284,7 +284,7 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
             ->once()
             ->with(\Mockery::type(PriceOffer::class))
             ->andReturnNull();
-        
+
         // Mock audit service for product price update (called after deletion)
         $this->mockAuditService->shouldReceive('logUpdated')
             ->once()
@@ -416,7 +416,7 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
             ->once()
             ->with(\Mockery::type(PriceOffer::class))
             ->andReturnNull();
-        
+
         // Mock audit service for product price update (called by updateProductPriceFromOffer)
         $this->mockAuditService->shouldReceive('logUpdated')
             ->once()
@@ -432,7 +432,7 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
         // Verify offer was created
         self::assertNotNull($offer, 'Offer should be created');
         self::assertInstanceOf(PriceOffer::class, $offer);
-        
+
         // Log::info may be called multiple times (once for offer creation, potentially once for price update)
         // So we check that at least the offer creation log was called
         Log::shouldHaveReceived('info')
@@ -520,7 +520,7 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
             ->once()
             ->with(\Mockery::type(PriceOffer::class))
             ->andReturnNull();
-        
+
         // Mock audit service for product price update (called by updateProductPriceFromOffer)
         $this->mockAuditService->shouldReceive('logUpdated')
             ->once()
@@ -555,7 +555,7 @@ final class FinancialTransactionServiceSecurityTest extends TestCase
             ->once()
             ->with(\Mockery::type(PriceOffer::class))
             ->andReturnNull();
-        
+
         // Mock audit service for product price update (called by updateProductPriceFromOffer)
         $this->mockAuditService->shouldReceive('logUpdated')
             ->once()

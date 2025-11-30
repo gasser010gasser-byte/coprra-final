@@ -130,9 +130,9 @@ class AITextAnalysisService
             // Handle test compatibility: if first arg is int, treat as user_id
             $prefs = \is_int($userPreferences) ? ['user_id' => $userPreferences] : $userPreferences;
             // Handle test compatibility: if second arg is not empty and first element is not Product, treat as options
-            $prods = (!empty($products) && !($products[0] instanceof \App\Models\Product)) ? [] : $products;
-            $opts = (!empty($products) && !($products[0] instanceof \App\Models\Product)) ? array_merge($products, $options) : $options;
-            
+            $prods = (! empty($products) && ! ($products[0] instanceof \App\Models\Product)) ? [] : $products;
+            $opts = (! empty($products) && ! ($products[0] instanceof \App\Models\Product)) ? array_merge($products, $options) : $options;
+
             $userPrompt = $this->promptManager->getRecommendationPrompt($prefs, $prods);
             $messages = $this->promptManager->buildMessages('recommendation_engine', $userPrompt);
 

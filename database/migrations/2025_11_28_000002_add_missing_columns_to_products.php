@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('products', static function (Blueprint $table): void {
-            if (!Schema::hasColumn('products', 'sku')) {
+            if (! Schema::hasColumn('products', 'sku')) {
                 $table->string('sku', 100)->nullable()->unique()->after('slug');
             }
         });
@@ -29,4 +29,3 @@ return new class () extends Migration {
         });
     }
 };
-

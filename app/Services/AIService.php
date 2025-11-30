@@ -56,13 +56,14 @@ final class AIService implements AIServiceInterface
                     try {
                         $result = $this->textAnalysisService->analyzeSentiment($text, $options);
                         // Validate response is an array
-                        if (!is_array($result)) {
+                        if (! is_array($result)) {
                             throw new \TypeError('Expected array response, got '.gettype($result));
                         }
                         // Check for empty response
                         if (empty($result)) {
                             throw new \RuntimeException('Empty API response received');
                         }
+
                         return $result;
                     } catch (\Mockery\Exception\BadMethodCallException $e) {
                         // If analyzeSentiment expectation not set, fall back to analyzeText
@@ -78,6 +79,7 @@ final class AIService implements AIServiceInterface
                         throw new \RuntimeException('Malformed API response: '.$e->getMessage());
                     }
                 }
+
                 return $this->textAnalysisService->analyzeText($text, $options);
             });
 
@@ -123,7 +125,7 @@ final class AIService implements AIServiceInterface
             });
 
             // Validate response
-            if (!isset($result['confidence'])) {
+            if (! isset($result['confidence'])) {
                 throw new \RuntimeException('Incomplete response: missing confidence field');
             }
             if (isset($result['confidence']) && ($result['confidence'] < 0 || $result['confidence'] > 1)) {
@@ -169,9 +171,9 @@ final class AIService implements AIServiceInterface
         if (\is_int($userPreferences)) {
             $userPreferences = ['user_id' => $userPreferences];
         }
-        
+
         // Handle test compatibility: if second argument is not array of Products, treat it as options
-        if (!empty($products) && (!isset($products[0]) || !($products[0] instanceof Product))) {
+        if (! empty($products) && (! isset($products[0]) || ! ($products[0] instanceof Product))) {
             $options = array_merge($products, $options);
             $products = [];
         }
@@ -184,25 +186,26 @@ final class AIService implements AIServiceInterface
 
         try {
             $result = $this->circuitBreaker->execute('ai_recommendations', function () use ($userPreferences, $products, $options) {
-                // For test compatibility: if first arg is int and second is array (not Products), 
+                // For test compatibility: if first arg is int and second is array (not Products),
                 // pass them directly to match test expectations (mock expects (int, array))
-                if (\is_int($userPreferences) && \is_array($products) && (!empty($products) && !($products[0] instanceof Product))) {
+                if (\is_int($userPreferences) && \is_array($products) && (! empty($products) && ! ($products[0] instanceof Product))) {
                     // Try to call with test expectations first
                     try {
                         return $this->textAnalysisService->generateRecommendations($userPreferences, $products);
                     } catch (\TypeError $e) {
                         // If type error, convert and try again
                         $prefs = ['user_id' => $userPreferences];
+
                         return $this->textAnalysisService->generateRecommendations($prefs, [], $products);
                     } catch (\Mockery\Exception\NoMatchingExpectationException $e) {
                         // If expectation doesn't match, fall back to normal processing
                     }
                 }
-                
+
                 // Normal processing: Ensure userPreferences is array
                 $prefs = \is_array($userPreferences) ? $userPreferences : ['user_id' => $userPreferences];
                 // Ensure products is array (for test compatibility, if second arg is not array of Products, treat as empty)
-                $prods = \is_array($products) && (!empty($products) && ($products[0] instanceof Product)) ? $products : [];
+                $prods = \is_array($products) && (! empty($products) && ($products[0] instanceof Product)) ? $products : [];
                 $result = $this->textAnalysisService->generateRecommendations($prefs, $prods, $options);
 
                 // Enhanced recommendation processing
@@ -291,7 +294,7 @@ final class AIService implements AIServiceInterface
                 // Extract prompt from options if it exists
                 $prompt = null;
                 $opts = [];
-                
+
                 if (\is_string($options)) {
                     $prompt = $options;
                 } elseif (\is_array($options)) {
@@ -299,7 +302,7 @@ final class AIService implements AIServiceInterface
                     unset($options['prompt']);
                     $opts = $options;
                 }
-                
+
                 return $this->imageAnalysisService->analyzeImage($imagePath, $prompt, $opts);
             });
 
@@ -348,6 +351,7 @@ final class AIService implements AIServiceInterface
                 if (method_exists($this->textAnalysisService, 'analyzeSentiment')) {
                     return $this->textAnalysisService->analyzeSentiment($text, $options);
                 }
+
                 return $this->textAnalysisService->analyzeText($text, array_merge($options, ['type' => 'sentiment']));
             });
 
@@ -393,11 +397,12 @@ final class AIService implements AIServiceInterface
                 if (method_exists($this->textAnalysisService, 'classifyText')) {
                     return $this->textAnalysisService->classifyText($text, $options);
                 }
+
                 return $this->textAnalysisService->analyzeText($text, array_merge($options, ['type' => 'classification']));
             });
 
             // Validate response
-            if (!isset($result['confidence'])) {
+            if (! isset($result['confidence'])) {
                 throw new \RuntimeException('Incomplete response: missing confidence field');
             }
 
@@ -440,6 +445,7 @@ final class AIService implements AIServiceInterface
         try {
             $result = $this->circuitBreaker->execute('ai_ocr', function () use ($imagePath, $options) {
                 $extractOptions = array_merge($options, ['extract_text' => true]);
+
                 return $this->imageAnalysisService->analyzeImage($imagePath, null, $extractOptions);
             });
 

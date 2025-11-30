@@ -90,12 +90,12 @@ final readonly class FinancialTransactionService
             $offerData['is_available'] = isset($offerData['is_available']) ? $offerData['is_available'] : true;
 
             $offerData['status'] = 'active';
-            
+
             // Trim description if present
             if (isset($offerData['description']) && is_string($offerData['description'])) {
                 $offerData['description'] = trim($offerData['description']);
             }
-            
+
             $newOffer = PriceOffer::query()->create($offerData);
 
             $this->logOfferCreation($newOffer);
@@ -158,7 +158,7 @@ final readonly class FinancialTransactionService
                     $newPrice = (float) $lowestOffer->price;
                     $product->update(['price' => $newPrice]);
                     $this->logPriceUpdate($product, $oldPrice, $newPrice, 'Updated from price offer deletion');
-                } elseif (!$lowestOffer) {
+                } elseif (! $lowestOffer) {
                     // No offers left, keep current price or set to original price
                     // For now, we'll keep the current price
                 }
@@ -170,7 +170,7 @@ final readonly class FinancialTransactionService
 
     private function validatePrice(float $price): void
     {
-        if (!is_finite($price) || is_nan($price)) {
+        if (! is_finite($price) || is_nan($price)) {
             throw ValidationException::invalidField('price', $price, 'Price must be a valid finite number');
         }
 
@@ -209,15 +209,15 @@ final readonly class FinancialTransactionService
 
         // Accept either new_price or price for validation
         $priceKey = isset($offerData['new_price']) ? 'new_price' : (isset($offerData['price']) ? 'price' : null);
-        
+
         if (! $priceKey) {
             throw ValidationException::missingField('new_price');
         }
 
         $priceValue = (float) $offerData[$priceKey];
-        
+
         // Use the same validation as validatePrice
-        if (!is_finite($priceValue) || is_nan($priceValue)) {
+        if (! is_finite($priceValue) || is_nan($priceValue)) {
             throw ValidationException::invalidField('new_price', $priceValue, 'Price must be a valid finite number');
         }
 
@@ -245,13 +245,13 @@ final readonly class FinancialTransactionService
     {
         // Check both new_price and price fields for validation
         $priceKey = isset($updateData['new_price']) ? 'new_price' : (isset($updateData['price']) ? 'price' : null);
-        
+
         if ($priceKey) {
             $priceValue = (float) $updateData[$priceKey];
-            if (!is_numeric($updateData[$priceKey]) || $priceValue < 0) {
+            if (! is_numeric($updateData[$priceKey]) || $priceValue < 0) {
                 throw ValidationException::invalidField($priceKey, $updateData[$priceKey], 'Must be a positive number');
             }
-            
+
             // Also check maximum price limit
             if ($priceValue > 1000000) {
                 throw ValidationException::invalidField($priceKey, $priceValue, 'Price exceeds maximum allowed value of 1,000,000');

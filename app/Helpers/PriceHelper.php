@@ -18,7 +18,7 @@ final class PriceHelper
 
         $symbol = self::getCurrencySymbol($currencyCode);
         $formatted = number_format(abs($price), 2);
-        
+
         // Handle negative prices: put minus sign before currency symbol
         if ($price < 0) {
             return '-'.$symbol.$formatted;
@@ -141,13 +141,13 @@ final class PriceHelper
      */
     public function isValidPrice(mixed $price): bool
     {
-        if (!is_numeric($price)) {
+        if (! is_numeric($price)) {
             return false;
         }
 
         $priceFloat = (float) $price;
 
-        return $priceFloat >= 0 && is_finite($priceFloat) && !is_nan($priceFloat);
+        return $priceFloat >= 0 && is_finite($priceFloat) && ! is_nan($priceFloat);
     }
 
     /**

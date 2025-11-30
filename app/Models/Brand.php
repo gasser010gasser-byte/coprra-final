@@ -128,16 +128,16 @@ class Brand extends ValidatableModel
     public function setNameAttribute($value): void
     {
         $this->attributes['name'] = $value;
-        
+
         // Auto-generate slug if:
         // 1. Slug is not explicitly set, OR
         // 2. Name is being changed (dirty)
         $slug = $this->attributes['slug'] ?? null;
-        $nameChanged = $this->isDirty('name') || !isset($this->original['name']) || ($this->original['name'] ?? null) !== $value;
-        
-        if ((empty($slug) || $nameChanged) && !empty($value) && is_string($value)) {
+        $nameChanged = $this->isDirty('name') || ! isset($this->original['name']) || ($this->original['name'] ?? null) !== $value;
+
+        if ((empty($slug) || $nameChanged) && ! empty($value) && is_string($value)) {
             $generatedSlug = str($value)->slug()->toString();
-            if (!empty($generatedSlug)) {
+            if (! empty($generatedSlug)) {
                 $this->attributes['slug'] = $generatedSlug;
             }
         }
@@ -149,21 +149,23 @@ class Brand extends ValidatableModel
     public function setSlugAttribute($value): void
     {
         // If slug is explicitly provided (and not null/empty), use it
-        if (!empty($value) && $value !== null && $value !== '') {
+        if (! empty($value) && $value !== null && $value !== '') {
             $this->attributes['slug'] = $value;
+
             return;
         }
-        
+
         // Otherwise, generate from name if name is available
         $name = $this->attributes['name'] ?? $this->name ?? null;
-        if (!empty($name) && is_string($name)) {
+        if (! empty($name) && is_string($name)) {
             $generatedSlug = str($name)->slug()->toString();
-            if (!empty($generatedSlug)) {
+            if (! empty($generatedSlug)) {
                 $this->attributes['slug'] = $generatedSlug;
+
                 return;
             }
         }
-        
+
         // If no name or slug generation failed, set to null (for nullable column)
         $this->attributes['slug'] = null;
     }

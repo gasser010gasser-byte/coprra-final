@@ -14,10 +14,10 @@ return new class () extends Migration {
     {
         if (Schema::hasTable('price_offers')) {
             Schema::table('price_offers', static function (Blueprint $table): void {
-                if (!Schema::hasColumn('price_offers', 'description')) {
+                if (! Schema::hasColumn('price_offers', 'description')) {
                     $table->text('description')->nullable()->after('specifications');
                 }
-                if (!Schema::hasColumn('price_offers', 'status')) {
+                if (! Schema::hasColumn('price_offers', 'status')) {
                     $table->string('status', 50)->default('active')->after('description');
                 }
             });
@@ -41,4 +41,3 @@ return new class () extends Migration {
         }
     }
 };
-

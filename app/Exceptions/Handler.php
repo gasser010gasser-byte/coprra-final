@@ -90,7 +90,7 @@ class Handler extends ExceptionHandler
                 'trace' => collect($e->getTrace())->take(5)->toArray(),
             ], 500);
         }
-        
+
         return match (true) {
             $e instanceof ValidationException => response()->json([
                 'success' => false,
@@ -112,7 +112,7 @@ class Handler extends ExceptionHandler
                 'security' => [
                     'attempt_logged' => true,
                     'ip_address' => request()->ip() ?? 'unknown',
-                    'user_agent_logged' => !empty(request()->userAgent()),
+                    'user_agent_logged' => ! empty(request()->userAgent()),
                 ],
             ], 401),
             $e instanceof QueryException => response()->json([
@@ -156,7 +156,7 @@ class Handler extends ExceptionHandler
             $response['security'] = [
                 'attempt_logged' => true,
                 'ip_address' => request()->ip() ?? 'unknown',
-                'user_agent_logged' => !empty(request()->userAgent()),
+                'user_agent_logged' => ! empty(request()->userAgent()),
             ];
         }
 

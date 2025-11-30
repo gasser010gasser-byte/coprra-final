@@ -14,13 +14,13 @@ return new class () extends Migration {
     {
         if (Schema::hasTable('users')) {
             Schema::table('users', static function (Blueprint $table): void {
-                if (!Schema::hasColumn('users', 'banned_by')) {
+                if (! Schema::hasColumn('users', 'banned_by')) {
                     $table->foreignId('banned_by')->nullable()->after('banned_at')->constrained('users')->nullOnDelete();
                 }
-                if (!Schema::hasColumn('users', 'unbanned_at')) {
+                if (! Schema::hasColumn('users', 'unbanned_at')) {
                     $table->timestamp('unbanned_at')->nullable()->after('ban_expires_at');
                 }
-                if (!Schema::hasColumn('users', 'unbanned_by')) {
+                if (! Schema::hasColumn('users', 'unbanned_by')) {
                     $table->foreignId('unbanned_by')->nullable()->after('unbanned_at')->constrained('users')->nullOnDelete();
                 }
             });
@@ -49,4 +49,3 @@ return new class () extends Migration {
         }
     }
 };
-

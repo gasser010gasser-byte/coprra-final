@@ -112,7 +112,7 @@ final class EmailServiceTest extends TestCase
         Log::shouldReceive('info')->once();
         // Allow error logging in case of exceptions (but don't require it)
         Log::shouldReceive('error')->zeroOrMoreTimes();
-        
+
         // Mock AuditService to avoid errors - logSensitiveOperation returns void
         $this->auditService->expects(self::any())
             ->method('logSensitiveOperation');
@@ -120,7 +120,7 @@ final class EmailServiceTest extends TestCase
         $admin = User::factory()->create(['is_admin' => true, 'email' => 'admin@example.com']);
         $reviewer = User::factory()->create();
         $product = Product::factory()->create();
-        
+
         // Ensure product has store relationship available (even if null)
         $product->load('store');
 
@@ -301,7 +301,7 @@ final class EmailServiceTest extends TestCase
         Log::shouldReceive('error')->once();
 
         $user = User::factory()->create();
-        
+
         // Mock customNotifications to throw exception
         $user = \Mockery::mock($user)->makePartial();
         $user->shouldReceive('customNotifications')

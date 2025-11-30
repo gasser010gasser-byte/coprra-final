@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('user_purchases', static function (Blueprint $table): void {
-            if (!Schema::hasColumn('user_purchases', 'order_id')) {
+            if (! Schema::hasColumn('user_purchases', 'order_id')) {
                 $table->foreignId('order_id')->nullable()->after('product_id')->constrained()->onDelete('set null');
             }
         });
@@ -32,4 +32,3 @@ return new class () extends Migration {
         });
     }
 };
-

@@ -15,7 +15,7 @@ return new class () extends Migration {
     {
         if (Schema::hasTable('price_histories')) {
             Schema::table('price_histories', static function (Blueprint $table): void {
-                if (!Schema::hasColumn('price_histories', 'recorded_at')) {
+                if (! Schema::hasColumn('price_histories', 'recorded_at')) {
                     // Check if captured_at or effective_date exists and migrate data
                     if (Schema::hasColumn('price_histories', 'captured_at')) {
                         $table->timestamp('recorded_at')->nullable()->after('price');
@@ -27,7 +27,7 @@ return new class () extends Migration {
                         $table->timestamp('recorded_at')->useCurrent()->after('price');
                     }
                 }
-                if (!Schema::hasColumn('price_histories', 'currency')) {
+                if (! Schema::hasColumn('price_histories', 'currency')) {
                     $table->string('currency', 3)->default('USD')->after('recorded_at');
                 }
             });
@@ -51,4 +51,3 @@ return new class () extends Migration {
         }
     }
 };
-

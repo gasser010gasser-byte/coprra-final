@@ -142,9 +142,9 @@ final class SecurityAnalysisService
 
         try {
             $composerLockPath = base_path('composer.lock');
-            
+
             // First check if composer.lock exists
-            if (!File::exists($composerLockPath)) {
+            if (! File::exists($composerLockPath)) {
                 $message = 'composer.lock not found';
                 $issues[] = $message;
                 $checks[] = [
@@ -156,7 +156,7 @@ final class SecurityAnalysisService
                 // Try to read and parse composer.lock
                 try {
                     $composerLockContent = File::get($composerLockPath);
-                    
+
                     // Check if file is empty
                     if (empty(trim($composerLockContent))) {
                         $message = 'composer.lock file is empty';
@@ -177,7 +177,7 @@ final class SecurityAnalysisService
                                 'message' => $message,
                             ];
                             $result = 0;
-                        } elseif (!isset($composerData['packages'])) {
+                        } elseif (! isset($composerData['packages'])) {
                             $message = 'composer.lock packages array not found';
                             $issues[] = $message;
                             $checks[] = [
@@ -293,9 +293,9 @@ final class SecurityAnalysisService
 
         try {
             $envExamplePath = base_path('.env.example');
-            
+
             // Check if file exists
-            if (!File::exists($envExamplePath)) {
+            if (! File::exists($envExamplePath)) {
                 $message = '.env.example file missing';
                 $issues[] = $message;
                 $checks[] = [
@@ -374,7 +374,7 @@ final class SecurityAnalysisService
 
         try {
             $debugConfig = config('app.debug');
-            
+
             // Check if debug config is missing
             if ($debugConfig === null) {
                 $message = 'debug config not found (app.debug is null)';
@@ -384,7 +384,7 @@ final class SecurityAnalysisService
                     'message' => $message,
                 ];
                 $result = 0;
-            } elseif (!\is_bool($debugConfig)) {
+            } elseif (! \is_bool($debugConfig)) {
                 $message = 'invalid debug value (app.debug must be boolean, got: '.gettype($debugConfig).')';
                 $issues[] = $message;
                 $checks[] = [
@@ -452,7 +452,7 @@ final class SecurityAnalysisService
 
         try {
             $appUrl = config('app.url');
-            
+
             // Check if app.url is null or empty
             if ($appUrl === null || $appUrl === '') {
                 $message = 'HTTPS not configured in APP_URL';
@@ -462,7 +462,7 @@ final class SecurityAnalysisService
                     'message' => $message,
                 ];
                 $result = 0;
-            } elseif (!\is_string($appUrl)) {
+            } elseif (! \is_string($appUrl)) {
                 $message = 'Invalid app.url configuration type';
                 $issues[] = $message;
                 $checks[] = [
@@ -473,7 +473,7 @@ final class SecurityAnalysisService
             } else {
                 // Check if URL is valid
                 $parsedUrl = parse_url($appUrl);
-                if ($parsedUrl === false || !isset($parsedUrl['scheme'])) {
+                if ($parsedUrl === false || ! isset($parsedUrl['scheme'])) {
                     $message = 'app.url contains malformed URL';
                     $issues[] = $message;
                     $checks[] = [
@@ -549,9 +549,9 @@ final class SecurityAnalysisService
 
         try {
             $kernelFile = app_path('Http/Kernel.php');
-            
+
             // Check if kernel file exists
-            if (!File::exists($kernelFile)) {
+            if (! File::exists($kernelFile)) {
                 $message = 'Kernel file not found at app/Http/Kernel.php';
                 $issues[] = $message;
                 $checks[] = [
@@ -563,7 +563,7 @@ final class SecurityAnalysisService
                 // Try to read the kernel file
                 try {
                     $kernelContent = File::get($kernelFile);
-                    
+
                     // Check if content is valid PHP (basic check)
                     if (str_contains($kernelContent, '<?php') && str_contains($kernelContent, 'class')) {
                         if ($this->isMiddlewareRegistered(SecurityHeadersMiddleware::class)) {
@@ -626,7 +626,6 @@ final class SecurityAnalysisService
 
         return $result;
     }
-
 
     /**
      * Check if middleware is registered in the kernel.

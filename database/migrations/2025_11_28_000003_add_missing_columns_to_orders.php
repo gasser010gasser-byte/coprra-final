@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('orders', static function (Blueprint $table): void {
-            if (!Schema::hasColumn('orders', 'dimensions')) {
+            if (! Schema::hasColumn('orders', 'dimensions')) {
                 $table->json('dimensions')->nullable()->after('weight');
             }
         });
@@ -29,4 +29,3 @@ return new class () extends Migration {
         });
     }
 };
-

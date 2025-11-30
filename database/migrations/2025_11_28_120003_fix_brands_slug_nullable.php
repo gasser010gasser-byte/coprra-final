@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         if (Schema::hasTable('brands')) {
             $driver = Schema::getConnection()->getDriverName();
-            
+
             if ($driver === 'sqlite') {
                 // For SQLite, we can't easily modify unique constraints
                 // So we'll skip the migration for SQLite - the column is already nullable
@@ -42,7 +42,7 @@ return new class () extends Migration {
     {
         if (Schema::hasTable('brands')) {
             $driver = Schema::getConnection()->getDriverName();
-            
+
             if ($driver !== 'sqlite') {
                 Schema::table('brands', static function (Blueprint $table): void {
                     if (Schema::hasColumn('brands', 'slug')) {

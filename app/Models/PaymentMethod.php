@@ -35,6 +35,7 @@ class PaymentMethod extends Model
     {
         $casts = parent::getCasts();
         unset($casts['id']);
+
         return $casts;
     }
 
@@ -62,4 +63,3 @@ class PaymentMethod extends Model
         return $query->where('is_default', true);
     }
 }
-
