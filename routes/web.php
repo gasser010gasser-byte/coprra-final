@@ -320,12 +320,12 @@ if (config('app.env') !== 'production') {
 
     Route::middleware('auth')->get('/auth-test-ai', static function () {
         $user = auth()->user();
-        return response()->json(['success' => true, 'message' => 'Auth test OK', 'user' => $user?->email ?? 'unknown']);
+        return response()->json(['success' => true, 'message' => 'Auth test OK', 'user' => $user->email ?? 'unknown']);
     })->name('auth-test-ai');
 
     Route::middleware('auth')->get('/ai-status-simple', static function () {
         $user = auth()->user();
-        return response()->json(['success' => true, 'message' => 'AI status OK', 'user' => $user?->email ?? 'unknown']);
+        return response()->json(['success' => true, 'message' => 'AI status OK', 'user' => $user->email ?? 'unknown']);
     });
 
     Route::middleware('auth')->get('/test-ai-status', static function () {

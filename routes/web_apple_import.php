@@ -61,8 +61,8 @@ Route::get('/import-apple-now/{secret}', static function ($secret) {
                 ->get($item['url'])
             ;
 
-            if (! $response->successful()) {
-                throw new Exception('HTTP '.$response->status());
+            if (!$response->successful()) {
+                throw new Exception('HTTP ' . $response->status());
             }
 
             $html = $response->body();
@@ -71,16 +71,31 @@ Route::get('/import-apple-now/{secret}', static function ($secret) {
             $xpath = new DOMXPath($dom);
 
             $titleNodes = $xpath->query('//span[@id="productTitle"]');
-            $title = $titleNodes->length > 0 ? trim($titleNodes->item(0)->textContent) : 'Unknown';
+            $title = 'Unknown';
+            if ($titleNodes && $titleNodes->length > 0) {
+                $node = $titleNodes->item(0);
+                if ($node && $node->textContent !== null) {
+                    $title = trim($node->textContent);
+                }
+            }
 
             $priceNodes = $xpath->query('//span[@class="a-price-whole"]');
             $price = 0;
-            if ($priceNodes->length > 0) {
-                $price = (float) str_replace(',', '', $priceNodes->item(0)->textContent);
+            if ($priceNodes && $priceNodes->length > 0) {
+                $node = $priceNodes->item(0);
+                if ($node && $node->textContent !== null) {
+                    $price = (float) str_replace(',', '', $node->textContent);
+                }
             }
 
             $imgNodes = $xpath->query('//img[@id="landingImage"]/@src');
-            $image = $imgNodes->length > 0 ? $imgNodes->item(0)->nodeValue : 'https://via.placeholder.com/800';
+            $image = 'https://via.placeholder.com/800';
+            if ($imgNodes && $imgNodes->length > 0) {
+                $node = $imgNodes->item(0);
+                if ($node && $node->nodeValue !== null) {
+                    $image = $node->nodeValue;
+                }
+            }
 
             echo "   ✅ {$title}\n";
             echo "   💰 {$price} EGP\n";
