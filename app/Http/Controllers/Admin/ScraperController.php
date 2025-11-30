@@ -51,7 +51,7 @@ class ScraperController extends Controller
         $urls = array_filter(
             array_map('trim', explode("\n", $request->urls)),
             static function ($url) {
-                return ! empty($url) && filter_var($url, \FILTER_VALIDATE_URL);
+                return !empty($url) && filter_var($url, \FILTER_VALIDATE_URL);
             }
         );
 
@@ -114,12 +114,12 @@ class ScraperController extends Controller
                     'store_adapter' => $job->store_adapter,
                     'status' => $job->status,
                     'product_id' => $job->product_id,
-                    'product_name' => $job->product?->name,
+                    'product_name' => $job->product ? $job->product->name : null,
                     'error_message' => $job->error_message,
                     'duration' => $job->getDuration(),
-                    'created_at' => $job->created_at?->format('Y-m-d H:i:s'),
-                    'started_at' => $job->started_at?->format('Y-m-d H:i:s'),
-                    'completed_at' => $job->completed_at?->format('Y-m-d H:i:s'),
+                    'created_at' => $job->created_at ? $job->created_at->format('Y-m-d H:i:s') : null,
+                    'started_at' => $job->started_at ? $job->started_at->format('Y-m-d H:i:s') : null,
+                    'completed_at' => $job->completed_at ? $job->completed_at->format('Y-m-d H:i:s') : null,
                 ];
             });
 

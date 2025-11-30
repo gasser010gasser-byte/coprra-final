@@ -20,7 +20,7 @@ class WishlistController extends Controller
             /** @var \App\Models\User|null $user */
             $user = $request->user();
 
-            if (! $user) {
+            if (!$user) {
                 // Return empty wishlist for unauthenticated users
                 return response()->json([
                     'success' => true,
@@ -46,8 +46,8 @@ class WishlistController extends Controller
                         'slug' => $product->slug ?? '',
                         'price' => $product->price ?? 0,
                         'image' => $product->image ?? $product->image_url ?? null,
-                        'brand' => $product->brand?->name,
-                        'category' => $product->category?->name,
+                        'brand' => $product->brand ? $product->brand->name : null,
+                        'category' => $product->category ? $product->category->name : null,
                         'pivot' => [
                             'id' => $pivot->id ?? null,
                             'created_at' => $pivot->created_at ?? null,
@@ -85,7 +85,7 @@ class WishlistController extends Controller
             /** @var \App\Models\User|null $user */
             $user = $request->user();
 
-            if (! $user) {
+            if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthenticated',
@@ -143,7 +143,7 @@ class WishlistController extends Controller
             /** @var \App\Models\User|null $user */
             $user = $request->user();
 
-            if (! $user) {
+            if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthenticated',

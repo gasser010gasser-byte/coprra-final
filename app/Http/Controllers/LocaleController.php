@@ -26,7 +26,7 @@ class LocaleController extends Controller
 
         // Fallback to supported locales when DB record is missing
         $supported = config('app.supported_locales', ['en']);
-        if (! $language && ! \in_array($langCode, $supported, true)) {
+        if (!$language && !\in_array($langCode, $supported, true)) {
             return redirect()->back()->with('error', __('Invalid language'));
         }
 
@@ -52,7 +52,7 @@ class LocaleController extends Controller
     public function changeCurrency(Request $request, string $currencyCode): RedirectResponse
     {
         $currency = Currency::query()->where('code', $currencyCode)->first();
-        if (! $currency) {
+        if (!$currency) {
             return redirect()->back()->with('error', __('Invalid currency'));
         }
 
@@ -78,7 +78,7 @@ class LocaleController extends Controller
         \Log::info('Language switch requested', [
             'code' => $code,
             'input' => $request->all(),
-            'user_id' => $request->user()?->id,
+            'user_id' => $request->user() ? $request->user()->id : null,
             'ip' => $request->ip(),
         ]);
 
@@ -95,7 +95,7 @@ class LocaleController extends Controller
         \Log::info('Currency switch requested', [
             'code' => $currencyCode,
             'input' => $request->all(),
-            'user_id' => $request->user()?->id,
+            'user_id' => $request->user() ? $request->user()->id : null,
             'ip' => $request->ip(),
         ]);
 
@@ -108,7 +108,7 @@ class LocaleController extends Controller
     public function changeCountry(Request $request, string $countryCode): RedirectResponse
     {
         $country = Country::query()->where('code', $countryCode)->first();
-        if (! $country) {
+        if (!$country) {
             return redirect()->back()->with('error', __('Invalid country'));
         }
 

@@ -74,7 +74,7 @@ class CompareController extends Controller
     {
         $ids = $this->getCompareIds($request);
         $initial = \count($ids);
-        $ids = array_values(array_filter($ids, static fn (int $id): bool => $id !== $product->id));
+        $ids = array_values(array_filter($ids, static fn(int $id): bool => $id !== $product->id));
 
         if (\count($ids) === $initial) {
             return response()->json([
@@ -115,7 +115,7 @@ class CompareController extends Controller
         /** @var array<int, int>|null $ids */
         $ids = $request->session()->get(self::SESSION_KEY);
 
-        if (! \is_array($ids)) {
+        if (!\is_array($ids)) {
             return [];
         }
 
@@ -240,7 +240,7 @@ class CompareController extends Controller
             'slug' => $product->slug,
             'image' => $product->image,
             'price' => $product->price,
-            'brand' => $product->brand?->name,
+            'brand' => $product->brand ? $product->brand->name : null,
         ];
     }
 }

@@ -67,7 +67,7 @@ final class ProductController extends BaseApiController
                 ->get();
 
             return $this->success(
-                $products->map(fn (Product $product) => $this->formatProductResponse($product))->all(),
+                $products->map(fn(Product $product) => $this->formatProductResponse($product))->all(),
                 'Products retrieved successfully'
             );
         } catch (\Exception $e) {
@@ -238,8 +238,16 @@ final class ProductController extends BaseApiController
             // Capture old values for audit trail
             $oldValues = $product->getAttributes();
             $oldValues = array_intersect_key($oldValues, array_flip([
-                'name', 'description', 'price', 'sku', 'slug', 'is_active',
-                'category_id', 'brand_id', 'meta_title', 'meta_description',
+                'name',
+                'description',
+                'price',
+                'sku',
+                'slug',
+                'is_active',
+                'category_id',
+                'brand_id',
+                'meta_title',
+                'meta_description',
             ]));
 
             $validated = $request->validated();
@@ -266,8 +274,16 @@ final class ProductController extends BaseApiController
 
             // Create audit trail
             $newValues = array_intersect_key($product->getAttributes(), array_flip([
-                'name', 'description', 'price', 'sku', 'slug', 'is_active',
-                'category_id', 'brand_id', 'meta_title', 'meta_description',
+                'name',
+                'description',
+                'price',
+                'sku',
+                'slug',
+                'is_active',
+                'category_id',
+                'brand_id',
+                'meta_title',
+                'meta_description',
             ]));
 
             // Log audit trail, but don't fail the request if audit logging fails
@@ -343,7 +359,7 @@ final class ProductController extends BaseApiController
                     'data' => $responseData,
                     'audit' => [
                         'action' => 'product_updated',
-                        'user_id' => $user?->id,
+                        'user_id' => $user ? $user->id : null,
                         'changes' => [
                             'old_values' => $oldValues,
                             'new_values' => $newValues,
@@ -406,7 +422,7 @@ final class ProductController extends BaseApiController
     private function updateProductSlug(array $validated, int $id): array
     {
         $product = Product::find($id);
-        if (! $product) {
+        if (!$product) {
             // Product doesn't exist, return default slug data
             return [
                 'slug' => $validated['slug'] ?? 'product-' . $id,
@@ -417,7 +433,7 @@ final class ProductController extends BaseApiController
         }
         $originalSlug = $product->slug ?? '';
 
-        if (! isset($validated['name'])) {
+        if (!isset($validated['name'])) {
             // If name is not being updated, keep existing slug or generate from current product
             if (isset($validated['slug']) && $validated['slug'] !== '') {
                 return [
@@ -438,7 +454,7 @@ final class ProductController extends BaseApiController
                 ];
             }
 
-            $fallbackSlug = 'product-'.$id;
+            $fallbackSlug = 'product-' . $id;
 
             return [
                 'slug' => $fallbackSlug,
@@ -454,7 +470,7 @@ final class ProductController extends BaseApiController
 
         // Ensure slug is not empty
         if ($baseSlug === '') {
-            $baseSlug = $product && $product->slug ? $product->slug : 'product-'.$id;
+            $baseSlug = $product && $product->slug ? $product->slug : 'product-' . $id;
         }
 
         $slug = $baseSlug;
@@ -462,7 +478,7 @@ final class ProductController extends BaseApiController
         $conflictResolved = false;
 
         while (Product::where('slug', $slug)->where('id', '!=', $id)->exists()) {
-            $slug = $baseSlug.'-'.$counter;
+            $slug = $baseSlug . '-' . $counter;
             ++$counter;
             $conflictResolved = true;
         }
@@ -495,7 +511,7 @@ final class ProductController extends BaseApiController
             'meta_description' => $product->meta_description ?? '',
             'created_at' => $product->created_at ? $product->created_at->toIso8601String() : null,
             'updated_at' => $product->updated_at ? $product->updated_at->toIso8601String() : null,
-            'image_url' => $product->image ? asset('storage/'.$product->image) : null,
+            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
             'is_active' => $product->is_active ?? false,
             'category_id' => $product->category_id ?? null,
             'brand_id' => $product->brand_id ?? null,
@@ -551,7 +567,7 @@ final class ProductController extends BaseApiController
             ->where('is_active', true)
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('description', 'like', "%{$query}%");
+                    ->orWhere('description', 'like', "%{$query}%");
             })
             ->limit(10)
             ->get(['id', 'name', 'slug']);

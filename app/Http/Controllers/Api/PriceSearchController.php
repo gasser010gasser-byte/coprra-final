@@ -21,7 +21,7 @@ class PriceSearchController extends BaseApiController
 
             // Check all query parameters for invalid types
             foreach (['q', 'query', 'name'] as $paramName) {
-                if (! $request->has($paramName)) {
+                if (!$request->has($paramName)) {
                     continue;
                 }
 
@@ -143,7 +143,7 @@ class PriceSearchController extends BaseApiController
                                 'results_count' => 0,
                                 'search_type' => 'price_search',
                                 'status' => 'no_results',
-                                'user_id' => $request->user()?->id,
+                                'user_id' => $request->user() ? $request->user()->id : null,
                                 'ip_address' => $request->ip(),
                                 'user_agent' => $request->userAgent(),
                                 'created_at' => now(),
@@ -162,11 +162,11 @@ class PriceSearchController extends BaseApiController
                                 'description' => "No products match your search for '{$searchQuery}'.",
                                 'icon' => 'package-search',
                                 'suggestions' => [
-                            [
-                                'action' => 'try_different_search',
-                                'description' => 'Try different search terms to find products',
-                                'url' => '/api/products',
-                            ],
+                                    [
+                                        'action' => 'try_different_search',
+                                        'description' => 'Try different search terms to find products',
+                                        'url' => '/api/products',
+                                    ],
                                     [
                                         'action' => 'browse_categories',
                                         'description' => 'Browse available product categories',
@@ -194,11 +194,11 @@ class PriceSearchController extends BaseApiController
                                     'description' => 'Browse available product categories',
                                     'url' => '/api/categories',
                                 ],
-                            [
-                                'action' => 'try_different_search',
-                                'description' => 'Try different search terms to find products',
-                                'url' => '/api/products',
-                            ],
+                                [
+                                    'action' => 'try_different_search',
+                                    'description' => 'Try different search terms to find products',
+                                    'url' => '/api/products',
+                                ],
                                 [
                                     'action' => 'check_back_later',
                                     'description' => 'Products may be added soon',
@@ -209,7 +209,7 @@ class PriceSearchController extends BaseApiController
                         'system_info' => [
                             'total_products' => Product::count(),
                             'active_products' => Product::where('is_active', true)->count(),
-                            'last_product_added' => Product::latest('created_at')->first()?->created_at?->toIso8601String(),
+                            'last_product_added' => ($lastProduct = Product::latest('created_at')->first()) && $lastProduct->created_at ? $lastProduct->created_at->toIso8601String() : null,
                             'cache_status' => \Illuminate\Support\Facades\Cache::has('products_count') ? 'cached' : 'empty',
                         ],
                         'admin_actions' => [
@@ -232,7 +232,7 @@ class PriceSearchController extends BaseApiController
                     try {
                         $product = $products->first();
                         // Ensure priceOffers is loaded
-                        if (! $product->relationLoaded('priceOffers')) {
+                        if (!$product->relationLoaded('priceOffers')) {
                             $product->load('priceOffers');
                         }
 
@@ -260,7 +260,7 @@ class PriceSearchController extends BaseApiController
                         }
 
                         $bestOffer = $product->priceOffers->first();
-                        if (! $bestOffer) {
+                        if (!$bestOffer) {
                             return response()->json([
                                 'success' => false,
                                 'message' => 'No offers available for this product',
@@ -268,7 +268,7 @@ class PriceSearchController extends BaseApiController
                             ], 404);
                         }
 
-                        $prices = $product->priceOffers->pluck('price')->map(fn ($price) => (float) $price)->toArray();
+                        $prices = $product->priceOffers->pluck('price')->map(fn($price) => (float) $price)->toArray();
                         $lowestPrice = min($prices);
                         $highestPrice = max($prices);
                         $averagePrice = array_sum($prices) / count($prices);
@@ -363,10 +363,10 @@ class PriceSearchController extends BaseApiController
                 ]);
 
                 /** @var Product $product */
-                $product = $queryBuilder->where('name', 'like', '%'.$productNameStr.'%')->first();
+                $product = $queryBuilder->where('name', 'like', '%' . $productNameStr . '%')->first();
             }
 
-            if (! $product) {
+            if (!$product) {
                 // Get similar products for suggestions
                 $similarProducts = Product::where('is_active', true)
                     ->where('id', '!=', $productId ?? 0)
@@ -403,7 +403,7 @@ class PriceSearchController extends BaseApiController
                         'action_attempted' => 'price_search',
                     ],
                     'suggestions' => [
-                        'similar_products' => ! empty($similarProducts) ? $similarProducts : [],
+                        'similar_products' => !empty($similarProducts) ? $similarProducts : [],
                         'actions' => array_map(static function (array $action): array {
                             return [
                                 'action' => $action['action'] ?? '',
@@ -436,7 +436,7 @@ class PriceSearchController extends BaseApiController
             }
 
             // Ensure priceOffers is loaded
-            if (! $product->relationLoaded('priceOffers')) {
+            if (!$product->relationLoaded('priceOffers')) {
                 $product->load('priceOffers');
             }
 
@@ -474,7 +474,7 @@ class PriceSearchController extends BaseApiController
             }
 
             // Ensure priceOffers is loaded
-            if (! $product->relationLoaded('priceOffers')) {
+            if (!$product->relationLoaded('priceOffers')) {
                 $product->load('priceOffers');
             }
 
@@ -482,7 +482,7 @@ class PriceSearchController extends BaseApiController
             $bestOffer = $product->priceOffers->first();
 
             // Calculate price comparison statistics
-            $prices = $product->priceOffers->pluck('price')->map(fn ($price) => (float) $price)->toArray();
+            $prices = $product->priceOffers->pluck('price')->map(fn($price) => (float) $price)->toArray();
             $lowestPrice = min($prices);
             $highestPrice = max($prices);
             $averagePriceSum = array_sum($prices);
@@ -518,7 +518,7 @@ class PriceSearchController extends BaseApiController
                 'Best offer retrieved successfully'
             );
         } catch (\Exception $exception) {
-            Log::error('PriceSearchController@bestOffer failed: '.$exception->getMessage());
+            Log::error('PriceSearchController@bestOffer failed: ' . $exception->getMessage());
 
             return $this->serverError('An error occurred while finding the best offer', $exception);
         }
@@ -530,7 +530,7 @@ class PriceSearchController extends BaseApiController
             $productId = $request->query('product_id') ?? $request->input('product_id');
             $productName = $request->query('product_name') ?? $request->input('product_name');
 
-            if (! $productId && ! $productName) {
+            if (!$productId && !$productName) {
                 return $this->error('Product ID or name is required', [
                     'validation_errors' => [
                         'parameter' => 'product_id or product_name',
@@ -560,11 +560,11 @@ class PriceSearchController extends BaseApiController
                     'category:id,name',
                     'brand:id,name',
                 ])->where('is_active', true)
-                  ->where('name', 'like', '%'.$productName.'%')
-                  ->first();
+                    ->where('name', 'like', '%' . $productName . '%')
+                    ->first();
             }
 
-            if (! $product) {
+            if (!$product) {
                 return $this->notFound('Product not found', [
                     'error_code' => 'PRODUCT_NOT_FOUND',
                     'suggestions' => [
@@ -594,7 +594,7 @@ class PriceSearchController extends BaseApiController
             $searchQuery = $productName ?? '';
             $matchType = 'exact';
             $confidenceScore = 100;
-            if ($productName && ! $productId) {
+            if ($productName && !$productId) {
                 $productNameLower = strtolower($productName);
                 $productNameLowerStripped = strtolower($product->name);
                 if ($productNameLower === $productNameLowerStripped) {
@@ -703,7 +703,7 @@ class PriceSearchController extends BaseApiController
                 ],
             ], 'Price search completed successfully');
         } catch (\Exception $exception) {
-            Log::error('PriceSearchController@search failed: '.$exception->getMessage());
+            Log::error('PriceSearchController@search failed: ' . $exception->getMessage());
 
             return $this->serverError('An error occurred while searching for prices', $exception);
         }
@@ -717,7 +717,7 @@ class PriceSearchController extends BaseApiController
 
             return $this->success($stores->toArray(), 'Supported stores retrieved successfully');
         } catch (\Exception $exception) {
-            Log::error('PriceSearchController@supportedStores failed: '.$exception->getMessage());
+            Log::error('PriceSearchController@supportedStores failed: ' . $exception->getMessage());
 
             return $this->serverError('An error occurred while retrieving supported stores', $exception);
         }
