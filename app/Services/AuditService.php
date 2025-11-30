@@ -33,7 +33,7 @@ class AuditService
             'event' => $event,
             'auditable_type' => $model::class,
             'auditable_id' => $model->getKey(),
-            'user_id' => $user?->id,
+            'user_id' => $user ? $user->id : null,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'old_values' => $oldValues,

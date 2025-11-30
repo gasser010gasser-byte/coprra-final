@@ -34,7 +34,7 @@ final readonly class UserBanService
      */
     public function isUserBanned(User $user): bool
     {
-        if (! $user->is_blocked) {
+        if (!$user->is_blocked) {
             return false;
         }
 
@@ -52,11 +52,11 @@ final readonly class UserBanService
      */
     public function banUser(User $user, string $reason, ?string $description = null, ?Carbon $expiresAt = null): bool
     {
-        if (! $this->isValidBanReason($reason)) {
+        if (!$this->isValidBanReason($reason)) {
             return false;
         }
 
-        if (! $this->canBanUser($user)) {
+        if (!$this->canBanUser($user)) {
             return false;
         }
 
@@ -72,7 +72,7 @@ final readonly class UserBanService
         $this->logger->info('User banned', [
             'user_id' => $user->id,
             'reason' => $reason,
-            'expires_at' => $expiresAt?->toDateTimeString(),
+            'expires_at' => $expiresAt ? $expiresAt->toDateTimeString() : null,
             'banned_by' => Auth::id() ?? $this->auth->id(),
         ]);
 
@@ -84,7 +84,7 @@ final readonly class UserBanService
      */
     public function unbanUser(User $user): bool
     {
-        if (! $this->canUnbanUser($user)) {
+        if (!$this->canUnbanUser($user)) {
             return false;
         }
 
@@ -110,7 +110,7 @@ final readonly class UserBanService
      */
     public function getBanInfo(User $user): ?array
     {
-        if (! $this->isUserBanned($user)) {
+        if (!$this->isUserBanned($user)) {
             return null;
         }
 
@@ -247,7 +247,7 @@ final readonly class UserBanService
      */
     public function extendBan(User $user, Carbon $newExpiry): bool
     {
-        if (! $this->isUserBanned($user)) {
+        if (!$this->isUserBanned($user)) {
             return false;
         }
 
@@ -274,7 +274,7 @@ final readonly class UserBanService
      */
     public function reduceBan(User $user, Carbon $newExpiry): bool
     {
-        if (! $this->isUserBanned($user)) {
+        if (!$this->isUserBanned($user)) {
             return false;
         }
 

@@ -38,10 +38,10 @@ final class ShippingService
 
         // Check if international shipping (default to US if country is not set)
         $country = $address->country ?? 'US';
-        $isInternational = ! empty($country) && strtoupper($country) !== 'US';
+        $isInternational = !empty($country) && strtoupper($country) !== 'US';
 
         // Free shipping for domestic orders above threshold (international always has cost)
-        if (! $isInternational && $subtotal >= self::FREE_SHIPPING_THRESHOLD) {
+        if (!$isInternational && $subtotal >= self::FREE_SHIPPING_THRESHOLD) {
             return 0.0;
         }
 
@@ -89,10 +89,10 @@ final class ShippingService
      */
     public function validateShippingAddress(Address $address): bool
     {
-        return ! empty($address->street) &&
-               ! empty($address->city) &&
-               ! empty($address->country) &&
-               ! empty($address->zip_code);
+        return !empty($address->street) &&
+            !empty($address->city) &&
+            !empty($address->country) &&
+            !empty($address->zip_code);
     }
 
     /**
@@ -118,14 +118,14 @@ final class ShippingService
     {
         $trackingNumber = $order->tracking_number ?? null;
 
-        if (! $trackingNumber) {
+        if (!$trackingNumber) {
             return [];
         }
 
         return [
             'tracking_number' => $trackingNumber,
             'status' => 'in_transit',
-            'estimated_delivery' => $order->delivered_at?->format('Y-m-d'),
+            'estimated_delivery' => $order->delivered_at ? $order->delivered_at->format('Y-m-d') : null,
         ];
     }
 
