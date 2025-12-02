@@ -1,41 +1,198 @@
-echo "🚀 Running pre-commit checks with lint-staged..."
+#!/usr/bin/env sh
 
-# Debris Guard - auto-generated: block committing root debris files
-DEBRIS_REGEX='^([^/]+\.txt|[^/]+\.log|[^/]+\.out|test_.*\.php|actionlint|.*_report\.txt)$'
-STAGED=$(git diff --cached --name-only --diff-filter=ACM)
-if echo "$STAGED" | grep -E "$DEBRIS_REGEX" > /dev/null; then
-  echo "❌ Commit blocked: Debris files staged in repository root."
-  echo "Please run scripts/cleanup.sh or remove the files, then retry."
-  echo "Matched files:"
-  echo "$STAGED" | grep -E "$DEBRIS_REGEX"
+echo "🚀 Running pre-commit checks..."
+
+# ============================================
+# DEBRIS FILES CHECK - منع حفظ ملفات غير مرغوب فيها
+# ============================================
+echo "🔍 Checking for debris files..."
+
+# قائمة بأنواع الملفات التي يجب منعها في المجلد الرئيسي
+DEBRIS_PATTERNS=(
+    '^[^/]+\.txt$'      # أي ملف .txt في المجلد الرئيسي
+    '^[^/]+\.log$'      # أي ملف .log في المجلد الرئيسي  
+    '^[^/]+\.out$'      # أي ملف .out في المجلد الرئيسي
+    '^test_.*\.php$'    # ملفات test_*.php في المجلد الرئيسي
+    '^actionlint$'      # ملف actionlint في المجلد الرئيسي
+    '^.*_report\.txt$'  # أي ملف ينتهي بـ _report.txt في المجلد الرئيسي
+)
+
+# الحصول على الملفات المعلقة (staged files)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+BLOCKED_FILES=""
+
+# فحص كل ملف ضد الأنماط الممنوعة
+for pattern in "${DEBRIS_PATTERNS[@]}"; do
+    if echo "$STAGED_FILES" | grep -E "$pattern" > /dev/null; then
+        BLOCKED_FILES+=$(echo "$STAGED_FILES" | grep -E "$pattern")
+        BLOCKED_FILES+=$'\n'
+    fi
+done
+
+# إذا وجدنا ملفات ممنوعة، نمنع العملية
+if [ -n "$BLOCKED_FILES" ]; then
+    echo "❌ COMMIT BLOCKED: Found debris files in repository root!"
+    echo "========================================"
+    echo "Blocked files:"
+    echo "----------------------------------------"
+    echo "$BLOCKED_FILES"
+    echo "========================================"
+    echo "Please move these files to appropriate locations or remove them."
+    echo "You can use: git rm --cached <file>"
+    exit 1
+fi
+
+echo "✅ No debris files found."
+
+# ============================================
+# DEPENDENCIES CHECK - التحقق من المكونات المطلوبة
+# ============================================
+echo "📦 Checking dependencies..."
+
+# التحقق من وجود مجلد vendor (لـ PHP/Composer)
+if [ ! -d "vendor" ]; then
+    echo "⚠️  WARNING: vendor directory not found!"
+    echo "📥 Installing PHP dependencies..."
+    
+    # التحقق من وجود composer.json
+    if [ -f "composer.json" ]; then
+        composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress
+        
+        if [ $? -ne 0 ]; then
+            echo "❌ Failed to install PHP dependencies."
+            echo "Please run 'composer install' manually."
+            exit 1
+        fi
+        echo "✅ PHP dependencies installed successfully."
+    else
+        echo "⚠️  No composer.json found. Skipping PHP dependencies."
+    fi
+else
+    echo "✅ PHP dependencies found (vendor directory exists)."
+fi
+
+# التحقق من وجود مجلد node_modules (لـ JavaScript/NPM)
+if [ ! -d "node_modules" ]; then
+    echo "⚠️  WARNING: node_modules directory not found!"
+    echo "📥 Installing NPM dependencies..."
+    
+    # التحقق من وجود package.json
+    if [ -f "package.json" ]; then
+        # استخدام npm ci إذا كان package-lock.json موجود
+        if [ -f "package-lock.json" ]; then
+            echo "📦 Using package-lock.json for reproducible install..."
+            npm ci --prefer-offline
+            
+            # إذا فشل npm ci، نجرب npm install
+            if [ $? -ne 0 ]; then
+                echo "⚠️  npm ci failed, trying npm install..."
+                npm install
+            fi
+        else
+            npm install
+        fi
+        
+        if [ $? -ne 0 ]; then
+            echo "❌ Failed to install NPM dependencies."
+            echo "Please run 'npm install' manually."
+            exit 1
+        fi
+        echo "✅ NPM dependencies installed successfully."
+    else
+        echo "⚠️  No package.json found. Skipping NPM dependencies."
+    fi
+else
+    echo "✅ NPM dependencies found (node_modules directory exists)."
+fi
+
+# ============================================
+# LINT-STAGED - تشغيل فحوصات الكود
+# ============================================
+echo "🔧 Running code quality checks..."
+
+# التحقق من وجود lint-staged
+if command -v npx > /dev/null 2>&1; then
+    if #!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# =============================================================================
+# COPRRA Pre-Commit Hook - Security Enhanced
+# =============================================================================
+
+echo "🔍 Running pre-commit checks..."
+
+# =============================================================================
+# SECURITY CHECK 1: Prevent committing private key files
+# =============================================================================
+echo "🔐 Security Check: Scanning for private keys..."
+
+DANGEROUS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(pem|key|private|p12|pfx|ppk)$' || true)
+
+if [ -n "$DANGEROUS_FILES" ]; then
+  echo "🚨 ERROR: Attempting to commit private key files!"
+  echo "Files: $DANGEROUS_FILES"
+  echo "❌ These files should be stored outside the repository!"
   exit 1
 fi
 
-# Check if vendor directory exists
-if [ ! -d "vendor" ]; then
-    echo "⚠️  WARNING: vendor directory not found!"
-    echo "📦 Installing dependencies with composer..."
-    composer install --no-interaction --prefer-dist --optimize-autoloader
-    if [ $? -ne 0 ]; then
-        echo "❌ Failed to install composer dependencies. Please run 'composer install' manually."
-        exit 1
-    fi
+# =============================================================================
+# SECURITY CHECK 2: Detect private key patterns in diff
+# =============================================================================
+echo "🔍 Security Check: Scanning diff for private key patterns..."
+
+PRIVATE_KEY_PATTERN="-----BEGIN (RSA |DSA |EC |OPENSSH )?PRIVATE KEY-----"
+if git diff --cached | grep -q "$PRIVATE_KEY_PATTERN"; then
+  echo "🚨 ERROR: Private key detected in commit content!"
+  echo "❌ Do not commit private keys to the repository!"
+  exit 1
 fi
 
-# Check if node_modules directory exists
-if [ ! -d "node_modules" ]; then
-    echo "⚠️  WARNING: node_modules directory not found!"
-    echo "📦 Installing NPM dependencies..."
-    # Prefer clean, reproducible install when lockfile exists
-    if [ -f "package-lock.json" ]; then
-        npm ci --prefer-offline || npm install
+# =============================================================================
+# SECURITY CHECK 3: Prevent committing .env files
+# =============================================================================
+echo "🔒 Security Check: Verifying no .env files are staged..."
+
+ENV_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.env$|\.env\.' | grep -v '.env.example' | grep -v '.env.production.template' || true)
+
+if [ -n "$ENV_FILES" ]; then
+  echo "🚨 ERROR: Attempting to commit .env files!"
+  echo "Files: $ENV_FILES"
+  echo "❌ .env files contain secrets and should never be committed!"
+  exit 1
+fi
+
+# =============================================================================
+# SECURITY CHECK 4: Check for dkim_keys directory
+# =============================================================================
+echo "🔐 Security Check: Verifying no DKIM keys are staged..."
+
+DKIM_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E 'dkim_keys.*\.(private|key)$' || true)
+
+if [ -n "$DKIM_FILES" ]; then
+  echo "🚨 ERROR: Attempting to commit DKIM private keys!"
+  echo "Files: $DKIM_FILES"
+  echo "❌ DKIM private keys must be stored securely outside the repository!"
+  exit 1
+fi
+
+echo "✅ Security checks passed!"
+echo ""
+
+# =============================================================================
+# CODE QUALITY CHECKS: PHPStan and Laravel Pint
+# =============================================================================
+echo "🧹 Running code quality checks (lint-staged)..."
+
+npx lint-staged; then
+        echo "✅ All code quality checks passed!"
     else
-        npm install
-    fi
-    if [ $? -ne 0 ]; then
-        echo "❌ Failed to install NPM dependencies. Please run 'npm install' manually."
+        echo "❌ Code quality checks failed!"
+        echo "Please fix the issues and try again."
         exit 1
     fi
+else
+    echo "⚠️  npx not found. Skipping lint-staged."
+    echo "ℹ️  You can install it with: npm install -g npx"
 fi
 
-npx lint-staged
+echo "🎉 Pre-commit checks completed successfully!"

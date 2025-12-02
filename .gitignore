@@ -53,3 +53,140 @@ docker-compose.override.yml
 
 # Documentation builds
 /docs/_build
+
+# =============================================================================
+# SECURITY - Added 2025-12-01 - Comprehensive Protection
+# =============================================================================
+
+# Environment files (all variants) - CRITICAL
+.env
+.env.*
+!.env.example
+!.env.production.template
+.env.local
+.env.staging
+.env.testing
+.env.backup
+.env.old
+*.env
+
+# Private keys and certificates - CRITICAL
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+*.der
+*.jks
+*.keystore
+id_rsa*
+*.ppk
+*.pub
+
+# DKIM Keys - CRITICAL
+dkim_keys/**/*.private
+dkim_keys/**/default.private
+dkim_keys/**/*.key
+dkim_keys/**/private.*
+dkim_keys/
+
+# Secrets and credentials - CRITICAL
+secrets/
+credentials/
+*_api_key.txt
+*_api_key.*
+*_secret.txt
+*_secret.*
+*.secret
+*_token.txt
+*_token.*
+*.credentials
+api_keys/
+tokens/
+
+# SSH and GPG keys - CRITICAL
+.ssh/
+*.gpg
+*.asc
+.gnupg/
+
+# AWS credentials - CRITICAL
+.aws/credentials
+.aws/config
+aws-exports.js
+
+# Database files - SENSITIVE
+*.sqlite
+*.sqlite3
+*.db
+database/*.sqlite
+
+# Configuration files with secrets - SENSITIVE
+config.local.php
+config.local.js
+local.config.js
+config.production.php
+
+# Composer auth (may contain GitHub tokens) - SENSITIVE
+auth.json
+composer.phar
+
+# NPM/Yarn auth - SENSITIVE
+.npmrc
+.yarnrc
+.yarn/install-state.gz
+
+# Private/personal files
+*.personal
+*.private
+private/
+personal/
+
+# Backup and old files that might contain secrets
+*.old
+*.orig
+*.original
+*_old.*
+*_backup.*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# SECURITY: Large binaries and tool executables  
+# ============================================
+# Never commit scanning tool binaries
+trufflehog
+trufflehog.exe
+trufflehog.tar.gz
+
+# Archives (tools should be downloaded, not committed)
+*.tar.gz
+*.tar.bz2
+*.tgz
+*.zip
+
+# Executables (except project-specific compiled assets)
+*.exe
+*.dll
+*.so
+*.dylib
